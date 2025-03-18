@@ -1,0 +1,165 @@
+---
+title: Debounce와 Throttle에 대해서
+description: 쉬운 듯 하면서도 은근히 헷갈리는 개념이라..
+mainTag: "Frontend"
+tags: ["Javascript", "Debounce", "Throttle"]
+thumbnail: /thumbnail/debounce-vs-throttle.png
+published: true
+date: 2023-11-12
+---
+
+프론트엔드 개발을 진행하면서, `debounce`와 `throttle`에 대해서 들어본 적이 굉장히 많을 텐데요.
+필자는 해당 개념에 대해서 이해하고 있는 듯 하여 현업에서 자주 사용을 해왔지만
+막상 누군가한테 설명을 하자니 설명이 쉽지가 않아서 다시 한 번 개념 정리를 하고
+후에 누군가에게 설명할 때 ~~"아 그거 제 블로그 가서 보시면 돼요"~~ 라고 하기 위해 포스팅을 하게 되었습니다.
+
+> 근데 현업에서 성능 개선을 위해 중요한 작업이니, 필히 익혀두시는 것이 좋다고 생각됩니다.
+
+---
+
+## Debounce 그리고 Throttle
+
+`debounce`와 `throttle`은 프론트엔드 개발자라면 한 번쯤은 들어보셨을 겁니다.
+이는, 성능 최적화를 위해 자주 사용되는 기법인데요
+이 두 기법은 이벤트 처리량을 줄여 성능을 개선하는데 큰 도움이 됩니다.
+이 두 기법의 차이점에 대해서 설명하고, 실무에선 어떻게 사용하는지 그 예시를 알아보도록 하겠습니다.
+
+### Debounce?
+
+`debounce`란 짧은 시간 동안 발생하는 함수 호출을 `그룹화`하여, 마지막 함수 호출이 발생한 후 일정 시간이 지나기 전까지는 실제 함수 실행을 지연시키는 방법입니다.
+주로 검색어 입력 같이 연속적인 이벤트에서 마지막 이벤트만을 처리하고자 할 때 사용을 합니다.
+
+**간단한 예시로 설명을 해보겠습니다.**
+
+서로 대화 중인 A와 B가 있습니다. A가 말을 시작할 때마다 B가 말을 끊어서 대답을 하려고 하고 있습니다.
+이렇게 되면 둘의 대화는 정상적으로 이루어지지 않을 것이므로, A가 말을 끝낼 때 까지 기다렸다가 B가 답을 하는 것이 더욱 효율적일 것입니다.
+정확한 예시는 아니지만, 실생활에서 접할 수 있는 예로 설명을 하자면 이렇습니다.
+
+**_`debounce`란 바로 이런 상황에서 유용하게 사용될 수 있습니다._**
+
+컴퓨터 혹은 스마트폰에서 어떤 일을 처리하려고 할 때, 해당 처리하고 있는 일을 끝낼 때 까지 기다렸다가 반응하는 방법입니다.
+예를 들어, 사용자가 검색창에 무언가 타이핑을 할 때, 타이핑을 멈추고 나서야 검색 결과를 보여주는 것입니다.
+이렇게 하면, 타이핑하는 동안 계속해서 검색을 하지 않고, 타이핑을 다 끝내고 나서 한 번만 검색을 하게 되어 컴퓨터나 스마트폰의 일을 줄여주게 됩니다.
+
+#### 예시 및 활용 방법
+
+제가 현업에서는 `react.js` 혹은 `next.js`를 자주 사용하기에, `debounce` 기능을 직접 `hook`으로 제작해 사용하는 경우가 많습니다.
+실제로 어떤 식으로 사용해서 만들어 사용하는지 그 예시를 보여드리도록 하겠습니다.
+필자는 `typescript`도 사용하므로, `typescript + react.js`를 예시로 설명하겠습니다.
+
+```jsx
+import { useState, useEffect } from "react";
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+```
+
+위 코드는 제가 **실제로** 현업에서 직접 만들어서 사용하는 `useDebounce hook`입니다.
+`typescript`에 대해 설명하는 포스팅은 아니니, 설명을 최소화하고 간단히만 설명드리도록 하겠습니다.
+`useDebounce` 함수는 `generic type`인 `T`를 사용하여 어떤 타입의 값이든 받도록 지정했습니다.
+`value`는 `debounce`를 적용할 값이고, `delay`는 디바운스의 지연 시간(밀리초 단위)입니다.
+
+> useDebounce는 전역에서 사용할 수 있도록 만든 `hook`이므로, 제네릭 타입을 사용하는 것이 사용성이 좋습니다.
+
+`useState`를 사용하여, `debouncedValue` 상태를 생성합니다.
+이 상태는 디바운스 처리된 값을 저장하고, 초기값으로 함수에 전달된 `value`를 사용합니다.
+
+`useEffect`를 사용하여, 내부에 로직을 작성합니다. 의존성 배열에 `value`와 `delay`를 추가하여, 변경될 때마다 `useEffect` 훅 안의 로직이 재실행되도록 지정합니다.
+`setTimeout`을 사용하여, 지연 함수를 설정합니다. 이 지연 함수는 `delay` 밀리 초 후에 실행됩니다.
+지연 시간 후, `setDebouncedValue`를 호출하여, `debouncedValue` 상태를 현재 `value`로 업데이트합니다.
+
+> 이 과정이 바로 `useDebounce` 훅의 핵심이라고 할 수 있습니다.
+
+사용자의 입력이나 연속적인 이벤트가 일정 시간 동안 발생하지 않으면, 최종적으로 `value`가 `debouncedValue`로 설정됩니다.
+
+마지막으로, `clean-up function`을 통해, 컴포넌트가 언마운트되거나 `useEffect` 내부의 의존성이 변경되기 전에 호출하여
+설정된 타임아웃을 취소하고, 불필요한 상태 업데이트가 발생하지 않도록 합니다.
+
+_위 훅은 대개 이런 식으로 사용됩니다._
+
+```jsx
+const debouncedSearchValue = useDebounce < string > (searchValue, 500);
+```
+
+### Throttle?
+
+`throttle`이란, 함수가 일정시간 동안 **단 한 번만** 호출되도록 제한합니다.
+예를 들어, 스크롤 이벤트 처리나, 마우스 이동 추적과 같이 빠르게 발생하는 이벤트를 처리할 때 주로 사용하게 됩니다.
+
+**이 역시 간단한 예시를 통해 설명하겠습니다.**
+
+이번에도 역시 A와 B가 서로 대화를 하면서 걸어가고 있습니다.
+B는 A가 하는 모든 단어에 대해 반응하려고 하지만, 그렇게 하면 대화의 속도가 너무 빠르게 진행되어서 이야기에 대한 이해가 어렵습니다.
+대신 B는 모든 단어에 반응을 하는 대신, 5초에 한 번씩만 반응하여 대화를 이어가고 있습니다.
+
+** `throttle`은 이런 원리로 작동합니다. **
+
+예를 들어, 스크롤을 할 때마다 페이지가 새로운 내용을 불러오려고 하지만, 너무 자주 불러오면 성능 상에 문제가 생기기 마련입니다.
+`throttle`을 사용하면, 일정 시간(예를 들어, 5초)이 지날 때만 새로운 내용을 불러오도록 제한할 수 있습니다.
+이렇게 처리하면 서버에 너무 많은 요청을 보내는 것을 방지하고, 페이지가 더 부드럽게 스크롤될 수 있어 `UX` 측면에서도 우수합니다.
+
+#### 예시 및 활용 방법
+
+`useDebounce` 훅과 동일하게, 이번에는 `useThrottle`을 만들어 보겠습니다.
+
+```jsx
+import { useState, useEffect, useRef } from "react";
+
+function useThrottle<T>(value: T, limit: number): T {
+  const [throttledValue, setThrottledValue] = useState(value);
+  const lastUpdated = useRef(Date.now());
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (Date.now() - lastUpdated.current >= limit) {
+        setThrottledValue(value);
+        lastUpdated.current = Date.now();
+      }
+    }, limit - (Date.now() - lastUpdated.current));
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, limit]);
+
+  return throttledValue;
+}
+```
+
+이번에는 `useDebounce` 훅과 내부 로직과 작동 방식이 다릅니다.
+
+`useState`를 사용하여 `throttleValue` 상태를 생성합니다. 이 상태를 `throttle` 처리된 값이 저장됩니다. 마찬가지로 초기값으로는 함수에 전달된 `value`를 사용합니다.
+
+```jsx
+const lastUpdated = useRef(Date.now());
+```
+
+이 부분은, `useRef` 훅을 사용하여 `lastUpdated` 참조를 생성합니다.
+이 참조는 마지막으로 값이 업데이트된 시간을 저장합니다.
+해당 방식은 가이드에 따라 하는 것이 맞겠지만, 저의 경우 초기값으로 현재 시간을 설정해두었습니다.
+
+`setTimeout`을 사용하여 지연 함수를 설정합니다. 이 지연 함수 내에서 현재 시간과 `lastUpdated.current`에 저장된 마지막 실행 시간의 차이가 `limit`보다 크거나 같은 경우에만 `setThrottledValue`를 호출하여, `throttleValue` 상태를 현재 `value`로 업데이트 하고, `lastUpdated.current`를 현재 시간으로 설정합니다.
+
+> 이 부분이 바로 `throttle`의 핵심으로, 설정된 시간 간격 (`limit`)동안 오직 한 번만 상태가 업데이트 되도록 합니다.
+
+```jsx
+const throttledScrollPosition = useThrottle < number > (scrollPosition, 200);
+```
+
+## 마치며,
+
+이번에는 `debounce`와 `throttle`에 대해서 알아보고, `react` 혹은 `next.js`에서 실제 사용 예시까지 설명하는 포스팅을 하게 되었습니다.
+평소 잘 알고 있다고 생각했던 개념이었지만, 누군가에게 설명하려니 막상 쉽지 않아서 다시 한 번 개념에 대해서 익히고 공부하며 되돌아보는 시간이 되었습니다.

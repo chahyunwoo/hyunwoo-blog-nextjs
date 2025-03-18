@@ -1,0 +1,138 @@
+---
+title: PWA란 무엇인가?
+description: 내 웹 어플리케이션을 PWA로 만들어보자
+mainTag: "Frontend"
+tags: ["PWA", "Next.js"]
+thumbnail: /thumbnail/what-means-pwa.png
+published: true
+date: 2023-12-16
+---
+
+블로그를 개발하고 다른 사이드 프로젝트들을 진행하면서, `PWA`라는 것에 관심이 생기게 되었습니다.
+오늘은 `PWA`에 대해서 알아보고, `next.js` 프로젝트에서 내 웹 어플리케이션을 `PWA`로 만드는 방법을 알아보도록 하겠습니다.
+
+---
+
+## PWA (Progressive Web App)
+
+`PWA`란, **Progressive Web App**의 약자로 직역하자면 _점진적인 웹 앱_..? 입니다.
+이는 웹 기술을 사용해서 만든 어플리케이션으로, 사용자에게 네이티브 앱과 유사한 경험을 제공합니다.
+`PWA`는 반응형 웹 디자인을 기반으로 하고, **오프라인에서도 작동할 수 있는 기능**과, **백그라운드 동기화**, **푸시 알림**과 같은 네이티브 앱의 기능을 웹앱에 통합하여
+사용자가 모든 기기에서 일관된 경험을 할 수 있도록 도와주는 것입니다.
+
+<span style={{ color: "crimson" }}>`PWA`의 핵심 기능과 특징</span>
+
+- **반응형** : 모든 디바이스 (데스크탑, 모바일, 태블릿)에서 완벽하게 작동합니다.
+- **독립성** : `Service Worker`를 사용하여, 네트워크 연결 상태와 관계없이 작동할 수 있습니다.
+  _이를 통해 오프라인에서도 앱을 사용할 수 있습니다._
+- **앱과 같은 상호작용** : 사용자 인터페이스와 애니메이션은 네이티브 앱과 유사하여 부드럽고 자연스럽습니다.
+- **Refreshing** : `Service Worker`를 통해 앱이 항상 최신 상태로 유지됩니다.
+- **보안** : `https`를 통해 제공되어야 하므로, 사용자 데이터를 안전하게 처리할 수 있습니다.
+- **SEO** : 웹앱이므로, 검색 엔진을 통해 발견될 수 있고, `"앱 설치"` 배너를 통해 쉽게 앱처럼 설치할 수 있습니다.
+
+> `PWA`를 구현하는 주요 기술
+>
+> 1. **웹 앱 매니페스트** : 웹 어플리케이션 매니페스트는 `JSON` 파일로, 웹 앱의 이름, 시작 URL, 아이콘, 전체 화면 모드 등 앱을 설치할 때 필요한 정보를 제공합니다. > `manifest.json`을 통해 관리 됩니다.
+> 2. **Service Worker** : `javascript` 파일로, 웹 앱의 네트워크 요청을 중간에서 `intercept`하여 캐싱하는 역할을 합니다.
+>    이를 통해 오프라인 지원, 데이터 캐싱, 백그라운드 동기화, 푸시 알림 등을 구현할 수 있습니다.
+
+### `Next.js`로 `PWA` 만들기
+
+사이드 프로젝트를 진행하면서, `PWA`를 만들 때 어떤 `framework`를 사용할 지에 많은 고민을 했습니다.
+저는 `SSR(Server Side Rendering)` 방식이 가능한 `next.js`를 채택하게 되었는데요.
+최근, `next.js`가 **14 버전**으로 업데이트 되면서, 최신 기능도 사용해보고 기술을 익힐 겸 `next.js`로 `PWA`를 제작하게 되었습니다.
+`next.js`의 업데이트에 관련한 소식은 나중에 차차 포스팅 할 예정입니다.
+
+`next.js`로 `PWA` 서비스를 만드는 설명은 [공식문서](https://ducanh-next-pwa.vercel.app/docs/next-pwa/getting-started)에도 자세하게 설명되어 있습니다.
+
+#### 1. `next-pwa` 설치하기
+
+**공식문서**에도 나와있듯이, 프로젝트 내에 `next-pwa` 를 설치해야 합니다.
+터미널을 열어 프로젝트 루트 폴더로 이동 후 다음 명령어를 입력합니다.
+
+```zsh
+npm i @ducanh2912/next-pwa && npm i -D webpack
+```
+
+#### 2. `manifest.json` 설정하기
+
+프로젝트의 `public/` 폴더로 이동 후 `manifest.json` 파일을 생성합니다.
+
+```json
+{
+  "name": "myApp",
+  "short_name": "myApp",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-256.png",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable any"
+    }
+  ]
+}
+```
+
+해당 설정은 본인이 작업하고자 하는 방향으로 설정해주면 됩니다.
+`"display"`는 `standalone`으로 하게되면, 네이티브 앱과 가장 유사한 형태가 되어 브라우저의 상태표시줄이 나오지 않고 단독적으로 화면만 보이게 됩니다.
+
+> `manifest.json`을 생성해주는 사이트가 있으니, [이 곳](https://www.simicart.com/manifest-generator.html/)을 사용해서 만드시면 됩니다.
+
+#### 3. `next.config.js` 혹은 `next.config.mjs` 수정
+
+```js
+/** @type {import('next').NextConfig} */
+
+import withPWAInit from "@ducanh2912/next-pwa";
+
+const withPWA = withPWAInit({
+  dest: "public",
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+});
+
+const nextConfig = {};
+
+export default withPWA(nextConfig);
+```
+
+`PWA` 를 만들기 위해선, `next.config.js` 혹은 `next.config.mjs`에서 다음과 같이 설정해주셔야 합니다.
+`withPWAInit`을 통해 현재 제작할 `PWA`의 방식을 지정합니다.
+내부 `option` 설정은 [npmjs 문서](https://www.npmjs.com/package/@ducanh2912/next-pwa)에서 개발자의 공식 `github`을 통해 요구사항에 맞게 적용해주시면 됩니다.
+
+#### 4. `layout.tsx`에 `metadata` 설정하기
+
+`PWA`로 사용하기 위해선, 프로젝트의 루트 레이아웃 파일에 들어가서 `metadata` 정보를 입력해주어야 합니다.
+해당 설정 방법은 [공식문서](https://ducanh-next-pwa.vercel.app/docs/next-pwa/getting-started)를 참고해서 작성하시면 됩니다.
+
+#### 5. `PWA` 사용 가능 확인하기
+
+위의 작업을 다 하고나면, 기본적인 셋팅은 완료됩니다.
+
+위 작업 이후 터미널에 다음 명령어를 통해 실행시켜줍니다.
+
+```zsh
+npm run build && npm run dev
+```
+
+빌드가 완료된 후 실행한 다음에 개발자 도구의 `Lighthouse` 탭을 클릭합니다.
+그 이후, 페이지 로드 분석을 클릭하면 성능, 접근성, 권장사항, 검색엔진 최적화와 같은 카테고리들이 나오고 현재 페이지의 점수가 나옵니다.
+카테고리들 옆에 `PWA` 정보가 나오는데, `+` 버튼이 나온다면 `PWA`로 설치가 가능하다는 것이고, 모든 요건을 충족했다는 뜻입니다.
+이렇게 되면 `PWA`로 사용할 수 있는 기본 셋팅은 완료된 것이며, 작업을 이어나가시면 됩니다.

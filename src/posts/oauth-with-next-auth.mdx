@@ -1,0 +1,179 @@
+---
+title: Next-Auth를 사용하여 로그인하기
+description: 카카오를 이용한 OAuth 기능을 구현해보자
+mainTag: "Frontend"
+tags: ["Next.js", "OAuth"]
+thumbnail: /thumbnail/oauth-with-next-auth.png
+published: true
+date: 2023-10-25
+---
+
+오늘은 `Next-Auth`를 통해 로그인을 하는 방법에 대해서 알아보도록 하겠습니다.
+우선 시작하기에 앞서, `Next-Auth`란 무엇인지, 그리고 `OAuth`가 무엇인지에 대한 설명부터 시작해보도록 하겠습니다.
+
+## Next-Auth
+
+`Next-Auth`는 `Next.js` 어플리케이션을 위한 인증 라이브러리라고 할 수 있습니다.
+서버리스 환경에서도 동작할 수 있고, 다양한 로그인 제공자 (예: Google, Facebook, Github, Kakao, Naver 등) 와 통합이 가능하다는 장점이 있습니다.
+사용자 정의 인증 및 JWT 세션 관리와 같은 고급 기능을 제공하고, 다양한 인증 요구 사항을 쉽게 처리할 수 있는 아주 훌륭한 라이브러리입니다.
+자세한 설명은 [공식문서](https://next-auth.js.org/getting-started/introduction)를 참고해보시는 것이 좋을 것 같습니다.
+
+> 현재 Next.js는 Auth.js로의 확대를 진행 중에 있습니다. 단순히 `next.js` 프로젝트 뿐만 아니라,
+> 다양한 프레임워크에 대한 지원을 진행할 예정이라고 합니다.
+> 해당 [링크](https://authjs.dev/getting-started/introduction)를 통해 확인이 가능합니다.
+
+## OAuth
+
+`OAuth`는 사용자가 비밀번호를 제공하지 않고도, 제 3자 어플리케이션에 대해 자신의 정보에 액세스할 수 있는 권한을 부여할 수 있는 기능입니다.
+예를 들자면, Google 계정 정보를 제공하지 않고도 다른 어플리케이션을 통해 Google Drive에 파일을 저장할 수 있는 권한을 부여할 수 있습니다.
+`OAuth`는 2가지의 주요 버전이 존재합니다.
+`OAuth 1.0a`와 `OAuth 2.0a`가 있는데, 대부분의 최신 어플리케이션과 서비스는 후자를 사용합니다.
+
+**제가 사이드 프로젝트를 진행하면서, `Next-Auth`를 사용하게 된 이유는 다음과 같습니다.**
+
+#### ✅ OAuth Provider를 제공함
+
+제가 해당 라이브러리를 도입하게 된 가장 큰 이유라고 할 수 있습니다.
+로그인 구현이 필요한 프로젝트를 진행하며, 웹 서비스를 MVP (Minimum Viable Product) 로 빠르게 구현해야 했기에,
+복잡한 인증 과정 없이 간단하게 사용자 인증을 구현하고자 함이 주요 이유였습니다.
+
+#### ✅ 토큰 저장의 안정화
+
+로그인을 구현할 때 가장 신경써야 할 부분이 바로 보안입니다.
+로그인을 위한 `JWT`를 발급 받은 후에 브라우저에 안전하게 저장하는 방법이 필요했고, `localStroage`에 저장하는 것은 보안에 치명적이라고 판단이 들었습니다.
+특히 `localStorage`에 저장하는 방식은 보안 취약점을 이용한 **XSS 공격**으로 인해 토큰이 노출될 위험이 있었고,
+`Next-Auth`는 기본적으로 `HTTP-only` 쿠키를 사용하여 세션 토큰을 저장하는데, 이는 `Javascript`에서 직접적으로 액세스 할 수 없기 때문에 **XSS 공격**의 위험을 줄일 수 있습니다.
+
+#### 마지막으로
+
+`Next-Auth`를 사용하면, 서버 측에서 사용자 인증을 처리하고 관리를 합니다.
+이로 인해서 클라이언트 측에서의 인증 로직을 줄일 수 있고, 서버 측에서 보안을 더 효과적으로 관리할 수 있습니다.
+또한, `Next-Auth`는 **CSRF 공격**에 대해 자동으로 방어하는 메커니즘을 포하하고 있고, 이는 어플리케이션의 보안을 강화하는데 중요한 부분입니다.
+
+> 무엇보다, 설정이 쉽다는 면에서 해당 라이브러리를 채택했습니다.
+
+요약하자면, 보안과 관련된 여러 복잡한 작업을 훨씬 간단하게 처리할 수 있고, 세션 데이터를 안전하게 관리하고 보호하는 기능을 기본적으로 제공한다는 점에서 큰 이점으로 작용했습니다.
+
+---
+
+## Next-Auth 사용하기
+
+저는 `Next-Auth`의 `OAuth` 기능을 이용해, 카카오로 로그인하는 것에 대해 과정을 설명하려고 합니다.
+
+### Kakao Developer에 App 등록하기
+
+1. 카카오 서비스를 이용하기 위해선 [Kakao Developer](https://developers.kakao.com/)에 가입이 되어있어야 합니다.
+   가입 후, `시작하기`를 통해 어플리케이션을 추가합니다.
+
+![](/posts/oauth-with-next-auth/desc-1.png)
+
+2. 어플리케이션 추가 후, 나타나는 **REST API 키** 를 복사 후 저장하고, `보안` 탭에 있는 **Client Secret 코드**를 저장합니다.
+
+3. `플랫폼` 탭에서, `Web` 사이트 도메인을 설정합니다.
+   현재는 개발환경에서 진행을 할 예정이므로 'http://localhost:3000'으로 작성하겠습니다.
+   추후 배포가 완료되면, 해당 도메인으로 변경하면 됩니다.
+
+4. `Redirect URI`를 등록합니다.
+   `Next-Auth`를 사용할 예정이므로,
+
+   ```
+   http://localhost:3000/api/auth/callback/kakao
+   ```
+
+   를 입력해줍니다.
+   마찬가지로 추후 배포가 완료되면, 해당 도메인으로 변경합니다.
+
+5. `Next-Auth`를 아래 명령어를 통해 프로젝트에 설치합니다.
+
+```zsh
+npm install next-auth
+```
+
+6. `/pages/api/auth` 폴더를 생성하고, 폴더 내부에 `[...nextauth].ts`를 생성한 후 아래 내용을 작성합니다.
+
+```tsx
+// pages/api/auth/[...nextauth].ts
+
+import NextAuth, { NextAuthOptions } from "next-auth";
+import KakaoProvider from "next-auth/providers/kakao";
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    KakaoProvider({
+      clientId: process.env.KAKAO_CLIENT_ID!,
+      clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+    }),
+  ],
+};
+
+export default NextAuth(authOptions);
+```
+
+> 여기서 `.env.local`을 만들어 `KAKAO_CLIENT_ID`에 2번 과정에서 저장한 **REST API 키**를, `KAKAO_CLIENT_SECRET`에는 **Client Secret 코드**를 넣어줍니다.
+
+7. `app` 디렉토리 내부에 `context` 폴더를 만들고 `AuthContext.tsx`를 생성한 후 아래 내용을 작성합니다.
+
+```tsx
+// context/AuthContext.tsx
+
+"use client";
+
+import { SessionProvider } from "next-auth/react";
+
+interface IProps {
+  children: React.ReactNode;
+}
+
+export default function AuthContext({ children }: IProps) {
+  return <SessionProvider>{children}</SessionProvider>;
+}
+```
+
+8. `layout`의 최상단 컴포넌트를 `SessionProvider`로 감싸줍니다.
+   이는, `SessionProvider`를 어플리케이션 전체에서 인증 상태와 관련된 정보를 쉽게 사용할 수 있게하기 위함입니다.
+   이를 통해 어플리케이션의 다양한 컴포넌트에서 사용자의 로그인 상태나 세션 정보에 쉽게 접근할 수 있습니다.
+
+```tsx
+// layout.tsx
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <AuthContext>// 하위 컴포넌트들 //</AuthContext>
+      </body>
+    </html>
+  );
+}
+```
+
+9. 그리고 이제, 로그인 처리를 구현할 컴포넌트에 가서 아래와 같이 작성합니다.
+   저의 경우 `Header` 컴포넌트에서 로그인 기능을 담당하고 있습니다.
+
+```tsx
+// components/Header.tsx
+
+import { useSession, signIn, signOut } from "next-auth/react";
+
+export default function Header() {
+  const { data: session } = useSession();
+
+  return (
+    <header>
+      // 기타 내용들
+      {session ? (
+        <button onClick={() => signOut()}>로그아웃</button>
+      ) : (
+        <button onClick={() => signIn()}>로그인</button>
+      )}
+    </header>
+  );
+}
+```
+
+이를 통해, 아주 쉬운 절차로 카카오를 통한 로그인 기능을 구현하였습니다.
+추가적인 기능들의 구현을 위해서는 역시나 [공식문서](https://next-auth.js.org/getting-started/introduction)를 통해 확인해보시는 것을 추천합니다.

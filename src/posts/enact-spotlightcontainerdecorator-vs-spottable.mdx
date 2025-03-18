@@ -1,0 +1,106 @@
+---
+title: Enact 개발 일지 - Focus를 담당하는 HOC
+description: HOC의 의미와 enact 스러운 focusing 처리
+mainTag: "Frontend"
+tags: ["Enact", "HOC"]
+thumbnail: /thumbnail/enact-spotlightContainerDecorator-vs-spottable.png
+published: true
+date: 2024-01-15
+---
+
+`Enact`로 개발을 시작하기에 앞서, `focusing`을 담당하는 두 HOC(Higher Order Component)의 차이점을 알아보려고 한다.
+개발 초기 단계에 꽤 헷갈리는 개념이었기에 정리해두고자 한다.
+
+---
+
+## HOC ?
+
+`HOC`란, `Higher Order Component`의 약자로서 고차 컴포넌트라고도 불린다.
+이는 쉽게 말해 `React`에서 컴포넌트의 재사용, 로직의 공유, 상태 추상화 등을 위해서 사용되는 기술이라고 할 수 있는데,
+`HOC`는 컴포넌트를 인자로 받아서 새로운 컴포넌트를 반환하는 함수라고 할 수 있다.
+이를 통해 `React`에서 컴포넌트 간의 코드를 재사용할 수 있게 해준다.
+
+함수를 반환하므로, `HOF(Higher Order Function)` 즉, 고차 함수 라고도 할 수 있으며, 실제 `React`에서도 이와 관련한 기술을 많이 사용하고 있다.
+완벽하게 동일한 패턴은 아니지만, `React` 에서 자주 쓰이는 `memo` 역시 이 개념을 활용한다고 할 수 있다.
+
+따라서, `SpotlightContainerDecorator`과 `Spottable`은 포커싱에 관련한 기능을 제공하는 고차 컴포넌트라고 할 수 있다.
+
+### SpotlightContainerDecorator
+
+`SpotlightContainerDecorator`는 컴포넌트를 `Spotlight`의 `focusable` 한 컨테이너로 만들어 주는 역할이다.
+포커스 컨테이너는 포커스를 받을 수 있는 자식 컴포넌트들을 그룹화한 것으로, 포커스 이동을 이 `SpotlightContainerDecorator` 컨테이너의 자식 컴포넌트 내에서만 제한할 수 있게 해준다.
+이는 복잡한 UI에서 포커스 관리를 단순화하는데 굉장히 유용하게 사용할 수 있고, 특정 UI의 `section` 내에서 포커스 이동을 제한하거나 포커스를 이동하고 싶을 떄 사용할 수 있다.
+
+즉, `SpotlightContainerDecorator`는 그 자체로 포커싱이 가능한 컴포넌트를 만드는 것이 아니고, 내부에 있는 `Spottable`한 컴포넌트들을 관리하는 단순한 `wrapper`라고 생각할 수 있다.
+
+`SpotlightContainerDecorator`는 보통 이렇게 사용된다.
+
+```jsx
+import { SpotlightContainerDecorator } from "@enact/spotlight/SpotlightContainerDecorator";
+
+const Container = SpotlightContainerDecorator({}, "div");
+```
+
+여기서 `SpotlightContainerDecorator`는 총 2개의 인자를 받아올 수 있는데,
+
+- 첫 번째 인자로는 `config` 객체를 받아오고,
+- 두 번째 인자로는 `div` 혹은, `ul`, `section` 등의 시멘틱 태그들을 받아올 수 있다.
+
+`config` 객체 내에서 자주 사용하는 옵션으로는 `leaveFor` 혹은 `enterTo`가 있는데, 각각에 대한 설명은 다음과 같다.
+
+#### leaveFor
+
+`leaveFor`는 포커스가 현재 컨테이너를 벗어날 때의 동작을 지정할 수 있다.
+이 기능을 사용하여 특정 방향으로 포커스를 이동시킬 때, 다른 컨테이너나 컴포넌트로 포커스를 명시적으로 전환할 수 있다.
+예를 들어 특정 방향키를 눌렀을 때 포커스가 다른 특정 컨테이너로 이동을 하거나, 이동하지 않게 만들 수 있다.
+
+```jsx
+const Container = SpotlightContainerDecorator(
+  { leaveFor: { left: "", right: "" } },
+  "div"
+);
+```
+
+이런 식으로 작성하게 되면, 키보드의 왼쪽이나 오른쪽 방향키를 눌렀을 떄, 다른 컴포넌트 혹은 컨테이너로 포커싱이 이동하지 않게 만들어 준다.
+실제로 개발을 진행하며 특정 컴포넌트 혹은 컨테이너에 포커싱이 가지 않도록 하기위해 자주 사용하게 된다.
+
+#### enterTo
+
+`enterTo`는 포커스가 해당 컨테이너로 진입할 때의 기본 동작을 지정해준다.
+
+```jsx
+const Container = SpotlightContainerDecorator(
+  { enterTo: "last-focused" /* 혹은 'default-element' */ },
+  "div"
+);
+```
+
+위 설정은, 컨테이너 내부로 포커싱이 이동하게 될 때, 컨테이너를 마지막으로 떠날 때 포커스된 요소에 다시 포커스를 부여한다.
+실제로 위 기능은 사용자가 이전 상태로 돌아가려고 할 때 일관된 사용자 경험을 제공해주기에 유용하게 쓰인다고 할 수 있다.
+
+반면, `default-element`는 특정 요소에 항상 포커스를 부여하게 된다.
+내가 지정한 요소가 없다면, 컨테이너의 첫 번째 요소로 포커스가 가게 된다.
+
+### Spottable
+
+`Spottable`이란, 해당 컴포넌트를 포커스가 가능하게 만들어주는 고차 컴포넌트이다.
+이를 통해서 컴포넌트는 포커스를 받을 수 있께 되고, 사용자의 입력에 반응하여 동작을 변경하거나, 스타일을 부여할 수 있다.
+
+컴포넌트를 일반 시멘틱 태그인 `div`로 감싸게 되면, 해당 컴포넌트에 대해 키보드 이벤트에 대한 포커싱 처리를 구현하는 로직이 따로 필요한데,
+`Spottable`을 사용하게 되면, 해당 컴포넌트를 `focusable` 하게 만들어주는 것이다.
+
+```jsx
+import { Spottable } from "@enact/spotlight/Spottable";
+
+const SpottableComponent = Spottable("div");
+```
+
+이는, 기존 `div`로 만든 컴포넌트를 `Spottable`로 감싸주어 `focusable`하게 만들어주어 포커싱 관련한 로직을 따로 작성할 필요가 없게 해준다.
+
+### 쉽게 설명하자면 ?
+
+필자는 개발을 진행하면서 개발 초기 단계에 `Spottable`과 `SpotlightContainerDecorator`의 차이점에 대해서 제대로 이해하지 못했다.
+따라서 두 개의 역할과 필요성에 대해 인지하지 못했고, `Enact`를 사용하면서도 _`Enact`스럽지 않은 개발_ 을 하던 것이다.
+
+`SpotlightContainerDecorator`는 `Spottable`로 만들어진 컴포넌트를 감싸는 `container`의 역할을 하면서, 포커싱이 진입할 때의 처리를 돕는 역할이고,
+`Spottable`은 컴포넌트 자체를 `focusable`하게 만들어주는 것이다.

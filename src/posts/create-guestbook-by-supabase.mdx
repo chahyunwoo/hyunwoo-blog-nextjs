@@ -1,0 +1,237 @@
+---
+title: 블로그에 방명록 기능 구현하기
+description: 근데 이제 supabase를 곁들였음
+mainTag: "Frontend"
+tags: ["Supabase", "Next.js"]
+thumbnail: /thumbnail/create-guestbook-by-supabase.png
+published: true
+date: 2023-10-20
+---
+
+블로그에 익명으로 작성할 수 있는 [방명록](/guestbook) 기능을 추가했습니다.
+어떤 데이터베이스 저장소를 사용할까 고민하던 중 이미 사용해본 경험이 Headless CMS인 `Sanity` 혹은 `Strapi`를 사용하려고 했습니다만, 고민에 빠졌습니다.
+
+> 단순한 기능만을 이용할 건데, 이러한 솔루션을 이용하는 것이 좋을까?
+
+물론 규모가 꽤 있거나, 복잡한 데이터 관리가 필요한 경우에는 위의 솔루션들이 적합할 수 있으나,
+간단한 기능만이 필요한 방명록에서는 오히려 배보다 배꼽이 더 큰 작업이 될 수 있겠다 생각이 들었습니다.
+
+저는 이미 사용해본 경험이 있기에 꽤 익숙하다고 생각이 들지만, `Sanity`의 경우 러닝 커브가 꽤 있을 수 있습니다.
+`GROQ` 라는 `Sanity`의 쿼리 언어에 대한 학습도 필요하고 `React` 환경에서 개발 된 솔루션으로, 자체 커스텀이 가능하다보니 아무래도 프로젝트가 다소 무거워질 염려가 있어 대안을 찾게 되었습니다.
+
+대안으로 찾은 것이 바로 `Supabase` 입니다.
+**오픈 소스 `Firebase`** 로 알려진 `Supabase`는 실시간 데이터베이스, 인증, 스토리지 등의 기능을 제공하는 백엔드 서비스인데,
+`Sanity`는 주로 headless CMS 로써의 역할을 하는 반면에, `Supabase`는 더 광범위한 백엔드 서비스를 제공합니다.
+
+물론 둘 다 대규모 프로젝트에서도 사용할 수 있다는 장점은 분명 존재하지만, `backend` 서비스로써의 기능 범위가 넓은 `Supabase`를 채택했습니다.
+
+<span style={{ color: "crimson" }}>
+  `Supabase`에 관한 간략한 설명을 하자면 이렇습니다.
+</span>
+
+- **오픈소스** : `Supabase`는 완전한 오픈소스입니다. 따라서, 커스텀 요구 사항에 맞게 수정하거나, 본인의 서버에 직접 호스팅할 수 있습니다.
+- **비용 효율성** : `Firebase`와 비교할 떄, `Supabase`는 자체 서버에 호스팅할 수 있으므로 비용 절감의 효과가 있습니다.
+- **SQL DATABASE** : `PostgreSQL`을 기반으로 하며, 이는 데이터 분석, 복잡한 쿼리, 관계형 데이터 모델링 등에서 강력한 성능을 발휘합니다.
+- **실시간 기능** : 실시간 구독을 제공하여 데이터의 변경을 실시간으로 반영할 수 있습니다.
+- **인증 및 권한 관리** : 물론 Next에서 Next-auth라는 사용자 인증 기능을 사용할 수 있지만, `Supabase` 또한 자체적으로 사용자 인증 및 권한 관리 기능을 제공합니다.
+- **Storage** : 사용자의 파일 및 미디어를 저장할 수 있는 `Storage` 기능을 제공합니다.
+- **확장성** : `Supabase`는 아키텍쳐의 확장성을 염두에 두고 설계되었습니다. 위에 언급했다시피, 이 덕분에 대규모 프로젝트에서도 사용이 용이합니다.
+- **Next.js와의 호환성** : 다양한 `Front-end` 프레임워크와 통합이 용이하지만, `Next.js`와도 통합성이 좋습니다.
+
+이 외에도 더 많은 장점이 있지만, [공식문서](https://supabase.com/docs)를 통해 확인해보시는 걸 추천드립니다.
+
+_아직 리팩토링이 많이 필요한 단순한 예제이므로, 참고로 사용하시는 것이 좋습니다._
+
+---
+
+## Supabase 설정하기
+
+### 프로젝트 연동 및 테이블 생성
+
+프로젝트의 터미널을 열어 다음 명령어를 입력하고, `Supabase`를 설치합니다.
+
+```zsh
+npm install @supabase/supabase-js
+```
+
+다음으로, `Supabase` 클라이언트를 초기화합니다.
+저의 경우 `app` 디렉토리에서 `service` 폴더를 생성하고 `supabase.ts`를 만들어 관리했습니다.
+
+```tsx
+// service/supabase.ts
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl =
+const supabaseKey =
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+```
+
+설정이 참으로 간단합니다.
+`supabaseUrl`과 `supabaseKey`는 노출의 위험이 있으므로, 루트 디렉토리에서 `.env.local` 파일을 생성하여 그 안에서 관리하도록 합니다.
+
+- 참고로 `supabaseUrl`과 `supabaseKey`는 홈페이지에서 프로젝트를 생성 후 확인이 가능합니다.
+
+  1. `Supabase`의 [공식 페이지](https://supabase.com)에 접속하여, 로그인 후 프로젝트를 생성합니다.
+  2. `Dashboard`에 들어와 좌측 메뉴에서 `Setting`으로 들어간 후, `API` 메뉴에 접속합니다.
+  3. 아래와 같은 화면이 보이는데, 여기서 `URL`과 `anon public` 키를 복사해서 프로젝트에서 사용하면 됩니다.
+
+  ![](/posts/create-guestbook-by-supabase/supabase-auth-key.png)
+
+이제 포르젝트와 연동했으니, 아까 [Supabase](https://supabase.com/)에서 생성한 프로젝트의 대시보드에서 새로운 테이블을 만들어줍니다.
+저의 경우에는, 아래와 같은 column을 가진 `guestbook` 테이블을 생성했습니다.
+
+- **id** : (자동 생성) UUID
+  - 메세지별로 고유한 id 값을 가질 수 있도록 id를 자동으로 생성합니다.
+- **message** : Text
+  - 사용자가 입력한 메세지를 저장합니다.
+- **ip_address** : Text
+  - 사용자의 ip 주소를 받아와 저장합니다.
+- **created_at** : (자동 생성) Timestamp with timezone (Asia/Seoul)
+  - 사용자의 작성 시간을 자동으로 생성합니다.
+- **color** : Text
+  - 말풍선의 색상을 지정합니다.
+
+### 메세지 저장 및 업데이트
+
+이제 프로젝트와 연동했으니, `app` 디렉토리 내부의 `service` 경로에서 `guestbook.ts` 파일을 생성하고, 메세지를 저장하고 가져오는 로직을 작성합니다.
+저의 경우 `axios`를 사용하여 HTTP 요청을 수행하였습니다.
+
+```tsx
+// service/guestbook.ts
+
+export const fetchGuestbook = async () => {
+  const { data, error } = await supabase
+    .from("guestbook")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data;
+};
+```
+
+위 로직은, `Supabase` 클라이언트를 사용하여 `guestbook` 테이블에서 모든 데이터를 가져오도록 했습니다.
+`.from`을 통해 가져올 테이블을 설정하고, `.select`에서 모든 컬럼을 선택했습니다.
+그리고, `.order`를 사용해서 컬럼을 날짜 순으로 정렬합니다. 이는 최신 게시물을 제일 위에 표시하기 위함입니다.
+
+```tsx
+export const postGuestbook = async (message: string, color?: string) => {
+  const response = await axios.post("api/guestbook/post", { message, color });
+
+  if (response.status !== 200) throw new Error("Failed to post message");
+
+  return response;
+};
+```
+
+위 로직은, `postGuestbook` 함수에 `message`와 `color` 두 개의 매개변수를 받아, `axios`를 사용하여 엔드포인트에 `POST` 요청을 보내, 새 메세지를 해당 테이블에 추가하는 로직입니다.
+
+> 🚀 &nbsp; 예외 처리는 구체적일수록 좋습니다. 저는 간단한 예제를 통한 구현이므로, 예외 처리를 명확하게 해주시는 것이 좋습니다.
+
+그리고, `app` 디렉토리 내부의 `pages/api/guestbook` 경로에서 `post.ts` 파일을 생성하고, 서버에서 수행할 로직을 작성합니다.
+
+```tsx
+// pages/api/guestbook
+
+import { supabase } from "@/service/supabase";
+import { NextApiRequest, NextApiResponse } from "next";
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    const { message, color } = req.body;
+
+    if (!message || !color || message.trim() === "") {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const ipAddress =
+      (req.headers["x-forwarded-for"] as string) ||
+      req.socket.remoteAddress ||
+      "";
+
+    if (!ipAddress) {
+      console.error("IP address could not be determined");
+      return res
+        .status(500)
+        .json({ error: "IP address could not be determined" });
+    }
+
+    const { data, error } = await supabase
+      .from("guestbook")
+      .insert([{ message, color, ip_address: ipAddress }]);
+
+    if (error) {
+      console.error("Error inserting data: ", error.message);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    return res.status(200).json({ data });
+  } catch (error: unknown) {
+    console.error("Unhandled error: ", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+```
+
+위 코드는, `Next.js` 프레임워크의 API 라우트 기능을 사용하여 작성된 Back-end 로직입니다.
+`req`로 요청을 받아, `req.body`에서 message와 color를 추출하고, 사용자의 ip 주소를 받아와 테이블에 추가해줍니다.
+ip 주소는 서버에서 처리하여 변조의 가능성이 없도록 했습니다.
+
+### 클라이언트 측에서 메세지를 작성하고 불러오기
+
+기존에 작성했던 코드들을 바탕으로, 이제 클라이언트 측에서 메세지를 작성하고 불러올 수 있게 해줘야합니다.
+저는 `swr`을 사용하여 데이터를 가져오도록 했습니다.
+`swr`에 관하여 간단하게 설명하자면, 캐시된 데이터를 먼저 사용자에게 보내주고, 백그라운드에서 데이터를 다시 가져와서 압데이트 해주는 역할을 합니다.
+자세한 사항은 [공식 문서](https://swr.vercel.app/ko)에서 확인해보시길 바랍니다.
+
+```tsx
+const fetcher = async () => {
+  const data = await fetchGuestbook();
+  return data;
+};
+
+const {
+  data: messages,
+  isLoading: loading,
+  error,
+} = useSWR("/api/guestbook", fetcher);
+
+const handleMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  setNewMessage(e.target.value);
+};
+
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const response = await postGuestbook(newMessage, inputColor);
+    mutate("/api/guestbook");
+    setNewMessage("");
+  } catch (error) {
+    console.error("Error submitting message: ", error);
+  }
+};
+```
+
+이제 클라이언트에서 실시간으로 데이터를 반영하기 위해, 처리를 했습니다.
+클라이언트에서 실시간으로 처리를 해주어야 하므로 `use client`를 선언하여, 클라이언트에서 수행될 수 있게 합니다.
+위 코드는, 제가 작성한 코드의 일부만을 발췌한 것으로 구현 시에는 본인의 스타일에 맞게 작성을 해주는 것이 좋습니다.
+해당 코드는 메세지의 리스트를 받아와 화면에 보여주고, 사용자가 `submit` 시에 데이터를 실시간으로 반영할 수 있는 로직을 포함하고 있습니다.
+
+여기서 `mutate`란 특정 엔드포인트의 캐시된 데이터를 재검증하거나 변경할 때 사용됩니다.
+이 함수를 특정 엔드포인트와 함께 호출하면, `swr` 은 해당 엔드포인트의 데이터를 즉시 재검증하여 캐시를 최신 상태로 유지하도록 합니다.
+
+## 완성!
+
+우선, 간단한 예제로 프로젝트와 `Supabase`를 연동하는 방법을 알아보았습니다.
+설명이 다소 부족할 수도 있었지만, 간단한 예제를 통해 작성을 했으니 자세한 내용은 공식문서를 참고하시는 것이 좋다고 생각합니다.

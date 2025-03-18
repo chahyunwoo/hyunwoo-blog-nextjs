@@ -1,0 +1,492 @@
+---
+title: Next.js를 사용하여 블로그 개발하기
+description: Next.js와 tailwind, contentlayer로 콘텐츠 관리
+mainTag: "Frontend"
+tags: ["Next.js", "Tailwind", "Contentlayer"]
+thumbnail: /thumbnail/create-blog-by-nextjs.png
+published: true
+date: "2023-10-18"
+---
+
+현재 보시는 이 블로그 [hyunwoo.dev](https://chahyunwoo.dev)의 제작기에 대한 포스팅입니다.
+이 페이지는 `Next.js`를 통해 구현되었고, 다양한 기술 블로거들의 포스팅을 보며 많은 도움을 받아 제작되었습니다.
+
+제작기를 작성하며 스스로 피드백을 하고, 혹여나 누군가에겐 도움이 될 수도 있지 않을까 하여 작성했습니다.
+
+- [Github Repository](https://github.com/chahyunwoo/hyunwoo.dev)
+  _아직 개선할 사항이 많습니다._
+
+---
+
+## STACK
+
+- Language: `Typescript`
+
+  - `Javascript`의 슈퍼셋인 `Typescript`를 사용하여, 정적 타입 체크를 사용해 코드의 품질과 안정성을 향상시키기 위해 사용했습니다.
+
+- Framework: `Next.js`
+
+  - Server-side Rendering(SSR)과 Static Site Generation(SSG)를 지원하는 `Next.js` Framework를 사용하였는데, 정적인 웹페이지인 블로그를 개발하는데에 있어 적합하다 생각하여 사용하게 되었습니다.
+    `Next.js`의 사용 배경과 관련하여는 이전 [포스팅](/posts/start-nextjs-study)에 기재해두었습니다.
+
+- Content: `contentlayer`
+
+  - `Next.js`와 같은 모던 프레임워크에서 콘텐츠 기반의 어플리케이션을 만들 때 사용할 수 있는 데이터 레이어 솔루션입니다. 주로 정적 사이트 생성 (Static Site Genertion, SSG)과 같은 프로젝트에 유용합니다.
+    콘텐츠의 스키마와 모델에 대한 강력한 타입 안정성을 제공하고, 콘텐츠의 변경을 감지해 필요한 부분만 다시 빌드하는 기능을 제공하며, 정적 사이트 생성에 최적화 되어있다고 생각이 되어 선택했습니다.
+
+- Style: `Tailwind CSS`
+
+  - 기존 `React` 프로젝트를 진행 시에는 `styled-components`나, `emotion` 등을 자주 사용했는데, `Tailwind CSS`는 랜더링 최적화를 위해 프로덕션 빌드 시 사용하지 않는 스타일을 제거하여 최적화된 CSS 파일을 생성할 수 있기 때문에 이를 채택하여 사용하게 되었습니다.
+    `Next.js`의 [공식문서](https://nextjs.org/docs/app/building-your-application/styling/tailwind-css)에도 Next.js와 가장 잘 맞는 CSS Framework 라고 명시하였습니다.
+
+- Backend: `Supabase`
+
+  - `Supabase`는 오픈 소스 `Firebase` 대안으로, 실시간 데이터베이스, 인증, 스토리지 등의 백엔드 기능을 제공하고, 서버리스 아키텍쳐를 지원합니다.
+    서비스의 설정이 비교적 간단하고, `Next.js`와의 연동도 쉬우며, 빠르게 프로토타이핑하고 기능을 구현할 수 있다고 생각하여 사용하게 되었습니다.
+    `Supabase`와 관련해서는 다음에 포스팅 하여 링크를 제공할 예정입니다.
+
+- Deploy: `Vercel`
+
+  - `Vercel`은 `Next.js`를 개발한 팀입니다. 따라서, `Next.js`와의 통합이 매우 간편하고 자연스럽습니다.
+    전통적인 CI/CD 도구와는 약간 다른 접근 방식을 가지고 있지만, 코드의 변경 사항을 자동으로 빌드하고, 배포하는 과정을 간소화하므로 CI/CD의 개념과 근접한 기능을 제공합니다.
+    Front-end 웹 어플리케이션의 지속적인 통합 및 배포에 필요한 주요 기능들을 제공하므로, 사용하게 되었습니다.
+
+## 본격적인 과정
+
+### 프로젝트 생성 및 구조
+
+`Next.js`는 정적 페이지인 블로그를 만드는 것에 최적화 되어있는 프레임워크이고, Static Rendering을 통해 서버에서 prerendered 된다는 점이 아주 큰 장점이라 생각하여,
+본 블로그는 `Next.js`를 사용하여 제작하게 되었습니다.
+
+> 🚀 &nbsp; 이외에도, SEO 및 동적 라우팅 등 다양한 장점들이 있습니다.
+
+저는 `13.5.4` 버전을 사용하고 있고, `macOS` 환경에서 개발을 진행했습니다. 아래 명령어를 입력하여, 프로젝트를 생성합니다.
+
+```zsh
+npx create-next-app@latest
+```
+
+명령어를 입력하면, 아래와 같은 다양한 선택사항이 나오게 됩니다.
+
+```zsh
+What is your project named? my-app
+Would you like to use TypeScript? No / Yes
+Would you like to use ESLint? No / Yes
+Would you like to use Tailwind CSS? No / Yes
+Would you like to use `src/` directory? No / Yes
+Would you like to use App Router? (recommended) No / Yes
+Would you like to customize the default import alias (@/*)? No / Yes
+What import alias would you like configured? @/*
+```
+
+순서대로 정리하자면,
+
+1. 프로젝트의 이름
+2. 타입스크립트의 사용 유무: 저는 타입 안정성을 위해 Yes를 선택했습니다.
+3. ESLint의 사용 유무: 이 역시 Yes를 선택했습니다.
+4. Tailwind의 사용 유무: 저는 프로젝트에서 `tailwind`로 css를 작성할 예정이므로 Yes를 선택했습니다.
+5. `src/` 디렉토리 사용 유무: 기존에 `src/` 경로가 익숙했지만, 이번엔 No를 선택했습니다.
+6. `App Router` 사용 유무: 13버전 에서는 `App Router` 기능을 도입했습니다. 이에 대한 설명으로는 [공식문서](https://nextjs.org/docs/app)에서 확인하실 수 있고, 저는 Yes를 선택했습니다.
+7. 기본 `import` 별칭을 사용자가 정의할 건지에 대한 여부: 저는 기본적인 셋팅을 위해 No를 선택했습니다.
+
+설치가 완료되면, 아래의 디렉터리 구조를 갖습니다.
+
+```
+app
+ ┣ globals.css
+ ┣ layout.tsx
+ ┣ page.module.css
+ ┗ page.tsx
+```
+
+여기서, `layout.tsx`와 `page.tsx`에 관한 설명을 하자면,
+
+- layout.tsx
+
+라우트들의 공통적인 UI를 담당하는 파일입니다. header나 footer 등 어플리케이션을 구성하는데 필요한 공통 컴포넌트들을 공유하거나, 공통 스타일을 지정할 수 있습니다.
+
+```jsx
+// layout.tsx
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode,
+}) {
+  return (
+    <html lang="ko" suppressHydrationWarning={true}>
+      <body
+        className={`${sans.className} bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 flex flex-col`}
+      >
+        <Providers>
+          <Header />
+          <main className="grow w-full mt-16 py-16 px-8">
+            <Container>
+              <SWRconfigContext>{children}</SWRconfigContext>
+            </Container>
+          </main>
+          <Footer />
+        </Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+여기서, `Providers` 는 다크 모드를 추가하기 위한 컴포넌트입니다. 저의 경우 `next-themes` 라이브러리를 이용하여 구현했습니다.
+`next-themes` 라이브러리에 관한 설명은 [링크](https://www.npmjs.com/package/next-themes)에서 확인 가능합니다.
+`app` 폴더에 `context` 폴더를 생성하여, `Providers` 컴포넌트를 생성했습니다.
+
+_저와 동일한 폴더 구조를 가질 필요는 없지만 저의 경우 저만의 스타일로 폴더 구조를 지정하기에 이렇게 두었습니다._
+
+- page.tsx
+
+특정 라우트의 UI를 담당하는 파일입니다. app 디렉토리 내부에 있는 `page.tsx`는 메인 페이지의 UI를 담당합니다.
+
+### contentlayer
+
+포스트 즉, 콘텐츠를 어떤 방식으로 관리할까 고민을 많이 했습니다.
+이 과정에서 HeadlessCMS인 `Sanity` 혹은 `Strapi`를 사용할지, 혹은 다른 데이터베이스 관련 솔루션을 사용할지 고민하다가, 프로젝트가 너무 무거워질 것을 감안하여 로컬에 **mdx 파일** 들을 직접 관리하기로 했습니다. 구글링을 하던 중 [contentlayer](https://contentlayer.dev/)을 통해 효율적인 mdx 파일 관리가 가능하다는 것을 알게 되었고, 이를 채택했습니다.
+`contentlayer`에 관한 간략한 설명은 위에 기재를 해놓았기에 생략합니다.
+자세한 설명은 위의 공식문서를 통해 확인하시는 것을 추천합니다.
+
+**`contentlayer` 사용을 위해 다음과 같은 설정을 했습니다.**
+
+1. 아래 명령어를 터미널에 입력하여 `contentlyer`를 설치합니다.
+
+```zsh
+npm install contentlayer next-contentlayer date-fns
+```
+
+저의 경우, `javascript`용 날짜 유틸리티 라이브러리인 `date-fns`를 사용하여, 포스팅 날짜 및 정렬에 관한 작업을 용이하게 했습니다.
+
+- `date-fns`의 [공식 웹페이지](https://date-fns.org/)
+
+2. `next dev`, `next build` 시 사용을 위해 `next.config.js` 파일을 수정했습니다.
+
+```javascript
+// next.config.js
+
+const { withContentlayer } = require("next-contentlayer");
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+};
+
+module.exports = withContentlayer(nextConfig);
+```
+
+3. `tsconfig.json` 파일을 수정하여, 빌드 프로세스와 편집기가 생성된 파일 위치를 파악하고, alias를 설정해줍니다.
+
+```json
+// tsconfig.json
+
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    //  ^^^^^^^^^^^
+    "paths": {
+      "contentlayer/generated": ["./.contentlayer/generated"]
+      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".contentlayer/generated"
+    // ^^^^^^^^^^^^^^^^^^^^^^
+  ]
+}
+```
+
+4. `.gitignore` 에 `.contentlayer`를 추가합니다.
+
+```gitignore
+# .gitignore
+
+# ...
+
+# contentlayer
+.contentlayer
+```
+
+5. 콘텐츠의 schema를 정의합니다. 정의한 schema에 따라 콘텐츠들이 데이터로 변환되며, 이를 컴포넌트 안에서 사용할 수 있습니다.
+   `contentlyer.config.ts` 파일을 생성하고 아래와 같이 schema를 정의합니다.
+
+```tsx
+//contentlyer.config.ts
+
+import { defineDocumentType, makeSource } from "contentlayer/source-files";
+import rehypeSlug from "rehype-slug";
+import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
+
+export const Post = defineDocumentType(() => ({
+  name: "Post",
+  filePathPattern: `**/*.mdx`,
+  contentType: "mdx",
+  fields: {
+    title: {
+      type: "string",
+      required: true,
+    },
+    description: {
+      type: "string",
+      required: true,
+    },
+    image: {
+      type: "string",
+      required: true,
+    },
+    category: {
+      type: "string",
+      required: true,
+    },
+    date: {
+      type: "date",
+      required: true,
+    },
+  },
+  computedFields: {
+    url: {
+      type: "string",
+      resolve: (post) => `/posts/${post._raw.flattenedPath}`,
+    },
+  },
+}));
+```
+
+각각 필드에 대해 설명하자면 이렇습니다.
+
+- name: 이는 필수 옵션으로, 타입과 데이터를 나타냅니다.
+- filePathPattern: 경로를 설정합니다.
+- contentType: 콘텐츠의 타입을 설정합니다. 저의 경우 `mdx` 타입을 사용하므로, `mdx`라고 설정했습니다.
+- fields: 문서의 데이터 형태를 정의하며, 필요한 데이터의 형태를 추가하여 사용합니다.
+  저의 경우, title, description, image, category, date가 필수로 필요하기에 `required`를 `true`로 설정하였습니다.
+- computedFields: 계산된 필드를 정의하는 부분입니다. 문서의 기본 데이터나 다른 필드의 값에 기반해 동적으로 계산되는 필드를 의미합니다.
+  저의 경우, `url`이라는 계산된 필드가 있고, 이는 `string` 타입입니다. `post` 객체를 인자로 받아, 그에 기반한 값을 계산하여 반환하고, 경로를 기반한 `url`을 생성하여, 각 포스트의 고유한 경로를 동적으로 생성하는 로직으로 정의했습니다.
+
+6. `makeSource`를 사용해 콘텐츠 소스를 설정합니다.
+
+```tsx
+const rehypeOptions = {
+  theme: "dracula-soft",
+  keepBackground: true,
+};
+
+export default makeSource({
+  contentDirPath: "contents",
+  documentTypes: [Post],
+  mdx: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [[rehypePrettyCode, rehypeOptions], rehypeSlug],
+  },
+});
+```
+
+- contentDirPath: 콘텐츠 파일들이 위치한 디렉토리 경로입니다. 즉, 프로젝트의 루트 디렉토리에 위치한 `contents` 폴더 내부의 파일들을 콘텐츠로 사용한다는 뜻입니다.
+- documentTypes: `[Post]`는 문서 유형들을 `Post` 타입으로 처리하겠다는 것을 의미합니다.
+- mdx: `remarkPlugins`과 `rehypePlugins`을 사용하여 `mdx` 파일을 `HTML`로 변환하기 위해 추가한 플러그인입니다.
+  - remrkGfm: `mdx` 내의 `markdown` 부분을 변환할 때 사용합니다. 이는 Github Flavored Markdown (GFM)을 지원합니다.
+- rehypePrettyCode: 코드 스니펫을 예쁘게 표시하기 위한 플러그인으로, 위에 `rehypeOptions`를 통해 코드 스니펫의 스타일을 지정했습니다.
+- rehypeSlug: 해당 요소에 슬러그 ID를 자동으로 추가해주는 플러그인입니다.
+
+> 🚀 &nbsp; 다시 한 번 강조하지만, 저와 똑같은 구조를 가질 필요는 없습니다. 필요에 따라 알맞은 플러그인을 사용하시면 됩니다.
+
+7. 게시물 콘텐츠 추가하기
+
+- **`posts` 페이지 생성 및 리스트 보여주기**
+
+  `Next.js`의 가장 큰 장점 중 하나는 파일 기반 라우팅이 가능하다는 점입니다. `contents` 목록을 볼 수 있는 `posts` 폺더를 `app` 디렉토리에 생성하고, 생성된 폴더 안에 `page.tsx`를 생성합니다.
+
+  ```
+  app
+  ┣ posts
+    ┗ page.tsx
+  ┣ globals.css
+  ┣ layout.tsx
+  ┣ page.module.css
+  ┗ page.tsx
+  ```
+
+  `posts` 폴더 내부에 있는 `page.tsx`는 posts 페이지의 UI를 담당합니다.
+  `page.tsx` 내부에서 각각의 콘텐츠들을 렌더링 해주는 로직을 작성하고, 전체 데이터를 불러오기 위해 `allPosts`를 import 합니다.
+  저는 가독성을 위해, `PostsContainer` 컴포넌트로 분리해 개별 콘텐츠를 렌더링 하는 로직을 작성했습니다.
+
+  ```tsx
+  // posts/page.tsx
+
+  import { allPosts } from "@/.contentlayer/generated";
+  import { compareDesc } from "date-fns";
+  import PostsContainer from "@/components/PostsContainer";
+
+  export default function Page() {
+    const posts = allPosts.sort((a, b) =>
+      compareDesc(new Date(a.date), new Date(b.date))
+    );
+
+    return (
+      <section className="mx-auto max-w-2xl">
+        <h1 className="text-2xl font-bold text-center mb-4">POSTS</h1>
+        <p className="text-sm text-center">
+          기술 뿐만 아니라 일상을 공유합니다.
+        </p>
+        <PostsContainer posts={posts} />
+      </section>
+    );
+  }
+  ```
+
+  `date-fns`의 `compareDesc`를 import하고, 날짜 순으로 정렬하는 로직을 추가했습니다.
+
+  ```tsx
+  // components/PostContainer.tsx
+
+  "use client";
+
+  import { Post } from "@/.contentlayer/generated";
+  import useDebounce from "@/hooks/useDebounce";
+  import { useState } from "react";
+  import SearchBar from "./atoms/SearchBar";
+  import PostCard from "./PostCard";
+  import PostsTabs from "./PostsTabs";
+
+  interface IProps {
+    posts: Post[];
+  }
+
+  export default function PostsContainer({ posts }: IProps) {
+    const [selectedTab, setSelectedTab] = useState("ALL");
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+    const uniqueCategories = Array.from(
+      new Set(posts.map((post) => post.category))
+    );
+    const tabs = ["ALL", ...uniqueCategories];
+
+    const filteredPosts = posts
+      .filter((post) => selectedTab === "ALL" || post.category === selectedTab)
+      .filter((post) =>
+        post.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      );
+
+    return (
+      <>
+        <PostsTabs
+          tabs={tabs}
+          selectedTab={selectedTab}
+          onSelect={setSelectedTab}
+        />
+        <SearchBar value={searchTerm} onChange={setSearchTerm} />
+        {filteredPosts.map((post) => (
+          <PostCard key={post._id} {...post} />
+        ))}
+      </>
+    );
+  }
+  ```
+
+  여기서도 가독성을 위해, `PostsTabs`, `SearchBar`, `PostCard` 컴포넌트로 분리했습니다.
+  이는 클라이언트 컴포넌트 이므로, 상단에 'use client'를 선언해줍니다.
+  부모 컴포넌트에서 전달받은 props인 `posts`는 `allPosts`로 `Post` 타입을 갖습니다.
+
+  > 🚀 &nbsp; contentlayer는 post의 타입을 자동으로 선언해줍니다.
+
+  저는 미리 지정해둔 포스트의 타입인 카테고리 별로 tab 메뉴를 만들기 위해, `PostsTabs` 컴포넌트를 별도로 제작하였습니다.
+  선택 tab의 기본값을 "ALL"로 지정해, 최초 페이지 접속 시 전체 포스팅이 나오도록 했습니다.
+
+  또한, 포스팅을 검색하기 위해 `SearchBar` 컴포넌트를 제작하였고, 사용자의 입력값을 통해 포스팅을 검색할 수 있게 구현하였습니다.
+  `useDebounce` hook을 제작해, 입력값의 연속적인 변경에 따른 부담을 줄이기 위해 디바운스 기능을 구현했습니다.
+
+- **동적 라우팅을 통해 각각의 콘텐츠를 보여주기**
+
+  동적 라우팅을 위해서 `posts` 폴더 안에 `[slug]` 폴더를 생성합니다. `generateStaticParams`를 사용해 쿼리 파라미터를 받아오고, 동적 라우팅이 가능하도록 구현합니다.
+  `generateStaticParams`를 통해 생성된 파라미터를 `PostLayout`의 `props`로 넘겨줍니다.
+  `.find` 배열 메서드를 통해 `props`로 받은 `slug`와, `allPosts`의 전체 데이터 중 `slug`가 같은 포스트를 찾아옵니다.
+  이 때 `useMDXComponent` hook을 이용해, mdx를 랜더링 해줍니다.
+
+  ```tsx
+  //[slug]/page.tsx
+
+  import { allPosts } from "@/.contentlayer/generated";
+  import { notFound } from "next/navigation";
+  import { useMDXComponent } from "next-contentlayer/hooks";
+  import { format, parseISO } from "date-fns";
+
+  interface IProps {
+    params: { slug: string };
+  }
+
+  const PostLayout = ({ params: { slug } }: IProps) => {
+    const post = allPosts.find((post) => post._raw.flattenedPath === slug);
+
+    if (!post) notFound();
+
+    const MDXContent = useMDXComponent(post.body.code);
+
+    return (
+      <article className="mx-auto prose dark:prose-invert max-w-2xl">
+        <div className="mb-8 text-center border-b border-neutral-400/50">
+          <time dateTime={post.date} className="mb-1 text-xs text-gray-600">
+            {format(parseISO(post.date), "yyyy년 MM월 dd일")}
+          </time>
+          <h1 className="text-3xl font-bold">{post.title}</h1>
+        </div>
+        <MDXContent />
+      </article>
+    );
+  };
+
+  export default PostLayout;
+
+  export const generateStaticParams = async () =>
+    allPosts.map((post) => ({ slug: post._raw.flattenedPath }));
+
+  export const generateMetadata = ({
+    params,
+  }: {
+    params: { slug: string };
+  }) => {
+    const post = allPosts.find(
+      (post) => post._raw.flattenedPath === params.slug
+    );
+
+    if (!post) notFound();
+
+    return { title: post.title };
+  };
+  ```
+
+  `props`로 내려준 `post.body.code`를 받아 mdx를 랜더링합니다.
+  그리고, mdx의 typograpy를 위해 `Tailwind CSS`의 [플러그인](https://tailwindcss.com/docs/typography-plugin)을 사용합니다.
+  `MDXContext`를 감싼 `article`에 `className="prose"`를 추가합니다.
+
+### 배포
+
+저는 `Next.js`를 개발한 `vercel`를 이용해 배포를 했습니다.
+`vercel`에서는 기본적으로 도메인을 제공해주지만 저의 애착이 담긴 블로그라서 ~~거금~~을 투자해, `.dev` 도메인을 구매했습니다.
+가비아나, 후이즈 등 다양한 도메인 구매처가 있지만, `.dev` 도메인을 이용하기 위해선 SSL 인증서가 필요합니다.
+`vercel`에서는 다행하게도 무료 SSL을 자동으로 제공합니다.
+
+- [관련 공식 문서](https://vercel.com/blog/automatic-ssl-with-vercel-lets-encrypt)
+
+그러나, 위에 언급한 구매처에서는 필수로 별도의 SSL을 발급 절차가 필요하며, 이는 추가비용이 들기 때문에 다른 곳을 알아보던 중
+[https://porkbun.com/](https://porkbun.com/) 이라는 사이트를 알게 되었고 여기서 도메인을 구매했습니다.
+`porkbun`에서는 무료 SSL를 제공하고 있습니다.
+
+이를 통해 만족스러운 도메인을 갖게 되었고, 지금의 [블로그](https://chahyunwoo.dev)가 완성되었습니다.
+
+### 후기
+
+긴 글 읽어주셔서 감사합니다. 손쉽게 끝날 줄 알았던 블로그 프로젝트인데, 생각보다 오래 걸린 부분도 있었습니다.
+하지만, 내 손으로 직접 개발하여 관리하는 블로그라는 점에서 참으로 애착이 갑니다.
+메모에 익숙치 않았던 제가 블로그를 개발하게 되면서 앞으로는 다양한 포스팅을 할 예정입니다.
+
+블로그 개발에 관련해서, 아직 정리하고 공유하고 싶은 부분이 많습니다.
+방명록 기능 구현 제작기 또한 조만간 업데이트할 예정입니다.
+
+감사합니다.
