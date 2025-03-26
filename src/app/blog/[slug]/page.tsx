@@ -1,10 +1,10 @@
 import { getPostBySlug, getPublishedPosts } from "@/services/post";
 import { notFound } from "next/navigation";
 import { InnerContainer } from "@/components/layout/inner-container";
-import { Badge } from "@/components/common/badge";
 import { PostBody } from "@/components/features/blog/post-body";
 import { PostHead } from "@/components/features/blog/post-head";
 import { PostFooter } from "@/components/features/blog/post-footer";
+
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {

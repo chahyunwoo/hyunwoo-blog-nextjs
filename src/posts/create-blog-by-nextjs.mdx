@@ -105,9 +105,7 @@ app
 
 라우트들의 공통적인 UI를 담당하는 파일입니다. header나 footer 등 어플리케이션을 구성하는데 필요한 공통 컴포넌트들을 공유하거나, 공통 스타일을 지정할 수 있습니다.
 
-```jsx
-// layout.tsx
-
+```jsx title="layout.tsx"
 export default function RootLayout({
   children,
 }: {
@@ -177,9 +175,7 @@ module.exports = withContentlayer(nextConfig);
 
 3. `tsconfig.json` 파일을 수정하여, 빌드 프로세스와 편집기가 생성된 파일 위치를 파악하고, alias를 설정해줍니다.
 
-```json
-// tsconfig.json
-
+```json title="tsconfig.json"
 {
   "compilerOptions": {
     "baseUrl": ".",
@@ -214,9 +210,7 @@ module.exports = withContentlayer(nextConfig);
 5. 콘텐츠의 schema를 정의합니다. 정의한 schema에 따라 콘텐츠들이 데이터로 변환되며, 이를 컴포넌트 안에서 사용할 수 있습니다.
    `contentlyer.config.ts` 파일을 생성하고 아래와 같이 schema를 정의합니다.
 
-```tsx
-//contentlyer.config.ts
-
+```tsx title="contentlyer.config.ts"
 import { defineDocumentType, makeSource } from "contentlayer/source-files";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
@@ -314,9 +308,7 @@ export default makeSource({
   `page.tsx` 내부에서 각각의 콘텐츠들을 렌더링 해주는 로직을 작성하고, 전체 데이터를 불러오기 위해 `allPosts`를 import 합니다.
   저는 가독성을 위해, `PostsContainer` 컴포넌트로 분리해 개별 콘텐츠를 렌더링 하는 로직을 작성했습니다.
 
-  ```tsx
-  // posts/page.tsx
-
+  ```tsx title="posts/page.tsx"
   import { allPosts } from "@/.contentlayer/generated";
   import { compareDesc } from "date-fns";
   import PostsContainer from "@/components/PostsContainer";
@@ -340,9 +332,7 @@ export default makeSource({
 
   `date-fns`의 `compareDesc`를 import하고, 날짜 순으로 정렬하는 로직을 추가했습니다.
 
-  ```tsx
-  // components/PostContainer.tsx
-
+  ```tsx title="components/PostContainer.tsx"
   "use client";
 
   import { Post } from "@/.contentlayer/generated";
@@ -407,9 +397,7 @@ export default makeSource({
   `.find` 배열 메서드를 통해 `props`로 받은 `slug`와, `allPosts`의 전체 데이터 중 `slug`가 같은 포스트를 찾아옵니다.
   이 때 `useMDXComponent` hook을 이용해, mdx를 랜더링 해줍니다.
 
-  ```tsx
-  //[slug]/page.tsx
-
+  ```tsx title="[slug]/page.tsx"
   import { allPosts } from "@/.contentlayer/generated";
   import { notFound } from "next/navigation";
   import { useMDXComponent } from "next-contentlayer/hooks";

@@ -57,9 +57,7 @@ npm install @supabase/supabase-js
 다음으로, `Supabase` 클라이언트를 초기화합니다.
 저의 경우 `app` 디렉토리에서 `service` 폴더를 생성하고 `supabase.ts`를 만들어 관리했습니다.
 
-```tsx
-// service/supabase.ts
-
+```tsx title="service/supabase.ts"
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl =
@@ -102,9 +100,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 이제 프로젝트와 연동했으니, `app` 디렉토리 내부의 `service` 경로에서 `guestbook.ts` 파일을 생성하고, 메세지를 저장하고 가져오는 로직을 작성합니다.
 저의 경우 `axios`를 사용하여 HTTP 요청을 수행하였습니다.
 
-```tsx
-// service/guestbook.ts
-
+```tsx title="service/guestbook.ts"
 export const fetchGuestbook = async () => {
   const { data, error } = await supabase
     .from("guestbook")
@@ -137,9 +133,7 @@ export const postGuestbook = async (message: string, color?: string) => {
 
 그리고, `app` 디렉토리 내부의 `pages/api/guestbook` 경로에서 `post.ts` 파일을 생성하고, 서버에서 수행할 로직을 작성합니다.
 
-```tsx
-// pages/api/guestbook
-
+```tsx title="pages/api/guestbook/post.ts"
 import { supabase } from "@/service/supabase";
 import { NextApiRequest, NextApiResponse } from "next";
 

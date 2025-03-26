@@ -25,7 +25,7 @@ export function PostCard({ post, index }: PostCardProps) {
             fill
             sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 350px"
             className="object-cover transition-transform hover:scale-105"
-            priority={index < 4}
+            loading="lazy"
           />
         </div>
       )}

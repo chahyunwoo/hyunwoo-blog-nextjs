@@ -27,7 +27,6 @@ export function ShareButton({
 
   const handleCopyLink = useCallback(async () => {
     try {
-      // 현재 페이지 URL 복사
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setShowAlert(true);

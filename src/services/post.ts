@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 import { cache } from "react";
+import { delay } from "@/lib/utils";
 
 export const getPostFilePaths = async (): Promise<string[]> => {
   return glob("**/*.mdx", { cwd: POSTS_PATH });

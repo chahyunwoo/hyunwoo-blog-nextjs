@@ -79,8 +79,8 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0.13 0.028 261.692);
 
-  code[data-theme*=" "],
-  code[data-theme*=" "] span {
+  code[data-theme],
+  code[data-theme] span {
     color: var(--shiki-light);
     background-color: var(--shiki-light-bg);
   }
@@ -96,12 +96,6 @@
   figure[data-rehype-pretty-code-figure]
     figcaption[data-rehype-pretty-code-title] {
     @apply bg-[#fdf6e3] text-[#657b83] px-4 py-1 inline-block border-b-1 border-foreground/30 rounded-tr-xs rounded-tl-xs;
-  }
-
-  code[data-theme*=" "],
-  code[data-theme*=" "] span {
-    color: var(--shiki-light);
-    background-color: var(--shiki-light-bg);
   }
 
   blockquote p {
@@ -146,6 +140,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 
+  code[data-theme],
+  code[data-theme] span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+
   figure[data-rehype-pretty-code-figure] {
     @apply border-[var(--foreground)];
   }
@@ -157,12 +157,6 @@
   figure[data-rehype-pretty-code-figure]
     figcaption[data-rehype-pretty-code-title] {
     @apply bg-[#0b0e14] text-[#bfbdb6] px-4 py-1 inline-block border-b-1 border-foreground/30 rounded-tr-xs rounded-tl-xs;
-  }
-
-  code[data-theme*=" "],
-  code[data-theme*=" "] span {
-    color: var(--shiki-dark);
-    background-color: var(--shiki-dark-bg);
   }
 
   blockquote p {

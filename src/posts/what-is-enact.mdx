@@ -8,12 +8,12 @@ published: true
 date: 2024-01-02
 ---
 
-앞서 `회고록`에도 작성했다시피, 우리 팀은 현재 2024년 신규 프로젝트로 `enact` framework를 채택했다.
+우리 팀은 현재 2024년 신규 프로젝트로 `enact` framework를 채택했다.
 생소하기도 했지만, `React.js` 의 framework 이고, 현재 내가 가장 잘 익숙하게 잘 다룰 수 있는 `React` 기반의 framework라고 하니 거부감보다는 신선함과, 흥미로움이 더욱 생기게 되었다.
 
-> 요즘 자꾸 글을 쓰며 존댓말과 반말을 왔다갔다하면서 사용하게 되는데, 편하게 읽어주시면 감사하겠습니다..
-
----
+<Callout type="warning">
+  현재 스터디 중이므로 정확하지 않을 수 있습니다.
+</Callout>
 
 ## 그래서 `Enact`가 뭔가요 ?
 
@@ -42,42 +42,42 @@ date: 2024-01-02
 
 - `React` 에서의 4방향 포커싱 처리
 
-  `React` 에서는 따로 4방향 포커싱 처리에 관한 기능이 제공되어있지 않으므로, 개발자가 직접 키보드 이벤트에 관한 처리를 직접 해주어야한다.
+`React` 에서는 따로 4방향 포커싱 처리에 관한 기능이 제공되어있지 않으므로, 개발자가 직접 키보드 이벤트에 관한 처리를 직접 해주어야한다.
 
-  쉬운 예로 다음 인덱스번호의 컴포넌트로 포커싱을 이동하는 효과를 구현해보겠다.
+쉬운 예로 다음 인덱스번호의 컴포넌트로 포커싱을 이동하는 효과를 구현해보겠다.
 
-  ```tsx
-  interface FocusableButtonProps {
-    children: React.ReactNode;
-    onFocused: () => void;
-  }
+```tsx
+interface FocusableButtonProps {
+  children: React.ReactNode;
+  onFocused: () => void;
+}
 
-    const FocusableButton = ({children, onFocused}: FocusableButtonProps) => {
-      <button tabIndex={-1} onFocus={onFocused}>{children}</button>
-    }
+const FocusableButton = ({children, onFocused}: FocusableButtonProps) => {
+  <button tabIndex={-1} onFocus={onFocused}>{children}</button>
+}
 
-  export default function Component() {
-    const [focusedIndex, setFocusedIndex] = useState(0)
+export default function Component() {
+  const [focusedIndex, setFocusedIndex] = useState(0)
 
-    const handleKeyDown = useCallback((event: KeyboardEvent) => {
-      const {keyCode} = event;
-      const focusableElements = Array.from(document.querySelectorAll('button'));
-      const currentIndex = focusableElements.indexOf(document.activeElement as HTMLButtonElement);
-      let nextIndex = currentIndex;
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    const {keyCode} = event;
+    const focusableElements = Array.from(document.querySelectorAll('button'));
+    const currentIndex = focusableElements.indexOf(document.activeElement as HTMLButtonElement);
+    let nextIndex = currentIndex;
 
-      switch (keyCode) {
-        case 37:
-        case 38:
-          nextIndex = Math.max(0, currentIndex - 1);
-          break;
+    switch (keyCode) {
+      case 37:
+      case 38:
+      nextIndex = Math.max(0, currentIndex - 1);
+      break;
 
-        case 39:
-        case 40:
-          nextIndex = Math.min(focusableElements.length - 1, currentIndex + 1)
-          break;
+      case 39:
+      case 40:
+      nextIndex = Math.min(focusableElements.length - 1, currentIndex + 1)
+      break;
 
-        default:
-          return;
+      default:
+        return;
       }
 
       setFocusedIndex(nextIndex)
@@ -110,42 +110,42 @@ date: 2024-01-02
     )
   }
 
-  ```
+```
 
-  위 코드는 3개의 버튼 내에서 키보드 방향키를 이용한 포커싱 이동을 구현한 것이다.
-  사실 크게 복잡하지는 않은 로직이지만, 단순 포커싱만을 처리하기에는 너무 많은 내용을 담고 있다.
-  물론 이러한 것들은 따로 `util` 폴더를 통해 포커싱에 관련된 함수를 만들어 재사용성을 높여 사용할 수는 있지만,
-  `Enact`를 사용하게 되면 이러한 작업마저도 불필요해진다.
+위 코드는 3개의 버튼 내에서 키보드 방향키를 이용한 포커싱 이동을 구현한 것이다.
+사실 크게 복잡하지는 않은 로직이지만, 단순 포커싱만을 처리하기에는 너무 많은 내용을 담고 있다.
+물론 이러한 것들은 따로 `util` 폴더를 통해 포커싱에 관련된 함수를 만들어 재사용성을 높여 사용할 수는 있지만,
+`Enact`를 사용하게 되면 이러한 작업마저도 불필요해진다.
 
-  - `Enact` 에서의 4방향 포커싱 처리
+- `Enact` 에서의 4방향 포커싱 처리
 
-  ```jsx
-  import { SpotlightContainerDecorator } from "@enact/spotlight/SpotlightContainerDecorator";
-  import { Spottable } from "@enact/spotlight/Spottable";
+```jsx
+import { SpotlightContainerDecorator } from "@enact/spotlight/SpotlightContainerDecorator";
+import { Spottable } from "@enact/spotlight/Spottable";
 
-  const Container = SpotlightContainerDecorator("div");
+const Container = SpotlightContainerDecorator("div");
 
-  const SpottableButton = Spottable("button");
+const SpottableButton = Spottable("button");
 
-  export default function Component() {
-    return (
-      <Container>
-        <SpottableButton>Button 1</SpottableButton>
-        <SpottableButton>Button 2</SpottableButton>
-        <SpottableButton>Button 3</SpottableButton>
-      </Container>
-    );
-  }
-  ```
+export default function Component() {
+  return (
+    <Container>
+      <SpottableButton>Button 1</SpottableButton>
+      <SpottableButton>Button 2</SpottableButton>
+      <SpottableButton>Button 3</SpottableButton>
+    </Container>
+  );
+}
+```
 
-  딱 봐도 어마어마한 양의 코드가 줄었고, 훨씬 보기 편하게 깔끔해졌다.
-  `React` 내에서는 따로 구현을 해야만 했던 `4방향 포커싱` 기능을 `Enact` 에서는 `Enact`에서 제공해주는 `Spotlight` 기능만 사용하면 편리하게 구현이 가능하다.
+딱 봐도 어마어마한 양의 코드가 줄었고, 훨씬 보기 편하게 깔끔해졌다.
+`React` 내에서는 따로 구현을 해야만 했던 `4방향 포커싱` 기능을 `Enact` 에서는 `Enact`에서 제공해주는 `Spotlight` 기능만 사용하면 편리하게 구현이 가능하다.
 
-  물론 현재 이 코드만 봐서는 `SpotlightContainerDecorator`가 무엇인지, `Spottable`이 무엇인지 알 수 없지만,
-  해당 내용은 다음 포스팅에서 설명하기로 하고, 우선 코드의 간결함에 대해서 집중해보도록 하겠다.
+물론 현재 이 코드만 봐서는 `SpotlightContainerDecorator`가 무엇인지, `Spottable`이 무엇인지 알 수 없지만,
+해당 내용은 다음 포스팅에서 설명하기로 하고, 우선 코드의 간결함에 대해서 집중해보도록 하겠다.
 
-  이처럼 `Enact` 에는 자체적으로 포커싱에 대한 처리가 지원이 되어, 코드를 좀 더 편하게 작성할 수 있어
-  기능적인 로직 구현에만 온전히 집중할 수 있도록 도움을 주고있다.
+이처럼 `Enact` 에는 자체적으로 포커싱에 대한 처리가 지원이 되어, 코드를 좀 더 편하게 작성할 수 있어
+기능적인 로직 구현에만 온전히 집중할 수 있도록 도움을 주고있다.
 
 ### 그럼 `Enact`의 단점은 ?
 
@@ -185,9 +185,7 @@ date: 2024-01-02
 그래서 우리는 `React`의 `prop-types`를 사용해서 어느 정도 문제를 해결하려고 하고 있는데
 사실 컴파일 단계에서 오류를 잡아주는 부분이 아니다보니, 근본적인 문제 해결을 할 수는 없을 것 같다.
 
-그리고..
-
-❗️❗️❗️ **구글링을 해도 정보가 거의 없다!** ❗️❗️❗️
+❌ **구글링을 해도 정보가 거의 없다.**
 
 현재까지는 공식문서를 열심히 참고하며, 개발 가이드를 익히고 있지만, 설명이 조금 부족한 내용에 대해 참고할 만한 `reference`가 별로 없는 것이 문제이다.
 
