@@ -47,7 +47,7 @@ date: 2023-11-12
 실제로 어떤 식으로 사용해서 만들어 사용하는지 그 예시를 보여드리도록 하겠습니다.
 필자는 `typescript`도 사용하므로, `typescript + react.js`를 예시로 설명하겠습니다.
 
-```jsx
+```tsx
 import { useState, useEffect } from "react";
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -115,7 +115,7 @@ B는 A가 하는 모든 단어에 대해 반응하려고 하지만, 그렇게 �
 
 `useDebounce` 훅과 동일하게, 이번에는 `useThrottle`을 만들어 보겠습니다.
 
-```jsx
+```tsx
 import { useState, useEffect, useRef } from "react";
 
 function useThrottle<T>(value: T, limit: number): T {
@@ -143,7 +143,7 @@ function useThrottle<T>(value: T, limit: number): T {
 
 `useState`를 사용하여 `throttleValue` 상태를 생성합니다. 이 상태를 `throttle` 처리된 값이 저장됩니다. 마찬가지로 초기값으로는 함수에 전달된 `value`를 사용합니다.
 
-```jsx
+```tsx
 const lastUpdated = useRef(Date.now());
 ```
 
@@ -155,8 +155,8 @@ const lastUpdated = useRef(Date.now());
 
 > 이 부분이 바로 `throttle`의 핵심으로, 설정된 시간 간격 (`limit`)동안 오직 한 번만 상태가 업데이트 되도록 합니다.
 
-```jsx
-const throttledScrollPosition = useThrottle < number > (scrollPosition, 200);
+```tsx
+const throttledScrollPosition = useThrottle<number>(scrollPosition, 200);
 ```
 
 ## 마치며,

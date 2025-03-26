@@ -77,7 +77,11 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
   2. `Dashboard`에 들어와 좌측 메뉴에서 `Setting`으로 들어간 후, `API` 메뉴에 접속합니다.
   3. 아래와 같은 화면이 보이는데, 여기서 `URL`과 `anon public` 키를 복사해서 프로젝트에서 사용하면 됩니다.
 
-  ![](/posts/create-guestbook-by-supabase/supabase-auth-key.png)
+<MdxImage
+  src="/posts/create-guestbook-by-supabase/supabase-auth-key.png"
+  alt="supabase-auth-key"
+  caption="Supabase Auth Key"
+/>
 
 이제 포르젝트와 연동했으니, 아까 [Supabase](https://supabase.com/)에서 생성한 프로젝트의 대시보드에서 새로운 테이블을 만들어줍니다.
 저의 경우에는, 아래와 같은 column을 가진 `guestbook` 테이블을 생성했습니다.

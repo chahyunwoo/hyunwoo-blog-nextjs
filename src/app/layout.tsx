@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { ThemeProvider } from "@/shared/lib/providers/theme/theme-provider";
-import { Header } from "@/widgets/header/ui/header";
-import Footer from "@/widgets/footer/ui/footer";
+import "@/styles/globals.css";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { Header } from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
 import { pretendard, roboto } from "./fonts";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "hyunwoo.dev",

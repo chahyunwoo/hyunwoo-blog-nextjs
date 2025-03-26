@@ -1,11 +1,11 @@
-import { InnerContainer } from "@/shared/ui/layout/inner-container";
-import ProfileHeader from "@/_pages/about/ui/profile-header";
-import BreifIntroduction from "@/_pages/about/ui/breif-introduction";
-import Education from "@/_pages/about/ui/education";
-import Skills from "@/_pages/about/ui/skills";
-import RecentExperience from "@/_pages/about/ui/recent-experience";
-import { Locale } from "@/_pages/about/model/types";
-import { PROFILE_DATA } from "@/_pages/about/data";
+import { InnerContainer } from "@/components/layout/inner-container";
+import ProfileHeader from "@/components/features/about/profile-header";
+import Education from "@/components/features/about/education";
+import Skills from "@/components/features/about/skills";
+import RecentExperience from "@/components/features/about/recent-experience";
+import type { Locale } from "@/types";
+import { PROFILE_DATA } from "@/data/i18n";
+import BriefIntroduction from "@/components/features/about/brief-introduction";
 
 type Params = Promise<{ locale: Locale }>;
 
@@ -35,7 +35,7 @@ export default async function Page({ params }: { params: Params }) {
         <ProfileHeader profile={profile} />
 
         {/* 소개글 */}
-        <BreifIntroduction profile={profile} />
+        <BriefIntroduction profile={profile} />
 
         {/* 학력사항 */}
         <Education profile={profile} />
