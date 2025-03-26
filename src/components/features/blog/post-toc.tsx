@@ -44,13 +44,13 @@ export function PostTOC() {
       document.querySelectorAll("h1, h2, h3, h4, h5, h6")
     );
 
-    const headingData = headingElements.map((heading) => {
-      return {
+    const headingData = headingElements
+      .map((heading) => ({
         id: heading.id,
         text: heading.textContent || "",
         level: parseInt(heading.tagName[1]),
-      };
-    });
+      }))
+      .filter((_, index) => index !== 0);
 
     setHeadings(headingData);
 
@@ -68,7 +68,7 @@ export function PostTOC() {
       }
     );
 
-    headingElements.forEach((heading) => {
+    headingElements.slice(1).forEach((heading) => {
       observer.observe(heading);
     });
 
@@ -76,7 +76,7 @@ export function PostTOC() {
       document.documentElement.style.scrollBehavior = "";
       document.head.removeChild(style);
 
-      headingElements.forEach((heading) => {
+      headingElements.slice(1).forEach((heading) => {
         observer.unobserve(heading);
       });
     };
@@ -103,7 +103,7 @@ export function PostTOC() {
   return (
     <Card className="my-6 border border-border/40 py-0 rounded-sm">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CardHeader className="py-4 pb-0">
+        <CardHeader className="py-3">
           <CollapsibleTrigger className="flex items-center justify-between w-full">
             <CardTitle className="text-lg flex items-center gap-2">
               <List className="h-5 w-5" />
