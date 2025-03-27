@@ -129,9 +129,9 @@ Some packages may fail to install due to peer dependency issues (see https://ui.
 
 제 게시글 목록은 `src/posts` 폴더에 저장되어 있고
 폴더 내에 저장된 \*\*.mdx 파일을 전부 가져오거나
-혹은 해당 slug를 가진 파일을 찾아오기 위해 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>glob</strong> 을 사용했습니다.
+혹은 해당 slug를 가진 파일을 찾아오기 위해 <Highlight>glob</Highlight> 을 사용했습니다.
 
-그 후 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>gray-matter</strong>를 사용하여
+그 후 <Highlight>gray-matter</Highlight>를 사용하여
 포스팅 데이터 (mdx 파일)을 parsing하고, 메타데이터를 추출했습니다.
 
 ```terminal
@@ -255,7 +255,7 @@ Suspense 경계 내에서 로딩 상태를 표시하고, 데이터가 로드되�
 
 ---
 
-이후 상세 페이지를 구현하기 위해, 앞서 설명했던 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>gray-matter</strong>를 통해
+이후 상세 페이지를 구현하기 위해, 앞서 설명했던 <Highlight>gray-matter</Highlight>를 통해
 메타데이터와, 콘텐츠를 분리하여 각각 렌더링 해주었습니다.
 
 ```
@@ -268,7 +268,7 @@ Suspense 경계 내에서 로딩 상태를 표시하고, 데이터가 로드되�
 `post-head.tsx` 에서는 메타데이터를 활용하여 포스트의 제목, 날짜, 카테고리 등을 보여주고 있습니다.
 
 `post-body.tsx` 에서는 마크다운 형태로 저장되어 있는 `content`를 HTML 요소로 변환해주는 작업을 하고 있습니다.
-앞서 말씀드린 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>next-mdx-remote</strong> 를 사용하여 위 작업을 진행할 수 있습니다.
+앞서 말씀드린 <Highlight>next-mdx-remote</Highlight> 를 사용하여 위 작업을 진행할 수 있습니다.
 
 ```tsx title="post-body.tsx" {8, 23}
 import { MDXRemote } from "next-mdx-remote/rsc";
