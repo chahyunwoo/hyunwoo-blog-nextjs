@@ -114,7 +114,6 @@ export function PostTOC({
         key={heading.id}
         className={cn(
           "transition-all duration-200 py-1",
-          `pl-${Math.max(0, (heading.level - 1) * 2)}`,
           activeId === heading.id ? "text-primary font-medium" : ""
         )}
       >
@@ -155,7 +154,10 @@ export function PostTOC({
         </CardHeader>
         <CollapsibleContent>
           <CardContent>
-            <ScrollArea className="max-h-[60vh]">
+            <ScrollArea
+              className="max-h-[60vh] overflow-y-auto"
+              scrollHideDelay={100}
+            >
               <nav aria-label="Table of contents">
                 <ul className="space-y-1 text-sm">{renderHeadingItems}</ul>
               </nav>
