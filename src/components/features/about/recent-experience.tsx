@@ -4,7 +4,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/common/card";
+} from "@/components/ui/card";
 import type { Profile } from "@/types";
 
 export default function RecentExperience({ profile }: { profile: Profile }) {

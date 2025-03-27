@@ -6,20 +6,15 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/common/select";
+} from "@/components/ui/select";
 import { Globe } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import type { Locale } from "@/types";
+import { LANGUAGE_MAP } from "@/lib/constants";
 
-const languageMap: Record<Locale, string> = {
-  ko: "한국어",
-  en: "English",
-  jp: "日本語",
-};
-
-export default function LanguageSwitch() {
+export default memo(function LanguageSwitch() {
   const pathname = usePathname()!;
   const router = useRouter();
   const currentLocale = pathname.split("/")[2] || "ko";
@@ -36,10 +31,10 @@ export default function LanguageSwitch() {
       <Select onValueChange={handleChange}>
         <SelectTrigger>
           <Globe />
-          <SelectValue placeholder={languageMap[currentLocale as Locale]} />
+          <SelectValue placeholder={LANGUAGE_MAP[currentLocale as Locale]} />
         </SelectTrigger>
         <SelectContent>
-          {Object.entries(languageMap).map(([locale, language]) => (
+          {Object.entries(LANGUAGE_MAP).map(([locale, language]) => (
             <SelectItem key={locale} value={locale}>
               {language}
             </SelectItem>
@@ -48,4 +43,4 @@ export default function LanguageSwitch() {
       </Select>
     </div>
   );
-}
+});

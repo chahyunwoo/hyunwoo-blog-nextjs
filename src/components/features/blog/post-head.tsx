@@ -1,4 +1,4 @@
-import { Badge } from "../../common/badge";
+import { Badge } from "../../ui/badge";
 import { Post } from "@/types";
 export function PostHead({ post }: { post: Post }) {
   return (

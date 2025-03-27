@@ -18,10 +18,23 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }) {
   const { locale } = await params;
   const profile = PROFILE_DATA[locale];
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
   return {
     title: `${profile.name} | ${profile.job}`,
     description: `${profile.introduction}`,
+    openGraph: {
+      title: `${profile.name} | ${profile.job}`,
+      description: `${profile.introduction}`,
+      images: [
+        {
+          url: `${baseUrl}/images/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: `${profile.name} | ${profile.job}`,
+        },
+      ],
+    },
   };
 }
 

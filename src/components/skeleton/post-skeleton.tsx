@@ -3,8 +3,8 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/common/card";
-import { Skeleton } from "@/components/common/skeleton";
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PostSkeletonProps {
   count?: number;

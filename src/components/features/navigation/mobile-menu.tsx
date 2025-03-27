@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useCallback, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -8,14 +8,14 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/common/sheet";
-import { Button } from "@/components/common/button";
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import Logo from "@/components/common/logo";
+import Logo from "@/components/ui/logo";
 import ActiveLink from "@/components/features/navigation/active-link";
 import type { MenuItem, CategoryData } from "@/types";
-import { BlogMenuContent } from "./blog-menu-content";
 import { BlogMenuSkeleton } from "@/components/skeleton/blog-menu-skeleton";
+import { BlogCategoryNavigator } from "./blog-category-navigator";
 interface MobileMenuProps {
   menuItems: MenuItem[];
   categories: CategoryData[];
@@ -26,6 +26,10 @@ export default function MobileMenu({
   categories = [],
 }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const onClose = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -55,10 +59,11 @@ export default function MobileMenu({
               if (isBlogMenu) {
                 return (
                   <Suspense key={name} fallback={<BlogMenuSkeleton />}>
-                    <BlogMenuContent
-                      menuName={name}
+                    <BlogCategoryNavigator
                       categories={categories}
-                      closeMenu={() => setIsOpen(false)}
+                      variant="menu"
+                      menuName={name}
+                      closeMenu={onClose}
                     />
                   </Suspense>
                 );
@@ -70,7 +75,7 @@ export default function MobileMenu({
                   href={href}
                   title={name}
                   className="px-4 py-2 rounded-md hover:bg-accent hover:text-foreground transition-colors text-muted-foreground"
-                  onClick={() => setIsOpen(false)}
+                  onClick={onClose}
                 />
               );
             })}

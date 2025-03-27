@@ -1,12 +1,12 @@
 import type { Post } from "@/types";
 import { formatDate } from "@/lib/utils";
-import { Badge } from "@/components/common/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/common/card";
+} from "@/components/ui/card";
 import Image from "next/image";
 
 interface PostCardProps {
@@ -14,7 +14,7 @@ interface PostCardProps {
   index: number;
 }
 
-export function PostCard({ post, index }: PostCardProps) {
+export function PostCard({ post }: PostCardProps) {
   return (
     <Card className="h-full flex flex-col overflow-hidden border-none py-0 pb-4 rounded-sm gap-2">
       {post.meta.thumbnail && (

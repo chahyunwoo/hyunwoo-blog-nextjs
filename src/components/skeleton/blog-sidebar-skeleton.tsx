@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "../common/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 interface BlogSidebarSkeletonProps {
   count?: number;

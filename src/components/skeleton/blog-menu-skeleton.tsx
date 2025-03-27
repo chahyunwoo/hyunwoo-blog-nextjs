@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@/components/common/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function BlogMenuSkeleton() {
   return (

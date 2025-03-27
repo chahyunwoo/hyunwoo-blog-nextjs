@@ -2,12 +2,12 @@
 
 import AboutContainer from "../../layout/about-container";
 import { CHART_CONFIG, SKILLS_DATA } from "@/lib/constants";
-import { Card, CardContent } from "@/components/common/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/common/chart";
+} from "@/components/ui/chart";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 
 export default function Skills() {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 interface ActiveLinkProps {
   href: string;
@@ -11,7 +12,7 @@ interface ActiveLinkProps {
   onClick?: () => void;
 }
 
-export default function ActiveLink({
+export default memo(function ActiveLink({
   href,
   title,
   className,
@@ -32,4 +33,4 @@ export default function ActiveLink({
       {title}
     </Link>
   );
-}
+});

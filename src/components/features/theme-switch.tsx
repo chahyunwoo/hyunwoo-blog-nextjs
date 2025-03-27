@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Moon, Sun, Laptop } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import {
@@ -9,10 +8,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/common/dropdown-menu";
-import { Button } from "@/components/common/button";
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-export function ThemeSwitch() {
+import { memo } from "react";
+import { THEME_TYPES } from "@/lib/constants";
+import { Moon, Sun } from "lucide-react";
+
+export default memo(function ThemeSwitch() {
   const { theme, setTheme } = useTheme();
 
   return (
@@ -25,37 +28,20 @@ export function ThemeSwitch() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => setTheme("light")}
-          className={cn(
-            "flex items-center gap-2",
-            theme === "light" ? "bg-accent font-medium" : ""
-          )}
-        >
-          <Sun className="h-4 w-4" />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("dark")}
-          className={cn(
-            "flex items-center gap-2",
-            theme === "dark" ? "bg-accent font-medium" : ""
-          )}
-        >
-          <Moon className="h-4 w-4" />
-          <span>Dark</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => setTheme("system")}
-          className={cn(
-            "flex items-center gap-2",
-            theme === "system" ? "bg-accent font-medium" : ""
-          )}
-        >
-          <Laptop className="h-4 w-4" />
-          <span>System</span>
-        </DropdownMenuItem>
+        {THEME_TYPES.map(({ name, icon: Icon }) => (
+          <DropdownMenuItem
+            key={name}
+            onClick={() => setTheme(name)}
+            className={cn(
+              "flex items-center gap-2",
+              theme === name ? "bg-accent font-medium" : ""
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            <span>{name}</span>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+});

@@ -1,10 +1,10 @@
-import { IconButton } from "@/components/common/button";
+import { IconButton } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
 import profileImage from "../../../../public/images/chahyunwoo-profile.jpg";
-import { EmailButton } from "./email-button";
 import type { Profile } from "@/types";
 import LanguageSwitch from "@/components/features/language-switch";
+import CopyButton from "@/components/common/copy-button";
 
 export default function ProfileHeader({ profile }: { profile: Profile }) {
   return (
@@ -29,9 +29,11 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
               href={link.href}
             />
           ))}
-          <EmailButton
-            email="chahyunwoobi@gmail.com"
-            copyString={profile.copied}
+          <CopyButton
+            variant="outline"
+            icon="Mail"
+            description="이메일이 복사되었습니다."
+            target="chahyunwoobi@gmail.com"
           />
         </div>
       </div>

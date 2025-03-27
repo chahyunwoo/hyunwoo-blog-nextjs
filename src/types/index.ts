@@ -3,6 +3,7 @@ export interface MenuItem {
   href: string;
 }
 
+//BLOG
 export interface PostMeta {
   title: string;
   description: string;
@@ -46,6 +47,7 @@ export interface CategoryData {
   recent: boolean;
 }
 
+//ABOUT
 export type Locale = "ko" | "en" | "jp";
 
 export type Profile = {

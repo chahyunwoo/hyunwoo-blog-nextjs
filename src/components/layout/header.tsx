@@ -1,11 +1,11 @@
 import { InnerContainer } from "@/components/layout/inner-container";
-import { ThemeSwitch } from "@/components/features/theme-switch";
+import ThemeSwitch from "@/components/features/theme-switch";
 import MobileMenu from "@/components/features/navigation/mobile-menu";
 import { MENU_ITEMS } from "@/lib/constants";
 import DesktopMenu from "@/components/features/navigation/desktop-menu";
 import Link from "next/link";
-import Logo from "../common/logo";
-import { IconButton } from "@/components/common/button";
+import Logo from "../ui/logo";
+import { IconButton } from "@/components/ui/button";
 import { Github } from "lucide-react";
 import { getCategoriesWithTags } from "@/services/post";
 

@@ -1,10 +1,8 @@
 import { InnerContainer } from "@/components/layout/inner-container";
-import type { CategoryData } from "@/types";
-import { BlogSidebar } from "@/components/features/blog/blog-sidebar";
-import { BlogParams } from "@/app/page";
 import { getCategoriesWithTags } from "@/services/post";
 import { Suspense } from "react";
 import { BlogSidebarSkeleton } from "@/components/skeleton/blog-sidebar-skeleton";
+import { BlogCategoryNavigator } from "../features/navigation/blog-category-navigator";
 
 interface BlogLayoutProps {
   children: React.ReactNode;
@@ -13,7 +11,7 @@ interface BlogLayoutProps {
 async function BlogSidebarContainer() {
   const categories = await getCategoriesWithTags();
 
-  return <BlogSidebar categories={categories} />;
+  return <BlogCategoryNavigator categories={categories} variant="sidebar" />;
 }
 
 export function BlogLayout({ children }: BlogLayoutProps) {

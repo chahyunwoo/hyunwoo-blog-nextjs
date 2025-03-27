@@ -1,8 +1,8 @@
 import { Post } from "@/types";
-import { Badge } from "@/components/common/badge";
-import { ShareButton } from "./share-button";
+import { Badge } from "@/components/ui/badge";
 import { Giscus } from "./giscus";
 import { Tag } from "lucide-react";
+import CopyButton from "@/components/common/copy-button";
 interface PostFooterProps {
   post: Post;
 }
@@ -30,7 +30,11 @@ export function PostFooter({ post }: PostFooterProps) {
             </div>
           </div>
           <div className="flex items-center gap-2 pt-8">
-            <ShareButton />
+            <CopyButton
+              description="링크가 복사되었습니다."
+              icon="Share2"
+              useCurrentUrl
+            />
           </div>
         </div>
         <Giscus />

@@ -3,7 +3,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/common/card";
+} from "@/components/ui/card";
 
 interface EducationCardProps {
   institution: string;

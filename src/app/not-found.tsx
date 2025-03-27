@@ -1,4 +1,4 @@
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/ui/button";
 import { InnerContainer } from "@/components/layout/inner-container";
 import React from "react";
 import Link from "next/link";
