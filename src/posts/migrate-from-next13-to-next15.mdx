@@ -1,0 +1,369 @@
+---
+title: "Migrate from Next 13 to Next 15"
+description: "Upgrade my blog Made with Next.js"
+date: "2025-03-27T13:20:07"
+mainTag: "Frontend"
+tags: ["Next.js", "React"]
+thumbnail: /thumbnail/migrate-from-next13-to-next15.png
+published: true
+---
+
+# Next13에서 15로: 블로그 마이그레이션
+
+2023년에 Next.js 프레임워크를 공부하면서, 가장 먼저 생각했던 프로젝트가 블로그였습니다.
+그 당시 Next.js는 그야말로 대격변의 시대였는데, page router -> app router 로의 점진적인 마이그레이션이 가능하게 되었습니다.
+
+제가 처음 블로그를 개발한 버전은 13.5 버전이었는데요.
+해당 버전을 사용할 때에는 App Router가 Beta 상태였고, API Route 관련해서 특히 혼란스러운 상황이었습니다.
+
+당시 Next.js에 대해서 정확하게 이해하지 못하고 있었고 (물론 현재도 많이 부족합니다.)
+따라서 블로그를 개발하면서 정말 많은 문제를 겪었습니다.
+
+[현재 블로그](https://chahyunwoo.dev)의 개발 과정에 대해서는 [해당 포스트](https://chahyunwoo.dev/posts/how-to-make-blog-with-nextjs)에서 자세히 설명할 예정이며 오늘은 Next13과 Next15의 차이점에 대해서 기술하려고 합니다.
+
+## 🎯 Next.js 의 사전 렌더링이란?
+
+Next의 App Router를 알아보기 전에 Next의 사전 렌더링에 대해서 이해해야할 필요가 있습니다.
+Next는 기본적으로 사전 렌더링을 지원하며 이는 React의 렌더링 방식인 CSR의 단점을 해결하기 위해 도입되었습니다.
+
+먼저 사용자가 웹페이지를 보기 위해 일어나는 과정을 보겠습니다.
+
+1. 유저 → 브라우저(클라이언트) → 서버 순으로 접속 요청을 한다.
+2. 서버에서 JS를 실행하며 렌더링 과정을 거친다.
+3. 렌더링 된 HTML을 브라우저로 보낸다.
+4. 화면에 렌더링을 해주며, 유저가 화면을 볼 수 있게 된다.
+5. 후속작업으로 자바스크립트 코드를 번들링하여 브라우저에 보내준다.
+6. 브라우저에서는 자바스크립트 코드를 실행하여 HTML에 연결시켜준다.
+
+-> 이러한 과정을 거치면 상호작용이 가능해집니다.
+
+<Callout type="info">
+  2번에서 일어나는 렌더링이란, **자바스크립트 코드를 HTML로 변환하는 과정**이며
+  4번에서 일어나는 렌더링이란, **HTML 코드를 브라우저가 화면에 그려내는
+  작업**입니다.
+</Callout>
+
+이 과정 이후 페이지 이동 요청을 할 경우에는 기존 CSR 방식으로 처리가 됩니다.
+
+> 즉, 초기 사전 렌더링을 통해 React의 초기 렌더링이 느려지는 단점을 극복함과 동시에, React의 장점을 승계하여 빠른 페이지 이동이 가능하게 합니다.
+
+#### Data Fetching
+
+|                              Next.js                              |                                  React                                  |
+| :---------------------------------------------------------------: | :---------------------------------------------------------------------: |
+| - 사전 렌더링 중에 발생함<br/> - 데이터 요청 시점이 빨라지는 장점 | - 컴포넌트 마운트 이후에 발생함<br/> - 데이터 요청 시점이 느려지는 단점 |
+
+## App Router
+
+App Router는 현재 충분히 안정화가 된 상태이며,
+현업에서 또한 Page Router -> App Router 로의 마이그레이션을 진행하고 있기에,
+App Router의 안정성에 대해서는 크게 문제가 없다고 생각합니다.
+Next.js는 framework인 만큼 다양한 기능들에 대해서 정형화된 문법을 제공하고 있고,
+이러한 문법들을 통해서 개발자들이 더 쉽게 코드를 작성할 수 있지만 러닝 커브가 높아질 수 있습니다.
+
+|      | App Router                                                                                                                                        |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 장점 | - 라우팅 시스템이 더 직관적이고 예측 가능<br/> - data fetching 방식이 개선됨<br/> - 서버 컴포넌트 및 스트리밍 지원<br/> - 서버 액션의 완전한 지원 |
+| 단점 | - Page Router에 비해 러닝 커브가 있음 <br/> - 기존 프로젝트에서 마이그레이션이 어려움                                                             |
+
+<Callout type="warning">주관적 견해가 포함되어 있습니다.</Callout>
+
+앞서 말씀드린 것과 같이, Next15 에서는 App Router가 굉장히 안정화되었는데,
+그렇다고 Next에서 더이상 Page Router를 지원하지 않는 것은 아닙니다.
+현재까지도 현업에서 Page Router를 사용한 프로젝트가 많이 있고,
+Page Router가 App Router보다 무조건 좋지 않다는 것을 의미하지는 않습니다.
+
+## Next13과 Next15 주요 차이
+
+**1. Turbopack 정식 도입**
+
+Next13 에서는 Turbopack이 알파 버전으로 소개되었지만,
+Next15 에서는 기본 번들러로 통합되었습니다.
+
+- 개발 서버 시작 시간 최대 94% 단축
+- 코드 변경 시 새로고침 속도 최대 71% 향상
+- 메모리 사용량 감소
+
+**2. 서버 액션 기능 강화**
+
+- 폼 제출 및 데이터 변경 작업의 간소화
+- 클라이언트-서버 통신의 투명한 추상화
+- 최적화된 성능과 보안 강화
+- 점진적 개선(Progressive Enhancement) 자동 지원
+
+**3. 메타데이터 API 확장**
+
+- 동적 메타데이터 생성의 간소화
+- 구조화된 데이터(JSON-LD) 지원 향상
+- Open Graph 및 Twitter 카드 자동 생성 기능 개선
+
+## API Route의 변화: Page Router -> App Router
+
+Next.js 13.5 시기에는 App Router가 베타 단계였기 때문에 많은 개발자들이 API Route를 구현할 때 여전히 Pages Router 방식을 사용했습니다.
+이는 의도적인 선택이었는데, App Router의 API 처리 방식이 아직 완전히 안정화되지 않았기 때문입니다.
+
+#### **Page Router의 API ROUTE**
+
+Pages Router에서 API Route는 `/pages/api/` 디렉토리 내에 파일을 생성하여 구현했습니다
+
+```js title="pages/api/posts.js"
+export default function handler(req, res) {
+  if (req.method === 'GET') {
+    // 데이터 조회 로직
+    res.status(200).json({ posts: [...] });
+  } else if (req.method === 'POST') {
+    // 데이터 생성 로직
+    res.status(201).json({ message: '포스트가 생성되었습니다' });
+  } else {
+    res.setHeader('Allow', ['GET', 'POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+```
+
+이 방식은 익숙하고 안정적이었기 때문에 많은 개발자들이 App Router를 일부 도입하더라도 API 부분은 Pages Router 방식을 유지했습니다.
+
+#### **App Router의 Route Handlers**
+
+Next.js 15에서는 App Router의 Route Handlers가 완전히 안정화되어 /app 디렉토리 내에서 API를 구현하는 것이 권장됩니다
+
+```js title="app/api/posts/route.js"
+export async function GET() {
+  // 데이터 조회 로직
+  return Response.json({ posts: [...] });
+}
+
+export async function POST(request) {
+  const data = await request.json();
+  // 데이터 생성 로직
+  return Response.json({ message: '포스트가 생성되었습니다' }, { status: 201 });
+}
+```
+
+해당 방식의 주요 장점은 다음과 같습니다.
+
+- Web 표준 Response/Request API 사용
+- 각 HTTP 메소드별로 함수 분리
+- 서버 컴포넌트와 일관된 데이터 패칭 패턴
+- 향상된 타입 안전성
+- 미들웨어와의 더 나은 통합
+
+#### 하이브리드 접근 방식의 도전과제
+
+Next.js 13.5에서는 많은 프로젝트가 다음과 같은 하이브리드 구조를 가졌습니다:
+
+- `/app`: 일부 페이지 및 UI 컴포넌트 (App Router)
+- `/pages`: 일부 페이지 (Pages Router)
+- `/pages/api`: 모든 API 엔드포인트 (Pages Router)
+
+이러한 접근 방식은 다음과 같은 문제가 있습니다.
+
+- 두 가지 라우팅 시스템 간의 개념적 불일치
+- API 로직과 페이지 로직 간의 불필요한 분리
+- 타입 정의 및 인터페이스 불일치
+- 프로젝트 구조의 복잡성 증가
+
+## 마이그레이션 과정에서의 주요 내용
+
+### 1. 서버 컴포넌트와 클라이언트 컴포넌트 구분하기
+
+Next.js 13에서도 서버 컴포넌트가 있었지만, Next.js 15에서는 더 명확한 구분이 필요했습니다.
+
+```jsx
+"use client";
+
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <button onClick={() => setCount(count + 1)}>클릭 횟수: {count}</button>
+  );
+}
+```
+
+### 2. 데이터 페칭 방식 변경
+
+Next.js 13에서 사용하던 getStaticProps, getServerSideProps 등이 App Router에서는 완전히 다른 방식으로 변경되었습니다.
+
+**변경 전**
+
+```jsx title="pages/blog/[slug].js"
+export async function getStaticProps({ params }) {
+  const post = await getPostBySlug(params.slug);
+  return { props: { post } };
+}
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return {
+    paths: posts.map((post) => ({ params: { slug: post.slug } })),
+    fallback: false,
+  };
+}
+```
+
+**변경 후**
+
+```jsx title="app/blog/[slug]/page.js"
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
+
+export default async function BlogPost({ params }) {
+  const post = await getPostBySlug(params.slug);
+  return <Article post={post} />;
+}
+```
+
+### 3. API Route에서 Route Handlers와 서버 액션으로 전환
+
+Next.js 13.5에서는 API Route를 위해 Pages Router를 계속 사용했지만,
+Next.js 15로 마이그레이션하면서 Route Handlers와 서버 액션으로 전환했습니다.
+
+**변경 전**
+
+```js title="pages/api/contact.js"
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  try {
+    const data = JSON.parse(req.body);
+    await saveToDatabase(data);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+```
+
+**변경 후**
+
+```js title="app/api/contact/route.js"
+export async function POST(request) {
+  try {
+    const data = await request.json();
+    await saveToDatabase(data);
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+}
+```
+
+또는 서버 액션을 사용하는 방식도 있습니다.
+
+**변경 전**
+
+```jsx
+"use client";
+
+import { useState } from "react";
+
+export default function ContactForm() {
+  const [formData, setFormData] = useState({});
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      body: JSON.stringify(formData),
+    });
+    // 처리 로직
+  };
+
+  return <form onSubmit={handleSubmit}>{/* 폼 요소들 */}</form>;
+}
+```
+
+**변경 후**
+
+```jsx
+async function submitForm(formData) {
+  "use server";
+
+  const name = formData.get("name");
+  const email = formData.get("email");
+  const message = formData.get("message");
+
+  await saveToDatabase({ name, email, message });
+
+  return { success: true };
+}
+```
+
+```jsx title="client component"
+"use client";
+
+import { useFormState } from "react-dom";
+
+export default function ContactForm() {
+  const [state, formAction] = useFormState(submitForm, null);
+
+  return (
+    <form action={formAction}>
+      {/* 폼 요소들 */}
+      {state?.success && <p>메시지가 전송되었습니다!</p>}
+    </form>
+  );
+}
+```
+
+### 4. 메타데이터 설정 방식 변경
+
+SEO 최적화를 위한 메타데이터 설정 방식이 크게 변경되었습니다.
+
+**변경 전**
+
+```jsx title="pages/_app.js"
+import Head from "next/head";
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <>
+      <Head>
+        <title>내 블로그</title>
+        <meta name="description" content="기술 블로그입니다." />
+      </Head>
+      <Component {...pageProps} />
+    </>
+  );
+}
+```
+
+**변경 후**
+
+```jsx title="app/layout.js"
+export const metadata = {
+  title: {
+    template: "%s | 내 블로그",
+    default: "내 블로그",
+  },
+  description: "기술 블로그입니다.",
+  openGraph: {
+    images: "/og-image.jpg",
+  },
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="ko">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+## 결론
+
+Next.js 13에서 15로의 마이그레이션은 단순한 버전 업그레이드 이상의 패러다임 전환이었습니다.
+App Router의 완전한 도입, 서버 컴포넌트의 성숙, 그리고 Turbopack의 정식 지원은 개발 경험과 최종 사용자 경험 모두를 크게 향상시켰습니다.
+
+비록 초기에는 익숙한 패턴에서 벗어나는 것이 도전적이었지만, 마이그레이션 후에는 코드의 구조와 성능 모두 개선되었습니다.
+Next.js 팀이 제공하는 마이그레이션 가이드와 문서를 적극 활용하면, 이 과정을 더 수월하게 진행할 수 있을 것입니다.
+
+해당 블로그 마이그레이션에 대한 자세한 내용은 [해당 포스트](https://chahyunwoo.dev/posts/how-to-make-blog-with-nextjs)를 참고 부탁드립니다.
