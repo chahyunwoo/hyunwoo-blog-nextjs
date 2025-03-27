@@ -27,6 +27,7 @@ export function BlogCategoryNavigator({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const isBlogActive = pathname === "/" || pathname.startsWith("/blog/");
 
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set(categories.map((cat) => cat.category))
@@ -195,7 +196,11 @@ export function BlogCategoryNavigator({
         onOpenChange={setIsMenuOpen}
         className="w-full"
       >
-        <CollapsibleTrigger className="flex justify-between items-center w-full px-4 py-2 rounded-md hover:bg-accent hover:text-foreground transition-colors text-muted-foreground">
+        <CollapsibleTrigger
+          className={`flex justify-between items-center w-full px-4 py-2 rounded-md hover:bg-accent hover:text-foreground transition-colors ${
+            isBlogActive ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
           <span>{menuName}</span>
           {isMenuOpen ? (
             <ChevronUp className="h-4 w-4" />
