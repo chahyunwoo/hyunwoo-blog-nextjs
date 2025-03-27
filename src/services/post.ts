@@ -7,29 +7,17 @@ import matter from "gray-matter";
 import { cache } from "react";
 import { delay } from "@/lib/utils";
 
-export const getPostFilePaths = async (): Promise<string[]> => {
-  return glob("**/*.mdx", { cwd: POSTS_PATH });
-};
+export const getPostBySlug = (slug: string): Post | null => {
+  const files = glob.sync(`**/${slug}.mdx`, { cwd: POSTS_PATH });
 
-export const getPostFilePathBySlug = async (
-  slug: string
-): Promise<string | null> => {
-  const files = await getPostFilePaths();
-  const filePath = files.find((file) => file.endsWith(`${slug}.mdx`));
-  return filePath ?? null;
-};
-
-export const getPostBySlug = async (slug: string): Promise<Post | null> => {
-  const filePath = await getPostFilePathBySlug(slug);
-
-  if (!filePath) {
+  if (files.length === 0) {
     return null;
   }
 
+  const filePath = files[0];
   const fullPath = path.join(POSTS_PATH, filePath);
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
-  const grayMatter = data as PostMeta;
 
   const meta: PostMeta = {
     title: data.title || "",
@@ -43,34 +31,25 @@ export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   };
 
   return {
-    ...grayMatter,
+    ...(data as PostMeta),
     meta,
     content,
   };
 };
 
-export const getAllPosts = async (): Promise<Post[]> => {
-  const filePaths = await getPostFilePaths();
-  const posts = await Promise.all(
-    filePaths.map(async (filePath) => {
-      const slug = filePath.replace(/\.mdx$/, "");
-      const post = await getPostBySlug(slug);
-      return post;
-    })
-  );
-
-  return posts
-    .filter((post): post is Post => post !== null)
-    .sort(
-      (a, b) =>
-        new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime()
-    );
-};
-
 export const getPublishedPosts = async (): Promise<Post[]> => {
-  const posts = (await getAllPosts()).filter((post) => post.meta.published);
+  const filePaths = await glob("**/*.mdx", { cwd: POSTS_PATH });
 
-  return posts;
+  const posts = filePaths
+    .map((filePath) => {
+      const slug = filePath.replace(/\.mdx$/, "");
+      return getPostBySlug(slug);
+    })
+    .filter((post): post is Post => post !== null && post.meta.published);
+
+  return posts.sort(
+    (a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime()
+  );
 };
 
 export const getCategoriesWithTags = cache(

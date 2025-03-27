@@ -105,6 +105,14 @@
   pre {
     @apply bg-[#fdf6e3] text-[#657b83];
   }
+
+  code span[data-highlighted-line] {
+    background-color: rgba(0, 128, 255, 0.2) !important;
+  }
+
+  code span[data-highlighted-line] span {
+    background-color: transparent !important;
+  }
 }
 
 .dark {
@@ -165,6 +173,14 @@
 
   pre {
     @apply bg-[#0b0e14] text-[#bfbdb6];
+  }
+
+  code span[data-highlighted-line] {
+    background-color: rgba(253, 224, 71, 0.2) !important;
+  }
+
+  code span[data-highlighted-line] span {
+    background-color: transparent !important;
   }
 }
 

@@ -1,0 +1,324 @@
+---
+title: "How to make blog with Next.js"
+description: "Blog developed using Next 15"
+date: "2025-03-27T19:19:52"
+mainTag: "Frontend"
+tags: ["Next.js", "Tailwind", "shadcn"]
+thumbnail: /thumbnail/how-to-make-blog-with-nextjs.png
+published: true
+---
+
+# 블로그 마이그레이션 기록
+
+Next.js로 블로그를 처음 개발한 지가 벌써 2년이 되어갑니다.
+그 동안 여러가지 이유로 포스팅도 많이 못했고, 블로그 관리에도 소홀했는데요.
+시간이 지나면서 Next.js 15버전이 release 되었고
+이전에 사용했던 버전에 비해 안정화되고 성능 향상이 되었다고 들어서
+스터디도 진행할 겸 블로그 마이그레이션을 진행하게 되었습니다.
+
+공식문서가 굉장히 친절하게 나와있음에도 불구하고 이해하는데 어려움이 많았습니다.
+아직 부족한 부분이 많음에도 불구하고 누군가에겐 도움이 되는 내용이 되었으면 좋겠습니다.
+
+제 블로그 소스코드는 [Github](https://github.com/chahyunwoo/hyunwoo-nextjs-blog)에서 확인하실 수 있습니다.
+
+# STACK
+
+1. **Language**: `Typescript`
+
+- Javascript의 슈퍼셋인 Typescript를 사용하여
+  정적 타입 체크를 사용해 코드의 품질과 안정성을 향상시키기 위해 사용했습니다.
+
+2. **Framework**: `Next.js`
+
+- 기존 Next 13 버전에서는 app router가 안정적이지 않아 app router를 온전히 사용하지 못했습니다.
+  시간이 지나며 app router가 안정화되었고, 15버전이 나오면서 성능 또한 충분히 개선되었고
+  아직은 RC 버전인 React 19 버전을 충분히 사용할 수 있는 환경이 되었습니다.
+  Next 15와 Next 13의 차이점은 [해당 포스트](https://chahyunwoo.dev/blog/migrate-from-next13-to-next15)에서 확인 가능합니다.
+
+3. **Content**: `MDX / next-mdx-remote`
+
+- 처음 블로그를 개발할 당시에 contentlayer를 사용하며 큰 불편함이 없었기에
+  이번에도 contentlayer를 사용하려고 했으나, 현재 contentlayer는 잠정 중단 상태이고
+  vercel에서도 후원을 중단하였습니다.
+  또한, 최신 버전의 Next.js와 호환되지 않는 문제가 있어 콘텐츠 관리를 next-mdx-remote를 사용하게 되었습니다.
+  next-mdx-remote 또한 공식 문서가 굉장히 부족하지만, Next 공식 문서에도 next-mdx-remote를 사용하는 예시가 있어 참고하였습니다.
+
+  next/mdx와 next-mdx-remote 중에 고민하였으나, next-mdx-remote는 CMS(contentful, sanity 등)에서 콘텐츠를 가져올 수 있어
+  훗날 확장성이 높다고 판단되어 next-mdx-remote를 사용하게 되었습니다.
+
+4. **Styling**: `Tailwind CSS` + `shadcn/ui`
+
+- tailwind 4버전이 출시됨에 따라 많은 보일러 플레이트 코드가 줄어들었고,
+  현재 shadcn/ui에서도 next 15와 tailwind 4 버전에 대한 지원이 [공식문서](https://ui.shadcn.com/docs/tailwind-v4)에도 나와있어
+  개발의 편의성을 높이기 위해 shadcn/ui를 사용하게 되었습니다.
+
+  shadcn/ui는 vercel의 shadcn이 만든 UI 도구로, **radix UI**와 **Tailwind CSS**를 기반으로 하는 **Component Collection** 입니다.
+  이는 전통적인 컴포넌트 라이브러리와 다르게 **번들되지 않은** 컴포넌트 소스 코드를 프로젝트에 의존성으로 추가하는 것이 아닌, **복붙**해서 사용하기 때문에
+  커스텀에 유연합니다.
+
+<Callout type="info">
+  이전 블로그 제작기를 통해 초기 설정 방법을 포스팅 했으므로, 자세한 내용은
+  기술하지 않겠습니다.
+</Callout>
+
+## 블로그 기능 정리
+
+기존 블로그에서는 supabase 라는 서비스를 사용하여 데이터베이스를 구축하여 방명록 기능을 구현했지만,
+supabase 무료 사용자는 7일 동안 사용이 없을 시 해당 프로젝트가 일시 정지되어 계속 일시 정지를 풀었어야 했습니다.
+따라서 이번 마이그레이션에서는 방명록 기능은 구현하지 않았습니다.
+
+- 게시글 목록
+- 게시글 상세
+- 게시글 내 댓글 기능
+
+기술 블로그로 활용을 할 목적이기에 부가적인 기능은 구현하지 않고,
+오로지 포스팅 기능에만 집중했습니다.
+
+## 프로젝트 설치 및 설정
+
+**1. Next.js 프로젝트 생성**
+
+```bash
+npx create-next-app@latest
+```
+
+해당 명령어를 실행하면, 프롬프트를 통해 프로젝트 설정을 진행할 수 있습니다.
+저는 스테이블한 Next 15의 Turbopack을 몸소 경험하고싶어 터보팩을 사용하기로 했습니다.
+
+```terminal {7}
+What is your project named? my-app
+Would you like to use TypeScript?  Yes
+Would you like to use ESLint? Yes
+Would you like to use Tailwind CSS? Yes
+Would you like your code inside a `src/` directory? Yes
+Would you like to use App Router? (recommended) Yes
+Would you like to use Turbopack for `next dev`?  Yes
+Would you like to customize the import alias (`@/*` by default)? No
+What import alias would you like configured? @/*
+```
+
+Next 15에서는 기본적으로 Tailwind 4 버전을 사용하기 때문에,
+만일 익숙한 3 버전을 사용하고자 한다면 직접 설정을 추가해야 합니다.
+
+저는 Tailwind 4 버전으로 진행하였습니다.
+
+**2. Tailwind + shadcn/ui 설정**
+
+tailwind css는 위 1번 과정을 통해 이미 설치되었기 때문에,
+shadcn/ui를 셋팅하기 위해선 다음과 같은 명령어를 실행합니다.
+
+```terminal
+npx shadcn@latest init
+```
+
+현재 npm을 사용하여 shadcn/ui를 사용할 경우, 피어 종속성 문제를 해결하기 위한 옵션을 선택하라는 프롬프트가 출력됩니다.
+
+```terminal
+It looks like you are using React 19.
+Some packages may fail to install due to peer dependency issues (see https://ui.shadcn.com/react-19).
+
+? How would you like to proceed? › - Use arrow-keys. Return to submit.
+❯   Use --force
+    Use --legacy-peer-deps
+```
+
+그 이후 선택한 플래그로 명령어를 실행하게 됩니다.
+자세한 내용은 [공식문서](https://ui.shadcn.com/docs/react-19)에서 확인하실 수 있습니다.
+
+## 게시글 목록 및 상세 페이지 구현을 위한 로직
+
+제 게시글 목록은 `src/posts` 폴더에 저장되어 있고
+폴더 내에 저장된 \*\*.mdx 파일을 전부 가져오거나
+혹은 해당 slug를 가진 파일을 찾아오기 위해 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>glob</strong> 을 사용했습니다.
+
+그 후 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>gray-matter</strong>를 사용하여
+포스팅 데이터 (mdx 파일)을 parsing하고, 메타데이터를 추출했습니다.
+
+```terminal
+npm i glob gray-matter
+```
+
+```ts {2, 10-11}
+export const getPostBySlug = (slug: string): Post | null => {
+  const files = glob.sync(`**/${slug}.mdx`, { cwd: POSTS_PATH });
+
+  if (files.length === 0) {
+    return null;
+  }
+
+  const filePath = files[0];
+  const fullPath = path.join(POSTS_PATH, filePath);
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const { data, content } = matter(fileContents);
+
+  // 추가 로직
+};
+```
+
+이는 mdx 파일에서 다음과 같이 `---` 사이에 있는 YAML 형식의 메타데이터를 파싱하여, `data` 객체로 반환하고,
+그 아래의 마크다운 콘텐츠를 `content` 문자열로 반환하는 역할을 합니다.
+
+해당 작업을 통해 mdx 파일의 메타데이터와 콘텐츠를 쉽게 분리할 수 있습니다.
+
+```mdx
+---
+title: "title"
+description: "description"
+---
+```
+
+**저는 gray-matter를 사용했지만, next-mdx-remote에서도 compileMDX 내의 parseFrontmatter 옵션을 통해 추출이 가능합니다.**
+
+이렇게 glob을 사용해서, sync 메서드를 통해 특정 슬러그를 가지고 있는 mdx 파일을 찾으면 특정 포스팅의 상세페이지를 완성시킬 수 있고,
+전체 파일을 가져오면 포스트의 목록을 완성 시킬 수 있습니다.
+
+```ts {2}
+export const getPublishedPosts = async (): Promise<Post[]> => {
+  const filePaths = await glob("**/*.mdx", { cwd: POSTS_PATH });
+
+  const posts = filePaths
+    .map((filePath) => {
+      const slug = filePath.replace(/\.mdx$/, "");
+      return getPostBySlug(slug);
+    })
+    .filter((post): post is Post => post !== null && post.meta.published);
+
+  return posts.sort(
+    (a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime()
+  );
+};
+```
+
+저는 published 속성을 통해 게시글을 필터링하고, 최신순으로 정렬하여 포스트 목록을 반환하는 함수를 만들었습니다.
+
+### 게시글 목록 및 상세 페이지 UI
+
+게시글 목록을 불러오기 위해, 앞서 만들어둔 getPublishedPosts 함수를 사용합니다.
+저는 모든 게시글을 불러온 후, mdx의 메타데이터를 통해 게시글을 필터링하고, 카테고리별로 게시글을 노출시키도록 했습니다.
+
+```js
+let filteredPosts = allPosts;
+let title = "ALL";
+
+if (category) {
+  filteredPosts = allPosts.filter((post) => post.meta.mainTag === category);
+  title = `${category}`;
+} else if (tag && parentCategory) {
+  filteredPosts = allPosts.filter(
+    (post) =>
+      post.meta.tags.includes(tag) && post.meta.mainTag === parentCategory
+  );
+  title = `${parentCategory} > ${tag}`;
+}
+```
+
+그 이후, 컴포넌트에서 인자로 받아온 데이터를 통해 게시글 목록을 랜더링해주고 있습니다.
+
+```jsx {10}
+{
+  posts && (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {posts.map((post, index) => (
+        <Link
+          href={`/blog/${post.meta.slug}`}
+          key={post.meta.slug}
+          className="block"
+        >
+          <PostCard key={post.meta.slug} post={post} index={index} />
+        </Link>
+      ))}
+    </div>
+  );
+}
+```
+
+Next 15 App Router의 가장 큰 변화라고 한다면
+**서버 컴포넌트의 지원과, 스트리밍 렌더링의 지원**이 있습니다.
+
+이는 클라이언트 컴포넌트에서 데이터를 불러오는 것이 아니라,
+서버 컴포넌트에서 데이터를 불러오고, 렌더링을 하는 것을 의미합니다.
+
+사용자가 페이지를 이동할 떄, 서버 컴포넌트에서 데이터를 호출하는 동안
+Suspense 경계 내에서 로딩 상태를 표시하고, 데이터가 로드되는 즉시 화면을 렌더링합니다.
+
+```jsx
+<Suspense fallback={<PostSkeleton count={6} />}>
+  <PostListContainer
+    category={category}
+    tag={tag}
+    parentCategory={parentCategory}
+  />
+</Suspense>
+```
+
+저는 이런 방식으로 Skeleton을 구현하여, 데이터가 로드되는 동안 로딩 상태를 표시하고 있습니다.
+
+---
+
+이후 상세 페이지를 구현하기 위해, 앞서 설명했던 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>gray-matter</strong>를 통해
+메타데이터와, 콘텐츠를 분리하여 각각 렌더링 해주었습니다.
+
+```
+ ┣ post-head.tsx
+ ┣ post-body.tsx
+ ┣ post-footer.tsx
+```
+
+해당 폴더구조로, 상세 페이지를 구현하였고
+`post-head.tsx` 에서는 메타데이터를 활용하여 포스트의 제목, 날짜, 카테고리 등을 보여주고 있습니다.
+
+`post-body.tsx` 에서는 마크다운 형태로 저장되어 있는 `content`를 HTML 요소로 변환해주는 작업을 하고 있습니다.
+앞서 말씀드린 <strong style={{ color: "oklch(0.667 0.295 322.15)" }}>next-mdx-remote</strong> 를 사용하여 위 작업을 진행할 수 있습니다.
+
+```tsx title="post-body.tsx" {8, 23}
+import { MDXRemote } from "next-mdx-remote/rsc";
+
+export function PostBody({ post }: { post: Post }) {
+  return (
+    <MDXRemote
+      source={post.content}
+      options={{
+        parseFrontmatter: false,
+        mdxOptions: {
+          remarkPlugins: [remarkGfm, remarkBreaks],
+          rehypePlugins: [
+            [rehypePrettyCode, prettyCodeOptions],
+            [rehypeSlug],
+            [
+              rehypeAutolinkHeadings,
+              {
+                behavior: "append",
+              },
+            ],
+          ],
+        },
+      }}
+      components={MdxComponents}
+    />
+  );
+}
+```
+
+`next-mdx-remote/rsc`를 사용할 경우 `MDXRemote`는 서버컴포넌트에서 사용할 것으로 강제합니다.
+앞서 말씀드린 대로 parseFrontmatter를 true로 설정할 경우 메타데이터를 파싱해주는데
+저는 이미 gray-matter를 사용하여 메타데이터를 파싱해주었기 떄문에 false로 설정하였습니다.
+
+기본값은 `false`이므로, 저처럼 이미 메타데이터를 파싱한 경우에는 따로 추가하지 않아도 됩니다.
+추가적으로 components 라는 property를 통해 마크다운 컴포넌트를 커스텀할 수 있습니다.
+
+`post-footer.tsx` 에서는 giscus를 통한 댓글 기능을 구현하였습니다.
+이는 추후 포스팅을 통해 설정 방법을 공유할 예정입니다.
+
+---
+
+## 마치며
+
+기존 블로그에서 현재 블로그로 마이그레이션을 진행하면서
+꼭 필요한 기능만 구현하기로 했고, 따라서 이전 블로그에서 구현했던 기능을 제외한 부분도 있습니다.
+
+상호작용이 있는 기능을 제외한 것에 대해서는 아쉬움이 남지만
+기술 블로그의 목적성에 맞게 최대한 기능을 제한하고, 목적에 맞게 구현하는 것이 중요하다고 생각했습니다.
+
+giscus 사용법 및 기타 라이브러리 활용 방법에 대해서는 추후 포스팅에서 다루도록 하겠습니다.
+
+감사합니다.
