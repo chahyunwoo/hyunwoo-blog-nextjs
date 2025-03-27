@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import type { CategoryData } from "@/types";
-
+import { cn } from "@/lib/utils";
 interface BlogCategoryNavigatorProps {
   categories: CategoryData[];
   variant: "menu" | "sidebar";
@@ -26,6 +26,7 @@ export function BlogCategoryNavigator({
 }: BlogCategoryNavigatorProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set(categories.map((cat) => cat.category))
@@ -101,13 +102,13 @@ export function BlogCategoryNavigator({
     <div className="space-y-1">
       <button
         onClick={handleAllClick}
-        className={`flex justify-between items-center px-${
-          variant === "menu" ? "4" : "2"
-        } py-1.5 rounded-md w-full text-left cursor-pointer ${
-          !activeCategory && !activeTag
+        className={cn(
+          "flex justify-between items-center py-1.5 rounded-md w-full text-left cursor-pointer",
+          variant === "menu" ? "px-4" : "px-2",
+          !activeCategory && !activeTag && pathname === "/"
             ? "bg-primary/10 text-primary font-medium"
             : "text-muted-foreground hover:bg-accent/50"
-        }`}
+        )}
       >
         <span>ALL</span>
         <span className="text-xs text-muted-foreground">{totalPostCount}</span>
