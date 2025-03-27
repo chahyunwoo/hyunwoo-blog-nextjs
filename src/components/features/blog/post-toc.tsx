@@ -140,7 +140,7 @@ export function PostTOC({
           <CollapsibleTrigger className="flex items-center justify-between w-full">
             <CardTitle className="text-lg flex items-center gap-2">
               <List className="h-5 w-5" />
-              <span>TABLE OF CONTENTS</span>
+              <span>TABLE</span>
               <Badge variant="outline" className="ml-2 text-xs font-normal">
                 {headings.length}개 항목
               </Badge>
