@@ -42,7 +42,7 @@ export default async function Page({ params }: Params<{ slug: string }>) {
 
   return (
     <InnerContainer>
-      <div className="container max-w-2xl mx-auto py-8 px-4">
+      <div className="container max-w-2xl mx-auto py-8">
         <article className="prose dark:prose-invert mx-auto tracking-wide leading-relaxed">
           <PostHead post={post} />
           <PostBody post={post} />
