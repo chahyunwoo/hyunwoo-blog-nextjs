@@ -7,7 +7,9 @@ export function PostHead({ post }: { post: Post }) {
         {post.meta.title}
       </h1>
       <div className="text-center mb-2">
-        <Badge variant="secondary">{post.meta.mainTag}</Badge>
+        <Badge variant="secondary" className="text-teal-500">
+          {post.meta.mainTag}
+        </Badge>
       </div>
       <div className="text-gray-500 mb-8 text-center border-b-1 pb-4">
         {new Date(post.meta.date).toLocaleDateString("ko-KR", {
