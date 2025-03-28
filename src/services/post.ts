@@ -56,26 +56,29 @@ export const getCategoriesWithTags = cache(
   async (): Promise<CategoryData[]> => {
     const posts = await getPublishedPosts();
     const now = new Date();
+    const recentDateThreshold = new Date(now);
+    recentDateThreshold.setDate(now.getDate() - RECENT_DAYS);
+
     const categoryMap = new Map<string, Map<string, number>>();
-    const categoryPostCount = new Map<string, number>();
-    const recentPosts = new Set<string>();
+    const categoryData = new Map<
+      string,
+      { count: number; isRecent: boolean }
+    >();
 
     posts.forEach((post) => {
       const category = post.meta.mainTag;
       const tags = post.meta.tags;
       const postDate = new Date(post.meta.date);
+      const isRecent = postDate >= recentDateThreshold;
 
-      categoryPostCount.set(
-        category,
-        (categoryPostCount.get(category) || 0) + 1
-      );
-
-      const daysDiff = Math.floor(
-        (now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      if (daysDiff <= RECENT_DAYS) {
-        recentPosts.add(category);
-      }
+      const currentData = categoryData.get(category) || {
+        count: 0,
+        isRecent: false,
+      };
+      categoryData.set(category, {
+        count: currentData.count + 1,
+        isRecent: currentData.isRecent || isRecent,
+      });
 
       if (!categoryMap.has(category)) {
         categoryMap.set(category, new Map());
@@ -83,24 +86,20 @@ export const getCategoriesWithTags = cache(
 
       const tagCountMap = categoryMap.get(category)!;
       tags.forEach((tag) => {
-        const currentCount = tagCountMap.get(tag) || 0;
-        tagCountMap.set(tag, currentCount + 1);
+        tagCountMap.set(tag, (tagCountMap.get(tag) || 0) + 1);
       });
     });
 
-    const result = Array.from(categoryMap.entries()).map(
-      ([category, tagCountMap]) => {
-        return {
-          category,
-          subCategory: Array.from(tagCountMap.entries())
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count),
-          postCount: categoryPostCount.get(category) || 0,
-          recent: recentPosts.has(category),
-        };
-      }
-    );
-
-    return result.sort((a, b) => b.postCount - a.postCount);
+    return Array.from(categoryMap.entries()).map(([category, tagCountMap]) => {
+      const data = categoryData.get(category)!;
+      return {
+        category,
+        subCategory: Array.from(tagCountMap.entries())
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count),
+        postCount: data.count,
+        recent: data.isRecent,
+      };
+    });
   }
 );
