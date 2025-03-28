@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import type { CategoryData } from "@/types";
-import { cn } from "@/lib/utils";
+import { getCategoryStyle, getTagStyle } from "@/styles/styles";
 interface BlogCategoryNavigatorProps {
   categories: CategoryData[];
   variant: "menu" | "sidebar";
@@ -103,12 +103,13 @@ export function BlogCategoryNavigator({
     <div className="space-y-1">
       <button
         onClick={handleAllClick}
-        className={cn(
-          "flex justify-between items-center py-1.5 rounded-md w-full text-left cursor-pointer",
-          variant === "menu" ? "px-4" : "px-2",
-          !activeCategory && !activeTag && pathname === "/"
-            ? "bg-primary/10 text-primary font-medium"
-            : "text-muted-foreground hover:bg-accent/50"
+        className={getCategoryStyle(
+          variant,
+          true,
+          false,
+          pathname,
+          activeCategory,
+          activeTag
         )}
       >
         <span>ALL</span>
@@ -124,13 +125,14 @@ export function BlogCategoryNavigator({
           <div className="flex w-full">
             <div
               onClick={() => handleCategoryClick(item.category)}
-              className={`flex justify-between items-center px-${
-                variant === "menu" ? "4" : "2"
-              } py-1.5 rounded-md w-full cursor-pointer ${
-                activeCategory === item.category
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:bg-accent/50"
-              }`}
+              className={getCategoryStyle(
+                variant,
+                false,
+                activeCategory === item.category,
+                pathname,
+                activeCategory,
+                activeTag
+              )}
             >
               <div className="flex items-center gap-2">
                 <span>{item.category}</span>
@@ -168,14 +170,11 @@ export function BlogCategoryNavigator({
               <button
                 key={subItem.name}
                 onClick={() => handleTagClick(subItem.name, item.category)}
-                className={`flex justify-between items-center px-${
-                  variant === "menu" ? "4" : "2"
-                } py-1 rounded-md text-sm w-full text-left cursor-pointer ${
+                className={getTagStyle(
+                  variant,
                   activeTag === subItem.name &&
-                  activeParentCategory === item.category
-                    ? "bg-muted text-primary font-medium"
-                    : "text-muted-foreground hover:bg-accent/30"
-                }`}
+                    activeParentCategory === item.category
+                )}
               >
                 <span>{subItem.name}</span>
                 <span className="text-xs text-muted-foreground">
