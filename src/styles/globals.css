@@ -116,7 +116,7 @@
   }
 
   code span[data-highlighted-line] {
-    background-color: rgba(184, 227, 121, 0.2) !important;
+    background-color: rgba(235, 148, 148, 0.12) !important;
   }
 
   code span[data-highlighted-line] span {
