@@ -16,7 +16,7 @@ async function BlogSidebarContainer() {
 
 export function BlogLayout({ children }: BlogLayoutProps) {
   return (
-    <InnerContainer className="flex flex-col md:flex-row">
+    <InnerContainer className="flex flex-col md:flex-row md:!pl-0">
       <Suspense fallback={<BlogSidebarSkeleton count={6} />}>
         <BlogSidebarContainer />
       </Suspense>

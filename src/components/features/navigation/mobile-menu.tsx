@@ -74,8 +74,9 @@ export default function MobileMenu({
                   key={name}
                   href={href}
                   title={name}
-                  className="px-4 py-2 rounded-md hover:bg-accent hover:text-foreground transition-colors text-muted-foreground"
+                  className="px-4 py-2 text-muted-foreground"
                   onClick={onClose}
+                  isMobile
                 />
               );
             })}

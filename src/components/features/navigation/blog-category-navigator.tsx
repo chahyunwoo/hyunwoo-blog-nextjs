@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import type { CategoryData } from "@/types";
-import { getCategoryStyle, getTagStyle } from "@/styles/styles";
+import { getCategoryStyle } from "@/styles/styles";
 interface BlogCategoryNavigatorProps {
   categories: CategoryData[];
   variant: "menu" | "sidebar";
@@ -165,23 +165,29 @@ export function BlogCategoryNavigator({
             </div>
           </div>
 
-          <CollapsibleContent className="pl-4 pt-1 space-y-1">
-            {item.subCategory.map((subItem) => (
-              <button
-                key={subItem.name}
-                onClick={() => handleTagClick(subItem.name, item.category)}
-                className={getTagStyle(
-                  variant,
-                  activeTag === subItem.name &&
-                    activeParentCategory === item.category
-                )}
-              >
-                <span>{subItem.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {subItem.count}
-                </span>
-              </button>
-            ))}
+          <CollapsibleContent className="pt-1 space-y-1">
+            {item.subCategory.map((subItem) => {
+              const isActive =
+                activeTag === subItem.name &&
+                activeParentCategory === item.category;
+
+              return (
+                <button
+                  key={subItem.name}
+                  onClick={() => handleTagClick(subItem.name, item.category)}
+                  className={`flex justify-between items-center py-1 text-sm w-full text-left cursor-pointer pl-8 pr-4 ${
+                    isActive
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-muted-foreground hover:bg-accent/30"
+                  }`}
+                >
+                  <span>{subItem.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {subItem.count}
+                  </span>
+                </button>
+              );
+            })}
           </CollapsibleContent>
         </Collapsible>
       ))}
@@ -196,8 +202,10 @@ export function BlogCategoryNavigator({
         className="w-full"
       >
         <CollapsibleTrigger
-          className={`flex justify-between items-center w-full px-4 py-2 rounded-md hover:bg-accent hover:text-foreground transition-colors ${
-            isBlogActive ? "text-primary" : "text-muted-foreground"
+          className={`flex justify-between items-center w-full px-4 py-2  ${
+            isBlogActive
+              ? "text-primary bg-primary/20"
+              : "text-muted-foreground"
           }`}
         >
           <span>{menuName}</span>
@@ -208,7 +216,7 @@ export function BlogCategoryNavigator({
           )}
         </CollapsibleTrigger>
 
-        <CollapsibleContent className="pl-2 space-y-1 mt-1">
+        <CollapsibleContent className="space-y-1 mt-1">
           {renderCategoriesContent()}
         </CollapsibleContent>
       </Collapsible>
@@ -216,7 +224,7 @@ export function BlogCategoryNavigator({
   }
 
   return (
-    <aside className="w-full max-w-[200px] border-r pt-6 pb-12 pr-8 hidden md:block">
+    <aside className="w-full max-w-[200px] border-r pt-6 pb-12 hidden md:block">
       <nav className="space-y-6">{renderCategoriesContent()}</nav>
     </aside>
   );

@@ -10,6 +10,7 @@ interface ActiveLinkProps {
   title: string;
   className?: string;
   onClick?: () => void;
+  isMobile?: boolean;
 }
 
 export default memo(function ActiveLink({
@@ -17,6 +18,7 @@ export default memo(function ActiveLink({
   title,
   className,
   onClick,
+  isMobile = false,
 }: ActiveLinkProps) {
   const pathname = usePathname()!;
   const isActive =
@@ -27,7 +29,11 @@ export default memo(function ActiveLink({
   return (
     <Link
       href={href}
-      className={cn(className, isActive && "text-primary")}
+      className={cn(
+        className,
+        isActive && "text-primary",
+        isMobile && isActive && "bg-primary/20"
+      )}
       onClick={onClick}
     >
       {title}
