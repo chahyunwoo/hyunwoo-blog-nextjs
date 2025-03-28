@@ -3,7 +3,6 @@ import "@/styles/globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Header } from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { pretendard, roboto } from "./fonts";
 
 export const metadata: Metadata = {
   title: "hyunwoo.dev",
@@ -18,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${pretendard.variable} ${roboto.variable} antialiased min-h-screen flex flex-col`}
+        className={`font-pretendard antialiased min-h-screen flex flex-col`}
       >
         <ThemeProvider>
           <Header />

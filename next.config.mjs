@@ -5,7 +5,6 @@ const nextConfig = {
   reactStrictMode: false,
   experimental: {
     esmExternals: true,
-    optimizeFonts: true,
   },
   pageExtensions: ["js", "jsx", "ts", "tsx", "mdx", "md"],
   compiler: {
