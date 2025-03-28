@@ -57,8 +57,8 @@ Next.js로 블로그를 처음 개발한 지가 벌써 2년이 되어갑니다.
   커스텀에 유연합니다.
 
 <Callout type="info">
-  이전 블로그 제작기를 통해 초기 설정 방법을 포스팅 했으므로, 자세한 내용은
-  기술하지 않겠습니다.
+  이전 블로그 제작기를 통해 초기 설정 방법을
+  포스팅 했으므로 자세한 내용은 기술하지 않겠습니다.
 </Callout>
 
 ## 블로그 기능 정리
@@ -183,9 +183,7 @@ export const getPublishedPosts = async (): Promise<Post[]> => {
     })
     .filter((post): post is Post => post !== null && post.meta.published);
 
-  return posts.sort(
-    (a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime()
-  );
+  return posts.sort((a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime());
 };
 ```
 
@@ -205,8 +203,7 @@ if (category) {
   title = `${category}`;
 } else if (tag && parentCategory) {
   filteredPosts = allPosts.filter(
-    (post) =>
-      post.meta.tags.includes(tag) && post.meta.mainTag === parentCategory
+    (post) => post.meta.tags.includes(tag) && post.meta.mainTag === parentCategory
   );
   title = `${parentCategory} > ${tag}`;
 }
@@ -219,11 +216,7 @@ if (category) {
   posts && (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {posts.map((post, index) => (
-        <Link
-          href={`/blog/${post.meta.slug}`}
-          key={post.meta.slug}
-          className="block"
-        >
+        <Link href={`/blog/${post.meta.slug}`} key={post.meta.slug} className="block">
           <PostCard key={post.meta.slug} post={post} index={index} />
         </Link>
       ))}
@@ -243,11 +236,7 @@ Suspense 경계 내에서 로딩 상태를 표시하고, 데이터가 로드되�
 
 ```jsx
 <Suspense fallback={<PostSkeleton count={6} />}>
-  <PostListContainer
-    category={category}
-    tag={tag}
-    parentCategory={parentCategory}
-  />
+  <PostListContainer category={category} tag={tag} parentCategory={parentCategory} />
 </Suspense>
 ```
 

@@ -54,8 +54,8 @@ published: true
 > Repository -> Settings -> Features -> Discussion 체크박스 클릭
 
 <Callout type="info">
-  Repository는 공개 저장소여야 하고, 새로운 Repository를 생성해서 사용해도
-  무관합니다.
+  Repository는 공개 저장소여야 하고, 
+  새로운 Repository를 생성해서 사용해도 무관합니다.
 </Callout>
 
 ### 2. Giscus 앱 설치
@@ -158,13 +158,8 @@ export function Giscus() {
   }, [theme]);
 
   useEffect(() => {
-    const iframe = document.querySelector<HTMLIFrameElement>(
-      "iframe.giscus-frame"
-    );
-    iframe?.contentWindow?.postMessage(
-      { giscus: { setConfig: { theme } } },
-      "https://giscus.app"
-    );
+    const iframe = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+    iframe?.contentWindow?.postMessage({ giscus: { setConfig: { theme } } }, "https://giscus.app");
   }, [theme]);
 
   return <section ref={ref} />;
