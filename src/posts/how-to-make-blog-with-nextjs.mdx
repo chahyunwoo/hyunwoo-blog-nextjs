@@ -261,13 +261,13 @@ Suspense 경계 내에서 로딩 상태를 표시하고, 데이터가 로드되�
 
 참고로 Next 15 이상 환경에서 **turbopack**을 사용하는 경우,
 
-```js {2}
+```js title="next.config.mjs" {2}
 const nextConfig = {
 +  transpilePackages: ["next-mdx-remote"],
 }
 ```
 
-를 꼭 추가해주셔야 합니다.
+`next.config.mjs` 혹은 `next.config.js`에 위 내용을 꼭 추가해주셔야 합니다.
 [관련 이슈](https://github.com/vercel/next.js/issues/64525)
 
 ```tsx title="post-body.tsx" {15, 30}
