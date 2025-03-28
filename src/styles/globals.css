@@ -112,7 +112,11 @@
   }
 
   pre {
-    @apply bg-[#fdf6e3] text-[#657b83];
+    @apply bg-[#fdf6e3] text-[#657b83] px-0 border-1;
+  }
+
+  pre > code > span {
+    padding: 0 1rem;
   }
 
   code span[data-highlighted-line] {
