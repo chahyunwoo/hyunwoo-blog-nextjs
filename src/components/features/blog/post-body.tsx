@@ -12,7 +12,7 @@ const prettyCodeOptions: Options = {
   keepBackground: true,
   theme: {
     dark: "ayu-dark",
-    light: "solarized-light",
+    light: "snazzy-light",
   },
 };
 

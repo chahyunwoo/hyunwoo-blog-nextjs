@@ -1,0 +1,174 @@
+---
+title: "Introducing the comment feature in blog"
+description: "with giscus"
+date: "2025-03-28T13:42:40"
+mainTag: "Frontend"
+tags: ["Next.js", "Giscus"]
+thumbnail: /thumbnail/introducing-the-comment-feature-in-blog.png
+published: true
+---
+
+지난 게시물에 이어 오늘은 블로그의 상세 페이지에 댓글을 달 수 있는 기능을 추가해보도록 하겠습니다.
+저는 [기존 블로그](https://hyunwoo-dev.vercel.app/)에서 익명으로 글을 작성할 수 있는 방명록 기능을 사용하고 있었는데요.
+마이그레이션을 진행하면서 기술 포스팅 위주로 블로그를 작성하고 있어 방명록 기능은 제외했습니다.
+
+하지만 communication이 없으면 조금 심심한 블로그가 될 것 같습니다.
+제 포스팅에 오류가 있거나 궁금한 점이 있을 때 얼마든지 댓글을 통해 소통할 수 있다면 정말 좋을 것 같다는 생각이 들어
+댓글 기능을 추가하기로 했습니다.
+
+직접 구현을 할지, CMS (Sanity 등)을 활용할지 고민을 많이 했는데요.
+물론 이 방법들은 커스터마이징 부분에서도 굉장히 유리하다고 생각하지만,
+유지보수 부담 및 CMS 사용의 경우 일정 트래픽을 초과하면 유료 플랜으로 전환해야 할 수 있어 다른 대안을 찾아보게 되었습니다.
+
+최근에 여러 기술 블로그를 보면서 <Highlight>giscus</Highlight>를 통해 코멘트 기능을 구현하는 경우가 많아 저도 이 방법을 사용하기로 했습니다.
+
+## Giscus 소개
+
+사용하기에 앞서 <Highlight>giscus</Highlight>가 무엇인지에 대해 알아볼 필요가 있습니다.
+
+> Github Discussions로 작동하는 오픈소스 댓글 시스템
+
+**Giscus의 장점**
+
+- 쉽고 빠른 구현
+- 유지보수 부담이 감소
+- Github 생태계를 활용하므로 개발자 친화적
+- 오픈 소스 및 **무료 사용**
+
+무엇보다 giscus를 사용하면 지연 로딩 기능이 지원되는데, 굉장히 귀여운 UI를 볼 수 있습니다.
+
+## Giscus 설정 및 적용
+
+위에서 설명했듯이 giscus는 github discussions를 기반으로 작동하기 때문에
+작성한 댓글은 나의 Github Discussions에 저장됩니다.
+
+따라서 먼저 나의 <Highlight>Github Discussions</Highlight>를 활성화시켜야 합니다.
+
+### 1. Github Discussions 활성화
+
+방법은 간단합니다.
+
+> Repository -> Settings -> Features -> Discussion 체크박스 클릭
+
+<Callout type="info">
+  Repository는 공개 저장소여야 하고, 새로운 Repository를 생성해서 사용해도
+  무관합니다.
+</Callout>
+
+### 2. Giscus 앱 설치
+
+[해당 링크](https://github.com/apps/giscus)에 들어가서 repository에 앱을 설치합니다.
+
+<MdxImage
+  src="/posts/introducing-the-comment-feature-in-blog/giscus-1.png"
+  alt="giscus 설치"
+  caption="giscus - configure"
+/>
+
+<MdxImage
+  src="/posts/introducing-the-comment-feature-in-blog/giscus-2.png"
+  alt="giscus 설치"
+  caption="giscus - install"
+/>
+
+1번에서 설정 또는 생성한 repository를 선택하시면 됩니다.
+
+### 3. Giscus 설정
+
+[Giscus](https://giscus.app/ko)에 접속해서, 설정을 진행합니다.
+1번과 2번을 통해 연동된 discussion이 있는 repository를 연결합니다.
+
+<MdxImage
+  src="/posts/introducing-the-comment-feature-in-blog/giscus-3.png"
+  alt="giscus 설정"
+  caption="giscus.app/ko"
+/>
+
+연동이 정상적으로 되었다면, repository 주소를 입력 시에
+위의 화면처럼 연두색 체크박스가 나오게 됩니다.
+
+이후 페이지와 Discussions 간의 연결 방식을 선택해야 하는데
+저는 `Discussion 제목이 페이지 경로를 포함` 방식으로 선택했습니다.
+많은 기술 블로그들을 참고한 결과 보통 해당 옵션으로 설정을 많이 하는 것 같아서 저도 동일하게 설정했습니다.
+
+위 설정들을 전부 완료하게 되면, 아래의 script 코드가 생성됩니다.
+
+```js
+<script
+  src="https://giscus.app/client.js"
+  data-repo="chahyunwoo/hyunwoo-blog-nextjs"
+  data-repo-id="R_kgDOOKi_qg"
+  data-category="[ENTER CATEGORY NAME HERE]"
+  data-category-id="[ENTER CATEGORY ID HERE]"
+  data-mapping="pathname"
+  data-strict="0"
+  data-reactions-enabled="1"
+  data-emit-metadata="0"
+  data-input-position="bottom"
+  data-theme="preferred_color_scheme"
+  data-lang="ko"
+  crossorigin="anonymous"
+  async
+></script>
+```
+
+사실 굳이 설명이 필요없고 [Giscus](https://giscus.app/ko)에 나온대로 설정을 진행하시면 됩니다.
+한국어로 자세히 설명이 되어있으니 참고하시면 됩니다.
+
+### 4. 컴포넌트 생성 및 적용
+
+이제 댓글을 달 수 있는 컴포넌트를 생성해야 합니다.
+위 스크립트 코드를 복사해서 적용하면 되는데,
+Next.js의 프로젝트에 맞게 코드를 변경해서 적용해야 합니다.
+
+```tsx title="giscus.tsx" {18-28}
+"use client";
+
+import { useTheme } from "next-themes";
+import { useEffect, useRef } from "react";
+
+export function Giscus() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+
+  const theme = resolvedTheme === "dark" ? "dark" : "light";
+
+  useEffect(() => {
+    if (!ref.current || ref.current.hasChildNodes()) return;
+
+    const $script = document.createElement("script");
+    $script.src = "https://giscus.app/client.js";
+    $script.async = true;
+    $script.setAttribute("data-repo", "chahyunwoo/hyunwoo-blog-nextjs");
+    $script.setAttribute("data-repo-id", "R_kgDOOKi_qg");
+    $script.setAttribute("data-category", "Announcements");
+    $script.setAttribute("data-category-id", "DIC_kwDOOKi_qs4Coeoz");
+    $script.setAttribute("data-mapping", "pathname");
+    $script.setAttribute("data-strict", "0");
+    $script.setAttribute("data-reactions-enabled", "1");
+    $script.setAttribute("data-emit-metadata", "0");
+    $script.setAttribute("data-input-position", "bottom");
+    $script.setAttribute("data-theme", theme);
+    $script.setAttribute("data-lang", "ko");
+
+    ref.current.appendChild($script);
+  }, [theme]);
+
+  useEffect(() => {
+    const iframe = document.querySelector<HTMLIFrameElement>(
+      "iframe.giscus-frame"
+    );
+    iframe?.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme } } },
+      "https://giscus.app"
+    );
+  }, [theme]);
+
+  return <section ref={ref} />;
+}
+```
+
+이제 이렇게 생성된 컴포넌트를 사용할 위치에 적용하면 됩니다.
+저의 경우 상세페이지의 맨 아래에 위치할 예정이므로 `post-footer.tsx`에 적용했습니다.
+
+이 과정을 마치고 확인해보면 정상적으로 giscus가 적용된 것을 확인하실 수 있습니다.

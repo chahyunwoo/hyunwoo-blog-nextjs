@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { Header } from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { pretendard, roboto } from "./fonts";
-import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "hyunwoo.dev",
