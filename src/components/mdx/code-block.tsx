@@ -18,10 +18,9 @@ export function CodeBlock({
     <div className="relative">
       <CopyButton
         icon="Copy"
-        className="absolute right-2 top-2"
+        className="absolute right-2 top-2 backdrop-blur-xl"
         alert={false}
         getContent={getCodeContent}
-        variant="outline"
       />
       <pre {...props} className={cn(className)} ref={preRef}>
         {children}
