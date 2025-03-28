@@ -13,7 +13,7 @@ export async function Header() {
   const categories = await getCategoriesWithTags();
 
   return (
-    <header className="w-full border-b bg-background">
+    <header className="fixed w-full border-b backdrop-blur-xl z-10">
       <InnerContainer className="h-12 flex items-center justify-between">
         {/* 데스크톱 화면에서만 보이는 제목 */}
         <Link href="/" className="hidden md:block">
