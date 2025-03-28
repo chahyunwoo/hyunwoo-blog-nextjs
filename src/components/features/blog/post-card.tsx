@@ -14,7 +14,9 @@ interface PostCardProps {
   index: number;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, index }: PostCardProps) {
+  const isAboveTheFold = index < 4;
+
   return (
     <Card className="h-full flex flex-col overflow-hidden border-none py-0 pb-4 rounded-sm gap-2">
       {post.meta.thumbnail && (
@@ -25,7 +27,10 @@ export function PostCard({ post }: PostCardProps) {
             fill
             sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 350px"
             className="object-cover transition-transform hover:scale-105"
-            loading="lazy"
+            loading={isAboveTheFold ? "eager" : "lazy"}
+            priority={isAboveTheFold}
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='%23f1f5f9'/%3E%3C/svg%3E"
           />
         </div>
       )}

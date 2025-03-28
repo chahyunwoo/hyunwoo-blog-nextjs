@@ -44,6 +44,7 @@ function PostList({ posts }: PostListProps) {
               href={`/blog/${post.meta.slug}`}
               key={post.meta.slug}
               className="block"
+              prefetch={index < 4}
             >
               <PostCard key={post.meta.slug} post={post} index={index} />
             </Link>
