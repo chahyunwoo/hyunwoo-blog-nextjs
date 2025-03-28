@@ -32,7 +32,7 @@ export function PostFooter({ post }: PostFooterProps) {
               </div>
             </div>
           </div>
-          <div className="flex-shrink-0 pt-8">
+          <div className="flex-shrink-0 pt-8 relative -top-1.5">
             <CopyButton
               description="링크가 복사되었습니다."
               icon="Share2"
