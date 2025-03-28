@@ -43,7 +43,7 @@ export default async function Page({ params }: Params<{ locale: Locale }>) {
 
   return (
     <InnerContainer className="py-12">
-      <div className="max-w-2xl mx-auto break-keep">
+      <div className="max-w-2xl mx-auto">
         <ProfileHeader profile={profile} />
 
         {/* 소개글 */}

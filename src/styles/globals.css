@@ -9,7 +9,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border break-keep;
   }
   body {
     @apply bg-background text-foreground;
@@ -213,10 +213,6 @@
 
     h5 {
       @apply text-base font-bold;
-    }
-
-    p {
-      @apply break-keep;
     }
 
     figure[data-rehype-pretty-code-figure] {
