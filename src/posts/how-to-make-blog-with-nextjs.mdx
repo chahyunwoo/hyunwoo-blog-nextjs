@@ -281,8 +281,15 @@ const nextConfig = {
 를 꼭 추가해주셔야 합니다.
 [관련 이슈](https://github.com/vercel/next.js/issues/64525)
 
-```tsx title="post-body.tsx" {8, 23}
+```tsx title="post-body.tsx" {15, 30}
 import { MDXRemote } from "next-mdx-remote/rsc";
+
+const prettyCodeOptions = {
+  theme: {
+    light: "github-light",
+    dark: "github-dark",
+  },
+};
 
 export function PostBody({ post }: { post: Post }) {
   return (
