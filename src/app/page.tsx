@@ -3,12 +3,7 @@ import { PostSkeleton } from "@/components/skeleton/post-skeleton";
 import { PostListContainer } from "@/components/features/blog/post-list";
 import { Metadata } from "next";
 import { BlogLayout } from "@/components/layout/blog-layout";
-
-export type BlogParams = Promise<{
-  category?: string;
-  tag?: string;
-  parentCategory?: string;
-}>;
+import { BlogParams } from "@/types";
 
 export async function generateMetadata({
   searchParams,

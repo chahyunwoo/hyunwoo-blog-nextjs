@@ -4,8 +4,7 @@ import { InnerContainer } from "@/components/layout/inner-container";
 import { PostBody } from "@/components/features/blog/post-body";
 import { PostHead } from "@/components/features/blog/post-head";
 import { PostFooter } from "@/components/features/blog/post-footer";
-
-type Params = Promise<{ slug: string }>;
+import type { Params } from "@/types";
 
 export async function generateStaticParams() {
   const posts = await getPublishedPosts();
@@ -14,7 +13,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: Params }) {
+export async function generateMetadata({ params }: Params<{ slug: string }>) {
   const slug = (await params).slug;
   const post = getPostBySlug(slug);
 
@@ -33,7 +32,7 @@ export async function generateMetadata({ params }: { params: Params }) {
   };
 }
 
-export default async function Page({ params }: { params: Params }) {
+export default async function Page({ params }: Params<{ slug: string }>) {
   const slug = (await params).slug;
   const post = getPostBySlug(slug);
 

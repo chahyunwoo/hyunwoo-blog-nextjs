@@ -1,6 +1,6 @@
 import { glob } from "fast-glob";
 import { POSTS_PATH, RECENT_DAYS } from "@/lib/constants";
-import type { Post, PostMeta } from "@/types";
+import type { CategoryData, Post, PostMeta } from "@/types";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
@@ -53,17 +53,7 @@ export const getPublishedPosts = async (): Promise<Post[]> => {
 };
 
 export const getCategoriesWithTags = cache(
-  async (): Promise<
-    {
-      category: string;
-      subCategory: {
-        name: string;
-        count: number;
-      }[];
-      postCount: number;
-      recent: boolean;
-    }[]
-  > => {
+  async (): Promise<CategoryData[]> => {
     const posts = await getPublishedPosts();
     const now = new Date();
     const categoryMap = new Map<string, Map<string, number>>();

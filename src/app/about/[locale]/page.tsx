@@ -6,8 +6,7 @@ import RecentExperience from "@/components/features/about/recent-experience";
 import type { Locale } from "@/types";
 import { PROFILE_DATA } from "@/data/i18n";
 import BriefIntroduction from "@/components/features/about/brief-introduction";
-
-type Params = Promise<{ locale: Locale }>;
+import type { Params } from "@/types";
 
 export function generateStaticParams() {
   return Object.keys(PROFILE_DATA).map((locale) => ({
@@ -15,7 +14,7 @@ export function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: Params }) {
+export async function generateMetadata({ params }: Params<{ locale: Locale }>) {
   const { locale } = await params;
   const profile = PROFILE_DATA[locale];
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -38,7 +37,7 @@ export async function generateMetadata({ params }: { params: Params }) {
   };
 }
 
-export default async function Page({ params }: { params: Params }) {
+export default async function Page({ params }: Params<{ locale: Locale }>) {
   const { locale } = await params;
   const profile = PROFILE_DATA[locale];
 
