@@ -270,6 +270,17 @@ Suspense 경계 내에서 로딩 상태를 표시하고, 데이터가 로드되�
 `post-body.tsx` 에서는 마크다운 형태로 저장되어 있는 `content`를 HTML 요소로 변환해주는 작업을 하고 있습니다.
 앞서 말씀드린 <Highlight>next-mdx-remote</Highlight> 를 사용하여 위 작업을 진행할 수 있습니다.
 
+참고로 Next 15 이상 환경에서 **turbopack**을 사용하는 경우,
+
+```js {2}
+const nextConfig = {
++  transpilePackages: ["next-mdx-remote"],
+}
+```
+
+를 꼭 추가해주셔야 합니다.
+[관련 이슈](https://github.com/vercel/next.js/issues/64525)
+
 ```tsx title="post-body.tsx" {8, 23}
 import { MDXRemote } from "next-mdx-remote/rsc";
 
