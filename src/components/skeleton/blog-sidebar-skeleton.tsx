@@ -8,7 +8,7 @@ interface BlogSidebarSkeletonProps {
 
 export function BlogSidebarSkeleton({ count = 6 }: BlogSidebarSkeletonProps) {
   return (
-    <aside className="w-full max-w-[200px] border-r pt-6 pb-12 pr-8 hidden md:block">
+    <aside className="w-full max-w-[200px] border-r pt-6 pb-12 px-2 pr-2 hidden md:block">
       <nav className="space-y-6">
         <div className="space-y-1">
           <div className="flex justify-between items-center px-2 py-1.5 rounded-md w-full">
