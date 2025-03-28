@@ -112,7 +112,7 @@
   }
 
   figcaption[data-rehype-pretty-code-title] {
-    @apply bg-shiki-light-bg text-shiki-light px-4 py-1 inline-block border-b-1 border-foreground/30 rounded-tr-xs rounded-tl-xs;
+    @apply bg-shiki-light-bg text-shiki-light px-4 py-1 inline-block border-1 border-b-foreground/30 rounded-tr-xs rounded-tl-xs;
   }
 
   pre {
@@ -168,9 +168,8 @@
     @apply bg-shiki-dark-bg rounded-tl-none;
   }
 
-  figure[data-rehype-pretty-code-figure]
-    figcaption[data-rehype-pretty-code-title] {
-    @apply bg-shiki-dark-bg text-shiki-dark px-4 py-1 inline-block border-b-1 border-foreground/30 rounded-tr-xs rounded-tl-xs;
+  figcaption[data-rehype-pretty-code-title] {
+    @apply bg-shiki-dark-bg text-shiki-dark px-4 py-1 inline-block border-1 border-b-foreground/30 rounded-tr-xs rounded-tl-xs;
   }
 
   pre {
