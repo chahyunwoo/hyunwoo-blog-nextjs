@@ -133,7 +133,7 @@ export function PostTOC({
   }
 
   return (
-    <Card className="my-6 border border-border/40 py-0 rounded-sm">
+    <Card className="my-6 border border-border/40 py-0 rounded-sm bg-background">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CardHeader className="py-3">
           <CollapsibleTrigger className="flex items-center justify-between w-full">
