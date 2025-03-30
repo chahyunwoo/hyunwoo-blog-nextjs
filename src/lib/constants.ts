@@ -41,3 +41,11 @@ export const CHART_CONFIG = {
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
+
+// NAVIGATION
+export const LINK_TYPES = {
+  ALL: "all",
+  CATEGORY: "category",
+  TAG: "tag",
+  DEFAULT: "default",
+} as const;

@@ -74,9 +74,8 @@ export default function MobileMenu({
                   key={name}
                   href={href}
                   title={name}
-                  className="px-4 py-2 text-muted-foreground"
+                  className="px-4 py-2"
                   onClick={onClose}
-                  isMobile
                 />
               );
             })}

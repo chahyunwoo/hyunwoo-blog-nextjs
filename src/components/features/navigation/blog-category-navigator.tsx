@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useCallback, useState, useMemo } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import type { CategoryData } from "@/types";
-import { getCategoryStyle } from "@/styles/styles";
+import ActiveLink from "./active-link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { getParamFromHref } from "@/lib/utils";
+import { LINK_TYPES } from "@/lib/constants";
+import { LinkType } from "@/types";
 interface BlogCategoryNavigatorProps {
   categories: CategoryData[];
   variant: "menu" | "sidebar";
@@ -24,16 +25,13 @@ export function BlogCategoryNavigator({
   menuName = "Categories",
   closeMenu = () => {},
 }: BlogCategoryNavigatorProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const isBlogActive = pathname === "/" || pathname.startsWith("/blog/");
-
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set(categories.map((cat) => cat.category))
   );
-
   const [isMenuOpen, setIsMenuOpen] = useState(true);
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const activeCategory = searchParams.get("category") || "";
   const activeTag = searchParams.get("tag") || "";
@@ -43,78 +41,68 @@ export function BlogCategoryNavigator({
     return categories.reduce((sum, cat) => sum + cat.postCount, 0);
   }, [categories]);
 
-  const toggleCategory = useCallback(
-    (category: string, event: React.MouseEvent) => {
-      event.stopPropagation();
-      setOpenCategories((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(category)) {
-          newSet.delete(category);
-        } else {
-          newSet.add(category);
-        }
-        return newSet;
-      });
-    },
-    []
-  );
+  const toggleMenuHandler = useCallback(() => {
+    setIsMenuOpen((prev) => !prev);
+  }, []);
 
-  const navigateTo = useCallback(
-    (params: Record<string, string> = {}) => {
-      const searchParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value) searchParams.set(key, value);
-      });
+  const toggleCategory = useCallback((category: string) => {
+    setOpenCategories((prev) => {
+      const newSet = new Set(prev);
+      newSet.has(category) ? newSet.delete(category) : newSet.add(category);
+      return newSet;
+    });
+  }, []);
 
-      const queryString = searchParams.toString();
-      const path = queryString
-        ? `${variant === "menu" ? "/?" : "?"}${queryString}`
-        : "/";
-      router.push(path);
+  const toggleHandlers = useMemo(() => {
+    return categories.reduce((handlers, item) => {
+      handlers[item.category] = () => toggleCategory(item.category);
+      return handlers;
+    }, {} as Record<string, () => void>);
+  }, [categories, toggleCategory]);
 
-      if (variant === "menu") {
-        closeMenu();
+  const checkIsActive = useCallback(
+    (href: string, title: string, type: LinkType) => {
+      switch (type) {
+        case LINK_TYPES.ALL:
+          const hasNoParams =
+            !activeCategory && !activeTag && !activeParentCategory;
+          return pathname === "/" && hasNoParams;
+
+        case LINK_TYPES.CATEGORY:
+          const categoryName = getParamFromHref("category", href);
+          return (
+            activeCategory === categoryName || activeParentCategory === title
+          );
+
+        case LINK_TYPES.TAG:
+          const hrefTag = getParamFromHref("tag", href);
+          const hrefParentCategory = getParamFromHref("parentCategory", href);
+          return (
+            activeTag === hrefTag &&
+            activeParentCategory === hrefParentCategory &&
+            title === hrefTag
+          );
+
+        case LINK_TYPES.DEFAULT:
+        default:
+          return (
+            pathname === href || (href === "/" && pathname.startsWith("/blog/"))
+          );
       }
     },
-    [router, closeMenu, variant]
+    [pathname, activeCategory, activeTag, activeParentCategory]
   );
-
-  const handleCategoryClick = useCallback(
-    (category: string) => {
-      if (category === activeCategory) return;
-      navigateTo({ category });
-    },
-    [activeCategory, navigateTo]
-  );
-
-  const handleTagClick = useCallback(
-    (tag: string, parentCategory: string) => {
-      if (tag === activeTag && parentCategory === activeParentCategory) return;
-      navigateTo({ tag, parentCategory });
-    },
-    [activeTag, activeParentCategory, navigateTo]
-  );
-
-  const handleAllClick = useCallback(() => {
-    navigateTo();
-  }, [navigateTo]);
 
   const renderCategoriesContent = () => (
     <div className="space-y-1">
-      <button
-        onClick={handleAllClick}
-        className={getCategoryStyle(
-          variant,
-          true,
-          false,
-          pathname,
-          activeCategory,
-          activeTag
-        )}
-      >
-        <span>ALL</span>
-        <span className="text-xs text-muted-foreground">{totalPostCount}</span>
-      </button>
+      <ActiveLink
+        href="/"
+        title="ALL"
+        className="w-full justify-between px-4"
+        count={totalPostCount}
+        onClick={closeMenu}
+        isActive={checkIsActive("/", "ALL", LINK_TYPES.ALL)}
+      />
 
       {categories.map((item) => (
         <Collapsible
@@ -122,70 +110,42 @@ export function BlogCategoryNavigator({
           open={openCategories.has(item.category)}
           className="w-full"
         >
-          <div className="flex w-full">
-            <div
-              onClick={() => handleCategoryClick(item.category)}
-              className={getCategoryStyle(
-                variant,
-                false,
-                activeCategory === item.category,
-                pathname,
-                activeCategory,
-                activeTag
+          <CollapsibleTrigger asChild>
+            <ActiveLink
+              href={`/?category=${item.category}`}
+              title={item.category}
+              className="w-full justify-between px-4"
+              count={item.postCount}
+              isDropdown={true}
+              newBadge={item.recent}
+              isOpen={openCategories.has(item.category)}
+              onToggleDropdown={toggleHandlers[item.category]}
+              onClick={closeMenu}
+              isActive={checkIsActive(
+                `/?category=${item.category}`,
+                item.category,
+                LINK_TYPES.CATEGORY
               )}
-            >
-              <div className="flex items-center gap-2">
-                <span>{item.category}</span>
-                {item.recent && (
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] h-4 px-1 text-red-500 border-none"
-                  >
-                    N
-                  </Badge>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground">
-                  {item.postCount}
-                </span>
-
-                <button
-                  onClick={(e) => toggleCategory(item.category, e)}
-                  className="focus:outline-none cursor-pointer ml-2"
-                >
-                  {openCategories.has(item.category) ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
+            />
+          </CollapsibleTrigger>
 
           <CollapsibleContent className="pt-1 space-y-1">
             {item.subCategory.map((subItem) => {
-              const isActive =
-                activeTag === subItem.name &&
-                activeParentCategory === item.category;
-
+              const tagHref = `/?tag=${subItem.name}&parentCategory=${item.category}`;
               return (
-                <button
+                <ActiveLink
                   key={subItem.name}
-                  onClick={() => handleTagClick(subItem.name, item.category)}
-                  className={`flex justify-between items-center py-1 text-sm w-full text-left cursor-pointer pl-8 pr-4 ${
-                    isActive
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-accent/30"
-                  }`}
-                >
-                  <span>{subItem.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {subItem.count}
-                  </span>
-                </button>
+                  href={tagHref}
+                  title={subItem.name}
+                  className="w-full justify-between px-4 pl-8"
+                  count={subItem.count}
+                  onClick={closeMenu}
+                  isActive={checkIsActive(
+                    tagHref,
+                    subItem.name,
+                    LINK_TYPES.TAG
+                  )}
+                />
               );
             })}
           </CollapsibleContent>
@@ -202,21 +162,20 @@ export function BlogCategoryNavigator({
         className="w-full"
       >
         <CollapsibleTrigger
-          className={`flex justify-between items-center w-full px-4 py-2  ${
-            isBlogActive
-              ? "text-primary bg-primary/20"
-              : "text-muted-foreground"
-          }`}
+          asChild
+          className={`flex justify-between items-center w-full px-4 py-2`}
         >
-          <span>{menuName}</span>
-          {isMenuOpen ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          <ActiveLink
+            title={menuName}
+            href="/"
+            isDropdown
+            isOpen={isMenuOpen}
+            onToggleDropdown={toggleMenuHandler}
+            onClick={closeMenu}
+          />
         </CollapsibleTrigger>
 
-        <CollapsibleContent className="space-y-1 mt-1">
+        <CollapsibleContent className="pl-4">
           {renderCategoriesContent()}
         </CollapsibleContent>
       </Collapsible>
