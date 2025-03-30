@@ -53,7 +53,7 @@ export default memo(function ActiveLink({
   );
 
   return (
-    <Link href={href}>
+    <Link href={href} prefetch={false}>
       <Button
         onClick={onClick}
         variant="ghost"
