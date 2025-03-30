@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/collapsible";
 import type { CategoryData } from "@/types";
 import ActiveLink from "./active-link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { getParamFromHref } from "@/lib/utils";
 import { LINK_TYPES } from "@/lib/constants";
 import { LinkType } from "@/types";
@@ -93,15 +93,6 @@ export function BlogCategoryNavigator({
     [pathname, activeCategory, activeTag, activeParentCategory]
   );
 
-  const router = useRouter();
-  const handleClick = useCallback(
-    (href: string) => {
-      router.push(href);
-      closeMenu();
-    },
-    [router, closeMenu]
-  );
-
   const renderCategoriesContent = () => (
     <div className="space-y-1">
       <ActiveLink
@@ -155,18 +146,6 @@ export function BlogCategoryNavigator({
                     LINK_TYPES.TAG
                   )}
                 />
-              );
-            })}
-            {item.subCategory.map((subItem) => {
-              const tagHref = `/?tag=${subItem.name}&parentCategory=${item.category}`;
-              return (
-                <button
-                  key={subItem.name}
-                  className="w-full justify-between px-4 pl-8"
-                  onClick={() => handleClick(tagHref)}
-                >
-                  {subItem.name}
-                </button>
               );
             })}
           </CollapsibleContent>
