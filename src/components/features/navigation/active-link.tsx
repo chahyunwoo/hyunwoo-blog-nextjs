@@ -19,6 +19,7 @@ interface ActiveLinkProps {
   isOpen?: boolean;
   onToggleDropdown?: () => void;
   isActive?: boolean;
+  prefetch?: boolean;
 }
 
 export default memo(function ActiveLink({
@@ -32,6 +33,7 @@ export default memo(function ActiveLink({
   isOpen = false,
   onToggleDropdown,
   isActive: isActiveProp,
+  prefetch = true,
 }: ActiveLinkProps) {
   const pathname = usePathname();
   const isActive =
@@ -53,7 +55,7 @@ export default memo(function ActiveLink({
   );
 
   return (
-    <Link href={href} prefetch={false}>
+    <Link href={href} prefetch={prefetch}>
       <Button
         onClick={onClick}
         variant="ghost"

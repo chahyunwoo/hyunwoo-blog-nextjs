@@ -33,9 +33,13 @@ export function BlogCategoryNavigator({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const activeCategory = searchParams.get("category") || "";
-  const activeTag = searchParams.get("tag") || "";
-  const activeParentCategory = searchParams.get("parentCategory") || "";
+  const urlParams = useMemo(() => {
+    return {
+      category: searchParams.get("category") || "",
+      tag: searchParams.get("tag") || "",
+      parentCategory: searchParams.get("parentCategory") || "",
+    };
+  }, [searchParams]);
 
   const totalPostCount = useMemo(() => {
     return categories.reduce((sum, cat) => sum + cat.postCount, 0);
@@ -65,21 +69,22 @@ export function BlogCategoryNavigator({
       switch (type) {
         case LINK_TYPES.ALL:
           const hasNoParams =
-            !activeCategory && !activeTag && !activeParentCategory;
+            !urlParams.category && !urlParams.tag && !urlParams.parentCategory;
           return pathname === "/" && hasNoParams;
 
         case LINK_TYPES.CATEGORY:
           const categoryName = getParamFromHref("category", href);
           return (
-            activeCategory === categoryName || activeParentCategory === title
+            urlParams.category === categoryName ||
+            urlParams.parentCategory === title
           );
 
         case LINK_TYPES.TAG:
           const hrefTag = getParamFromHref("tag", href);
           const hrefParentCategory = getParamFromHref("parentCategory", href);
           return (
-            activeTag === hrefTag &&
-            activeParentCategory === hrefParentCategory &&
+            urlParams.tag === hrefTag &&
+            urlParams.parentCategory === hrefParentCategory &&
             title === hrefTag
           );
 
@@ -90,7 +95,7 @@ export function BlogCategoryNavigator({
           );
       }
     },
-    [pathname, activeCategory, activeTag, activeParentCategory]
+    [pathname, urlParams]
   );
 
   const renderCategoriesContent = () => (
@@ -102,6 +107,7 @@ export function BlogCategoryNavigator({
         count={totalPostCount}
         onClick={closeMenu}
         isActive={checkIsActive("/", "ALL", LINK_TYPES.ALL)}
+        prefetch={false}
       />
 
       {categories.map((item) => (
@@ -126,6 +132,7 @@ export function BlogCategoryNavigator({
                 item.category,
                 LINK_TYPES.CATEGORY
               )}
+              prefetch={false}
             />
           </CollapsibleTrigger>
 
@@ -145,6 +152,7 @@ export function BlogCategoryNavigator({
                     subItem.name,
                     LINK_TYPES.TAG
                   )}
+                  prefetch={false}
                 />
               );
             })}
@@ -172,6 +180,7 @@ export function BlogCategoryNavigator({
             isOpen={isMenuOpen}
             onToggleDropdown={toggleMenuHandler}
             onClick={closeMenu}
+            prefetch={false}
           />
         </CollapsibleTrigger>
 
