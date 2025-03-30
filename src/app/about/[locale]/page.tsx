@@ -42,7 +42,7 @@ export default async function Page({ params }: Params<{ locale: Locale }>) {
   const profile = PROFILE_DATA[locale];
 
   return (
-    <InnerContainer className="py-12">
+    <InnerContainer className="py-12" data-locale={locale}>
       <div className="max-w-2xl mx-auto">
         <ProfileHeader profile={profile} />
 
