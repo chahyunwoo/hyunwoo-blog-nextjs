@@ -72,7 +72,7 @@ export default memo(function ActiveLink({
               variant="outline"
               className="text-[10px] h-4 px-1 text-red-500 border-none"
             >
-              N
+              New
             </Badge>
           )}
         </div>
