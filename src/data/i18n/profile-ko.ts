@@ -2,7 +2,7 @@ import { Instagram, Linkedin, Github } from "lucide-react";
 
 export const PROFILE_KO = {
   name: "CHA HYUNWOO",
-  job: "픽셀과 성능 사이의 완벽한 균형을 찾는 개발자",
+  job: "소통과 협업을 잘하는 개발자",
   location: "Seoul, Korea",
   link: [
     {

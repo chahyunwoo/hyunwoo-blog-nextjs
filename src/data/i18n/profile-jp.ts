@@ -2,7 +2,7 @@ import { Instagram, Linkedin, Github } from "lucide-react";
 
 export const PROFILE_JP = {
   name: "CHA HYUNWOO",
-  job: "ピクセルとパフォーマンスの完璧なバランスを見つける開発者",
+  job: "コミュニケーションとコラボレーションが得意な開発者",
   location: "Seoul, Korea",
   link: [
     {
