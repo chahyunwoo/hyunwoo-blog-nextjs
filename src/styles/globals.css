@@ -229,8 +229,8 @@
       @apply border-none bg-blockquote rounded-sm not-italic;
     }
 
-    blockquote p {
-      padding: 10px 0;
+    blockquote {
+      @apply py-1 px-4;
     }
 
     blockquote p::before,
