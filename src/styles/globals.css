@@ -226,11 +226,7 @@
     }
 
     blockquote {
-      @apply border-none bg-blockquote rounded-sm not-italic;
-    }
-
-    blockquote {
-      @apply py-1 px-4;
+      @apply border-none bg-blockquote rounded-sm not-italic py-1 px-4;
     }
 
     blockquote p::before,
