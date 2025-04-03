@@ -13,7 +13,7 @@ export default function DesktopMenu({ items }: DesktopMenuProps) {
           key={name}
           href={href}
           title={name}
-          className="hover:bg-transparent"
+          className="hover:!bg-transparent"
         />
       ))}
     </nav>
