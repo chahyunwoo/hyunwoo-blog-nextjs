@@ -11,16 +11,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { THEME_TYPES } from "@/lib/constants";
 import { Moon, Sun } from "lucide-react";
 
 export default memo(function ThemeSwitch() {
   const { theme, setTheme } = useTheme();
 
+  const handleThemeChange = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const themeName = event.currentTarget.dataset.theme;
+      if (themeName) {
+        setTheme(themeName);
+      }
+    },
+    [setTheme]
+  );
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className="cursor-pointer">
         <Button variant="ghost" size="icon">
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -31,7 +41,8 @@ export default memo(function ThemeSwitch() {
         {THEME_TYPES.map(({ name, icon: Icon }) => (
           <DropdownMenuItem
             key={name}
-            onClick={() => setTheme(name)}
+            onClick={handleThemeChange}
+            data-theme={name}
             className={cn(
               "flex items-center gap-2",
               theme === name ? "bg-accent font-medium" : ""
