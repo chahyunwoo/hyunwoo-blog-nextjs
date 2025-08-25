@@ -40,6 +40,17 @@ export const PROFILE_JP = {
   ],
   experience: [
     {
+      title: "フロントエンド開発者フリーランス",
+      role: "FE Developer / Freelancer",
+      period: "2025 - Now",
+      responsibilities: [
+        "フロントエンド開発者フリーランサーとして、プロジェクトの初期設計から製品リリースまでの全般的な開発プロセスに参画",
+        "Next.jsベースのプロジェクトサービスガイドUI開発（React Joyride）",
+        "金融業界バックオフィスプロジェクトの画面開発（React、TypeScript、Styled-Components）",
+        "大企業環境におけるデザインシステム開発および共通コンポーネント開発（Figma、Storybook）",
+      ],
+    },
+    {
       title: "LG電子 webOS TV App Shoptime 2.0 運用保守",
       role: "FE Developer / PL",
       period: "2024 - 2025",

@@ -40,6 +40,17 @@ export const PROFILE_KO = {
   ],
   experience: [
     {
+      title: "프론트엔드 개발자 프리랜서",
+      role: "FE Developer / Freelancer",
+      period: "2025 - Now",
+      responsibilities: [
+        "프론트엔드 개발자 프리랜서로 프로젝트 초기 설계부터 출시까지 전반적인 개발 프로세스 참여",
+        "Next.js 기반 프로젝트 서비스 가이드 UI 개발 (React Joyride)",
+        "금융권 백오피스 프로젝트 화면 개발 (React, TypeScript, Styled-Components)",
+        "대기업 환경에서 디자인 시스템 개발 및 공통 컴포넌트 개발 (Figma, Storybook)",
+      ],
+    },
+    {
       title: "LG전자 webOS TV App Shoptime 2.0 운영 유지보수",
       role: "FE Developer / PL",
       period: "2024 - 2025",

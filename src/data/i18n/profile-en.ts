@@ -40,6 +40,17 @@ export const PROFILE_EN = {
   ],
   experience: [
     {
+      title: "Frontend Developer Freelancer",
+      role: "FE Developer / Freelancer",
+      period: "2025 - Now",
+      responsibilities: [
+        "Participated in comprehensive development processes from initial project design to product launch as a freelance frontend developer",
+        "Developed service guide UI for Next.js-based projects using React Joyride",
+        "Built front-end interfaces for financial back-office projects using React, TypeScript, and Styled-Components",
+        "Developed design systems and shared component libraries in enterprise environments using Figma and Storybook",
+      ],
+    },
+    {
       title:
         "LG Electronics webOS TV App Shoptime 2.0 Operation and Maintenance",
       role: "FE Developer / PL",
