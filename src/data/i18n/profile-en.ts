@@ -7,12 +7,12 @@ export const PROFILE_EN = {
   link: [
     {
       name: "Github",
-      href: "https://github.com/aavecvous",
+      href: "https://github.com/chahyunwoo",
       icon: Github,
     },
     {
       name: "Instagram",
-      href: "https://instagram.com/aavecvous",
+      href: "https://instagram.com/chwzp",
       icon: Instagram,
     },
     {
