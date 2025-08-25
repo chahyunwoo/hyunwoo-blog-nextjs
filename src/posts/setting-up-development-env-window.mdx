@@ -1,0 +1,202 @@
+---
+title: "내가 보려고 만든 개발 환경 설정 - 윈도우편"
+description: "윈도우 환경 적응하려고 만든 개발 환경 설정 포스팅"
+date: "2025-08-25T14:10:45"
+mainTag: "Programming"
+tags: ["Windows", "Development", "Environment", "Setting"]
+thumbnail: /thumbnail/setting-up-development-env-window.png
+published: true
+---
+
+필자는 대학생 시절부터 스타벅스 출입증을 부여받기 위해 맥북만을 고집했습니다.
+그놈의 사과 감성이 뭐라고, 어릴 적 윈도우와의 추억을 모두 버리고 맥북을 사용하게 되면서 처음에는 맥북의 인터페이스에 많이 당황했습니다만, 지금은 오히려 macOS 환경이 더 익숙해졌습니다.
+
+개발을 하면서 항상 macOS 환경에서만 개발을 진행하다가,
+최근에 윈도우 환경에서 개발을 진행할 일이 생겨 윈도우 노트북을 구입하게 되었고,
+윈도우 환경에서 개발을 진행하면서 필요한 개발 환경 설정을 정리하려고 합니다.
+
+<Callout type="warning">
+해당 포스팅은 FE Developer의 환경 설정에 초점을 맞추고 있습니다.
+</Callout>
+
+## 1. 시스템 기본 설정 및 업데이트
+
+### 윈도우 업데이트
+
+윈도우 업데이트를 진행하고, 기본적인 설정을 진행합니다.
+
+- 설정 -> 업데이트 및 보안 -> Windows Update
+- 업데이트 설치 완료 후 재부팅
+
+### 개발자 모드 활성화
+
+- 설정 -> 업데이트 및 보안 -> 개발자용
+- `개발자 모드` 활성화
+
+### Powershell 실행 정책 변경
+
+관리자 권한으로 PowerShell을 실행한 후 다음 명령어를 입력합니다.
+
+```powershell title="Powershell 실행 정책 변경"
+Set-ExecutionPolicy RemoteSigned
+```
+
+## 2. 필수 브라우저 및 개발 도구 설치
+
+### 브라우저 설치
+
+<Callout type="info">
+브라우저는 본인의 선호도에 따라 설치하시면 됩니다.
+크롬 브라우저가 가장 많이 사용되고 있으므로, 필자는 크롬 브라우저를 메인으로 사용합니다.
+</Callout>
+
+- **Chrome**: 주 개발 브라우저
+- **Firefox**: 크로스브라우저 테스트 용
+- **Edge**: ~~윈도우 기본 브라우저이지만 거의 사용하지 않습니다.~~
+
+### Git 설치 및 설정
+
+1. [Git for Windows](https://git-scm.com/downloads) 다운로드 및 설치
+2. Git Bash 설정
+
+```bash title="Git Bash 설정"
+git config --global user.name "유저 이름"
+git config --global user.email "유저 이메일"
+```
+
+## 코드 에디터 및 IDE 설치
+
+<Callout type="info">
+코드 에디터 또한 본인의 선호도에 따라 설치하시면 됩니다.
+저는 `Cursor`를 메인 코드 에디터로 사용하고 있습니다.
+VSCode의 확장프로그램을 import 하기 위해 VSCode 부터 설치하겠습니다.
+</Callout>
+
+### Visual Studio Code
+
+1. [Visual Studio Code](https://code.visualstudio.com/download) 다운로드 및 설치
+2. 확장프로그램 설치
+  - Korean Language Pack
+  - Auto Rename Tag
+  - Prettier
+  - Material Icon Theme
+  - indent-rainbow
+  - GitLens
+  - ESLint
+
+<Highlight>주로 사용하는 프레임워크에 대한 확장 프로그램을 설정하는 것이 좋습니다. 
+위의 확장프로그램은 거의 필수적으로 설치하는 프로그램입니다.</Highlight>
+
+### Cursor AI
+
+1. [Cursor](https://www.cursor.com/download) 다운로드 및 설치
+2. Cursor AI 실행
+3. vscode import 
+
+## Node.js 및 패키지 매니저 설치
+
+### Node Version Manager (nvm-windows) 설치
+
+여러 Node.js 버전을 관리하기 위해 `nvm`을 사용하는 것이 좋습니다.
+
+1. [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) 다운로드 및 설치
+2. 설치 후 Powershell 재시작
+3. Node.js LTS 버전 설치
+
+```bash title="Node.js LTS 버전 설치"
+nvm install lts
+nvm use lts
+```
+
+### 패키지 매니저 설정
+
+Node.js 설치가 되면 npm이 자동으로 설치됩니다. 
+필자는 npm 보다는 yarn 혹은 pnpm을 주로 사용하므로 설치하겠습니다.
+
+```bash title="yarn 설치"
+npm install -g yarn
+```
+
+```bash title="pnpm 설치"
+npm install -g pnpm
+```
+
+## 터미널 환경 개선
+
+윈도우의 터미널은 기본적으로 터미널 환경이 매우 좋지 않고,
+가시성이 굉장히 떨어지기 때문에 터미널 환경을 개선하는 것이 좋습니다.
+
+### Windows Terminal 설치
+
+[Windows Terminal](https://github.com/microsoft/terminal/releases) 다운로드 및 설치
+
+### PowerShell 설치
+
+[PowerShell](https://github.com/PowerShell/PowerShell/releases) 다운로드 및 설치
+
+### Oh My Posh 설치 (터미널 테마) <Highlight>✅ 선택 사항</Highlight>
+
+```bash
+winget install JanDeDobbeleer.OhMyPosh
+```
+
+설정 파일을 생성합니다.
+
+```bash
+oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\jandedobbeleer.omp.json" | Invoke-Expression
+```
+
+## WSL (WIndows Subsystem for Linux) 설치 <Highlight>✅ 선택 사항</Highlight>
+
+많은 FE 도구들이 Linux 환경에서 더 잘 작동하므로 WSL 설치하는 것이 좋습니다.
+
+```powershell title="WSL 설치"
+wsl --install
+```
+
+재부팅 후 Ubuntu 설치를 완료하고, 사용자 계정을 생성합니다.
+
+### WSL에서 개발 환경 구축
+
+```bash
+# 시스템 업데이트
+sudo apt update && sudo apt upgrade
+
+# Node.js 설치 (WSL 환경에서 설치)
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 혹은 nvm을 설치합니다
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+## 개발 도구 및 유틸리티 설치
+
+### 필수 유틸리티
+- **Postman** or **Insomnia**: API 테스트 도구
+- **Figma**: 디자인 협업 도구
+
+### 추가 유틸리티
+- **7-Zip**: 압축 파일 관리
+- **Everything**: 파일 검색 도구
+- **PowerToys**: 윈도우 생산성 확장 도구들이
+
+### 패키지 매니저를 통한 설치
+`Chocolatey` 또는 `winget`을 사용하여 프로그램을 쉽게 설치할 수 있습니다.
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+
+### 필요한 프로그램 일괄 설치
+```powershell
+choco install googlechrome firefox vscode git nodejs postman 7zip everything powertoys -y
+```
+
+## 마무리
+
+FE 개발자의 환경에 맞는 윈도우 개발 환경 셋팅에 대하여 알아보았습니다.
+필자가 윈도우로 처음 개발을 시작하게 되면서 개발 환경 설정에 애를 먹었는데,
+까먹지 않고 다음에 다른 Windows PC에서 개발을 시작할 때 참고하면 좋을 것 같아 작성하게 되었습니다. (오직 나를 위한)
+
+긴 글 읽어주셔서 감사합니다.
