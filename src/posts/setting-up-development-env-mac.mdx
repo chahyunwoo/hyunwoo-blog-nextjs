@@ -1,0 +1,254 @@
+---
+title: "내가 보려고 만든 개발 환경 설정 - 맥편"
+description: "맥북만 쓰던 사람의 맥북 개발 환경 설정 포스팅"
+date: "2025-09-09T16:07:48"
+mainTag: "Programming"
+tags: ["MacOS", "Development", "Environment", "Setting"]
+thumbnail: /thumbnail/setting-up-development-env-mac.png
+published: true
+---
+
+지난 포스팅에서 윈도우 환경에서 개발 환경 설정을 정리했습니다.
+저 글을 쓰고 나서 윈도우를 계속 사용하고 있지만, 맥북의 인터페이스에 이미 익숙해져서 한 달이 지난 지금도 윈도우 환경에서 개발을 하는 것이 익숙하지가 않습니다.
+
+장비 업그레이드를 위해 새 맥북을 구입하기도 하고
+혹은 근무하는 회사에서 맥북을 지원해주는 경우가 간혹 있어 
+오늘은 맥북 환경에서 개발 환경 설정을 정리하려고 합니다.
+
+사실 제가 매번 개발 환경 설정할 때마다 헷갈려서, 제가 보려고 쓴 글이 맞습니다.
+
+<Callout type="warning">
+윈도우 환경설정과 마찬가지로
+해당 포스팅은 FE Developer의 환경 설정에 초점을 맞추고 있습니다.
+</Callout>
+
+## 1. macOS 기본 설정
+
+### 맥 업데이트
+
+- 시스템 설정 -> 일반 -> 소프트웨어 업데이트
+- 업데이트 설치 완료 후 재부팅
+
+### 개발에 유용한 시스템 설정
+
+<Callout type="info">
+개발에 유용한 시스템 설정은 본인의 선호도에 따라 설정하시면 됩니다.
+</Callout>
+
+```bash title="숨김 파일 표시"
+defaults write com.apple.finder AppleShowAllFiles YES
+killall Finder
+```
+
+이건 `Finder`에서 **숨김 파일을 보이게** 하는 설정입니다.
+
+`.gitignore`, `.env` 등과 같은 설정 파일들은 기본적으로 숨김파일로 설정되어 있어,
+터미널에서 해당 명령어를 설정하면 숨김 파일을 보이게 할 수 있습니다.
+
+```bash title="스크린샷 저장 위치 변경"
+mkdir ~/Screenshots
+defaults write com.apple.screencapture location ~/Screenshots
+```
+
+개인적으로 버그 리포트나, PR 리뷰, 이슈 등록할 때 스크린샷을 많이 찍게 됩니다.
+기본값은 `~/Desktop`에 저장되는데, 여러 파일들이 중구난방으로 섞일 수 있어 지저분해보이므로
+저같은 경우에는 별도로 폴더를 만들어서 저장하고 있습니다.
+
+```bash title="추가 유용한 환경 설정"
+# Dock 자동 숨기기 (코드 에디터 화면 공간 확보)
+defaults write com.apple.dock autohide -bool true
+
+# 키 반복 속도 빠르게 (코드 네비게이션)
+defaults write NSGlobalDomain KeyRepeat -int 1
+defaults write NSGlobalDomain InitialKeyRepeat -int 10
+
+# 압축 파일에 .DS_Store 파일 포함 안 함
+defaults write com.apple.finder CreateDesktop -bool false
+```
+
+### XCode Command Line Tools 설치
+
+macOS에서 개발을 진행하려면 필수적으로 설치해야 합니다.
+설치해줍시다.
+
+```bash title="XCode Command Line Tools 설치"
+xcode-select --install
+```
+
+## 2. Homebrew 설치 (패키지 매니저)
+
+윈도우의 `Chocolatey` 혹은 `winget`과 같은 맥 전용 패키지 매니저입니다.
+대부분의 개발 도구들은 이 패키지 매니저를 통해 설치할 수 있습니다.
+
+```bash title="Homebrew 설치"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+설치 후 PATH를 설정해주어야 합니다. **(Apple Silicon 기준)**
+
+```bash title="PATH 설정"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+<Callout type="warning">
+**Intel Mac의 경우** Homebrew가 `/usr/local`에 설치되므로 별도의 PATH 설정이 필요 없습니다.
+</Callout>
+
+## 3. 터미널 환경 구축
+
+### iTerm2 설치
+
+macOS의 기본 터미널보다 훨씬 강력한 기능을 제공하고,
+UI 또한 훨씬 더 깔끔하고 ~~예쁩니다.~~
+고민의 여지 없이 설치해줍니다.
+
+```bash title="iTerm2 설치"
+brew install --cask iterm2
+```
+
+### Oh My Zsh 설치
+
+zsh 쉘을 더욱 강력하게 만들어주는 프레임워크입니다.
+
+```bash title="Oh My Zsh 설치"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+### Powerlevel10k 테마 설치 <Highlight>✅ 선택 사항</Highlight>
+
+```bash title="Powerlevel10k 테마 설치"
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+`.zshrc` 파일을 열어 테마를 변경합니다.
+
+```bash title="Powerlevel10k 테마 설정"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+```
+
+설정 후 터미널을 재시작하면 프롬프트가 나오면서 테마를 적용할 수 있게 됩니다.
+
+### 유용한 Oh My Zsh 플러그인 설치
+
+```bash title="유용한 Oh My Zsh 플러그인 설치"
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+이후, `.zshrc` 파일을 열어 플러그인을 추가합니다.
+
+```bash title="유용한 Oh My Zsh 플러그인 설정"
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  web-search
+  jsontools
+  node
+  npm
+)
+```
+
+설정 후 터미널을 재시작하면 플러그인이 적용됩니다.
+
+- `git`: Git 플러그인
+- `zsh-autosuggestions`: 명령어 자동 완성
+- `zsh-syntax-highlighting`: 명령어 하이라이트
+- `web-search`: 웹 검색
+- `jsontools`: JSON 파일 편집
+- `node`: Node.js 환경 변수
+- `npm`: npm 환경 변수
+
+## 4. Git 설정
+
+Git은 필수 입니다. 
+개발자라면 설명할 필요 없겠죠?
+이것도 바로 설치해줍니다.
+
+```bash title="Git 설치"
+brew install git
+```
+
+설치 후 설정을 진행합니다.
+
+```bash title="Git 설정"
+git config --global user.name "유저 이름"
+git config --global user.email "유저 이메일"
+```
+
+SSH키를 생성하고 Github와 연결합니다.
+
+```bash title="SSH 키 생성"
+ssh-keygen -t ed25519 -C "your.email@example.com"
+```
+
+```bash
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+```
+
+```bash
+pbcopy < ~/.ssh/id_ed25519.pub
+```
+
+이제 복사한 키를 **GitHub Settings -> SSH and GPG keys**에 추가합니다.
+
+## 5.Node.js 환경 구축
+
+### NVM (Node Version Manager) 설치
+
+윈도우에서 설정했던 것과 마찬가지로 `nvm`을 설치해줍니다.
+앞의 포스팅에서도 설명했지만 nvm은 여러 node.js 버전을 관리하기 위해 사용됩니다.
+
+```bash title="NVM 설치" 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+```
+
+`.zshrc` 파일을 열어 환경변수를 추가합니다.
+
+```bash title="NVM 환경변수 추가"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+```
+
+### Node.js 설치
+
+저는 LTS 버전을 설치할 것이므로, 다음과 같은 명령어를 실행합니다.
+
+```bash title="Node.js 설치"
+nvm install --lts
+nvm use --lts
+nvm alias default node
+```
+
+<Callout type="info">
+`nvm alias default node`는 기본 버전을 설정하는 명령어입니다.
+특정 버전을 기본으로 설정하고 싶다면 `nvm alias default <version>`으로 설정할 수 있습니다.
+</Callout>
+
+## 6. 코드 에디터 설치
+
+저는 `Cursor`를 메인 코드 에디터로 사용하고 있습니다.
+vscode의 확장프로그램을 import 하기 위해 vscode부터 설치하고 있는데,
+해당 에디터 설치에 관한 설명과 확장프로그램 설정에 대한 설명은 [윈도우 포스팅](/blog/setting-up-development-env-window)에서 자세히 설명하고 있습니다.
+
+<Highlight>목차의 **Visual Studio Code** 부분을 참고해주세요.</Highlight>
+
+## 마무리
+
+macOS는 Unix 기반 시스템이라 개발 환경 구축이 윈도우보다 직관적이고 강력합니다.
+특히 Homebrew를 통한 패키지 관리와 강력한 터미널 환경은 개발 생산성을 크게 향상시켜줍니다.
+
+설명이 부족하지만 혹시라도 제 포스팅을 읽는 macOS를 처음 사용하는 FE 개발자분들께 도움이 되길 바랍니다.
+개발 환경은 개인의 취향과 프로젝트 요구사항에 따라 달라질 수 있으니
+이 설정을 기반으로 자신만의 환경을 구축하는 것이 좋아 보입니다.
+
+<Callout type="tip">
+설정을 모두 마친 후에는 `brew bundle dump`를 사용하여 설치한 패키지 목록을 Brewfile로 저장해두면, 
+나중에 새 맥북에서 `brew bundle`로 한 번에 복원할 수 있습니다.
+</Callout>
+
+Happy Coding! 🚀
