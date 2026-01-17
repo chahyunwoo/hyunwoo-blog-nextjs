@@ -1,0 +1,686 @@
+---
+title: "Zod + React Hook Form, 폼 검증의 정석"
+description: "스키마 기반 검증과 타입 추론으로 폼 개발 제대로 하기"
+date: "2025-12-15"
+mainTag: "Frontend"
+tags: ["Zod", "React Hook Form", "TypeScript", "Form"]
+thumbnail: /thumbnail/zod-react-hook-form.png
+published: true
+---
+
+폼 개발할 때마다 검증 로직이 지저분해지는 게 싫었습니다.
+이메일 형식 체크, 비밀번호 규칙, 필수값 검사...
+이런 걸 `if`문으로 하나하나 처리하다 보면 코드가 금방 스파게티가 됩니다.
+
+솔직히 말하면 <Highlight color="fuchsia">저도 이 조합을 제대로 이해하지 못하고 썼습니다.</Highlight>
+대충 예제 복붙해서 돌아가면 넘어가곤 했는데,
+이번에 제대로 정리해봤습니다.
+
+## 왜 이 조합인가
+
+### React Hook Form
+
+폼 상태 관리 라이브러리입니다.
+`useState`로 폼 만들면 입력할 때마다 리렌더링이 발생하는데,
+React Hook Form은 비제어 컴포넌트 방식이라 성능이 좋습니다.
+
+```typescript
+// useState 방식 - 매 입력마다 리렌더
+const [email, setEmail] = useState('')
+<input value={email} onChange={(e) => setEmail(e.target.value)} />
+
+// React Hook Form - 리렌더 최소화
+const { register } = useForm()
+<input {...register('email')} />
+```
+
+### Zod
+
+TypeScript 기반 스키마 검증 라이브러리입니다.
+스키마를 정의하면 검증과 타입 추론을 동시에 해결합니다.
+
+```typescript
+const schema = z.object({
+  email: z.string().email(),
+  age: z.number().min(18),
+})
+
+// 타입 자동 추론
+type FormData = z.infer<typeof schema>
+// { email: string; age: number }
+```
+
+### 둘을 합치면
+
+- React Hook Form: 폼 상태 관리, 제출 처리
+- Zod: 검증 규칙 정의, 타입 생성
+- @hookform/resolvers: 둘을 연결
+
+<Callout type="info">
+Zod 말고 Yup, Joi 등 다른 검증 라이브러리도 사용 가능합니다.
+근데 Zod가 TypeScript 친화적이라 요즘 많이 씁니다.
+</Callout>
+
+## 설치
+
+```bash
+pnpm add react-hook-form zod @hookform/resolvers
+```
+
+## 기본 사용법
+
+### 1. 스키마 정의
+
+```typescript title="schema.ts"
+import { z } from 'zod'
+
+export const loginSchema = z.object({
+  email: z.string().email('올바른 이메일을 입력하세요'),
+  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
+})
+
+// 타입 추론
+export type LoginFormData = z.infer<typeof loginSchema>
+```
+
+### 2. 폼 컴포넌트
+
+```typescript title="LoginForm.tsx"
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { loginSchema, type LoginFormData } from './schema'
+
+function LoginForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  })
+
+  const onSubmit = (data: LoginFormData) => {
+    console.log(data) // 타입 안전!
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <input {...register('email')} placeholder="이메일" />
+        {errors.email && <span>{errors.email.message}</span>}
+      </div>
+
+      <div>
+        <input
+          {...register('password')}
+          type="password"
+          placeholder="비밀번호"
+        />
+        {errors.password && <span>{errors.password.message}</span>}
+      </div>
+
+      <button type="submit">로그인</button>
+    </form>
+  )
+}
+```
+
+핵심은 `zodResolver(schema)`를 `useForm`의 `resolver`에 넣는 것입니다.
+이렇게 하면 제출 시 Zod 스키마로 검증이 됩니다.
+
+## Zod 스키마 작성법
+
+여기가 핵심입니다. Zod 메서드들을 제대로 알아야 합니다.
+
+### 기본 타입
+
+```typescript
+// 문자열
+z.string()
+
+// 숫자
+z.number()
+
+// 불리언
+z.boolean()
+
+// 날짜
+z.date()
+
+// 배열
+z.array(z.string()) // string[]
+
+// 객체
+z.object({
+  name: z.string(),
+  age: z.number(),
+})
+```
+
+### 문자열 검증
+
+```typescript
+z.string()
+  .min(1, '필수 입력입니다')           // 최소 길이
+  .max(100, '100자 이하로 입력하세요')  // 최대 길이
+  .email('올바른 이메일 형식이 아닙니다')
+  .url('올바른 URL 형식이 아닙니다')
+  .regex(/^[a-z]+$/, '영소문자만 입력하세요')
+  .startsWith('https://', 'https://로 시작해야 합니다')
+  .endsWith('.com', '.com으로 끝나야 합니다')
+  .includes('@', '@를 포함해야 합니다')
+  .trim()                              // 앞뒤 공백 제거
+  .toLowerCase()                       // 소문자 변환
+```
+
+<Callout type="tip">
+`.min(1)`과 빈 문자열 체크는 다릅니다.
+빈 문자열도 `string`이라서 `z.string()`만으로는 필수값 검증이 안 됩니다.
+`z.string().min(1)`을 써야 합니다.
+</Callout>
+
+### 숫자 검증
+
+```typescript
+z.number()
+  .min(0, '0 이상이어야 합니다')
+  .max(100, '100 이하여야 합니다')
+  .positive('양수여야 합니다')
+  .negative('음수여야 합니다')
+  .int('정수여야 합니다')
+  .multipleOf(5, '5의 배수여야 합니다')
+
+// 문자열을 숫자로 변환
+z.coerce.number() // "123" → 123
+```
+
+### 선택적 필드
+
+```typescript
+// optional - undefined 허용
+z.string().optional() // string | undefined
+
+// nullable - null 허용
+z.string().nullable() // string | null
+
+// nullish - 둘 다 허용
+z.string().nullish() // string | null | undefined
+
+// 기본값
+z.string().default('기본값')
+z.number().default(0)
+```
+
+### 열거형
+
+```typescript
+// enum
+z.enum(['admin', 'user', 'guest'])
+
+// nativeEnum - TypeScript enum 사용
+enum Role {
+  Admin = 'admin',
+  User = 'user',
+}
+z.nativeEnum(Role)
+
+// literal - 특정 값만
+z.literal('active')
+```
+
+### 유니온 (OR)
+
+```typescript
+// 문자열 또는 숫자
+z.union([z.string(), z.number()])
+
+// 단축 문법
+z.string().or(z.number())
+```
+
+### 배열
+
+```typescript
+z.array(z.string())
+  .min(1, '최소 1개 이상 선택하세요')
+  .max(5, '최대 5개까지 선택 가능합니다')
+  .nonempty('비어있으면 안 됩니다')
+```
+
+## 실전 예제: 회원가입 폼
+
+```typescript title="signup-schema.ts"
+import { z } from 'zod'
+
+export const signupSchema = z
+  .object({
+    email: z
+      .string()
+      .min(1, '이메일을 입력하세요')
+      .email('올바른 이메일 형식이 아닙니다'),
+
+    password: z
+      .string()
+      .min(8, '비밀번호는 8자 이상이어야 합니다')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        '영문 대/소문자와 숫자를 포함해야 합니다'
+      ),
+
+    passwordConfirm: z.string().min(1, '비밀번호 확인을 입력하세요'),
+
+    name: z
+      .string()
+      .min(2, '이름은 2자 이상이어야 합니다')
+      .max(20, '이름은 20자 이하여야 합니다'),
+
+    phone: z
+      .string()
+      .regex(/^01[0-9]-\d{4}-\d{4}$/, '올바른 전화번호 형식이 아닙니다')
+      .optional()
+      .or(z.literal('')), // 빈 문자열도 허용
+
+    birthYear: z.coerce
+      .number()
+      .min(1900, '올바른 연도를 입력하세요')
+      .max(new Date().getFullYear(), '미래 연도는 입력할 수 없습니다'),
+
+    agreeTerms: z.literal(true, {
+      errorMap: () => ({ message: '약관에 동의해야 합니다' }),
+    }),
+
+    role: z.enum(['user', 'seller'], {
+      errorMap: () => ({ message: '회원 유형을 선택하세요' }),
+    }),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: '비밀번호가 일치하지 않습니다',
+    path: ['passwordConfirm'], // 에러를 표시할 필드
+  })
+
+export type SignupFormData = z.infer<typeof signupSchema>
+```
+
+### 주요 포인트
+
+**1. `z.coerce.number()`**
+
+HTML input은 항상 문자열을 반환합니다.
+`z.coerce.number()`를 쓰면 자동으로 숫자로 변환해서 검증합니다.
+
+```typescript
+// input value가 "1990"이면
+z.coerce.number() // → 1990 (number)
+```
+
+**2. `.refine()` - 커스텀 검증**
+
+비밀번호 확인처럼 다른 필드와 비교해야 할 때 사용합니다.
+
+```typescript
+.refine((data) => data.password === data.passwordConfirm, {
+  message: '비밀번호가 일치하지 않습니다',
+  path: ['passwordConfirm'], // 이 필드에 에러 표시
+})
+```
+
+**3. 선택적 필드 + 빈 문자열**
+
+```typescript
+phone: z
+  .string()
+  .regex(/^01[0-9]-\d{4}-\d{4}$/, '...')
+  .optional()
+  .or(z.literal('')) // 빈 문자열도 허용
+```
+
+`optional()`만 쓰면 빈 문자열(`''`)은 검증에 걸립니다.
+`.or(z.literal(''))`을 추가해야 빈 값을 허용합니다.
+
+**4. 체크박스 필수 검증**
+
+```typescript
+agreeTerms: z.literal(true, {
+  errorMap: () => ({ message: '약관에 동의해야 합니다' }),
+})
+```
+
+`z.literal(true)`는 정확히 `true`만 허용합니다.
+체크 안 하면 `false`라서 검증 실패합니다.
+
+## React Hook Form 주요 메서드
+
+이것도 자주 헷갈려서 정리합니다.
+
+### useForm 옵션
+
+```typescript
+const form = useForm<FormData>({
+  resolver: zodResolver(schema),
+  defaultValues: {
+    email: '',
+    name: '',
+  },
+  mode: 'onBlur', // 검증 시점
+})
+```
+
+**mode 옵션**
+
+| 값 | 설명 |
+|---|------|
+| `onSubmit` | 제출할 때만 검증 (기본값) |
+| `onBlur` | 포커스 벗어날 때 검증 |
+| `onChange` | 입력할 때마다 검증 |
+| `onTouched` | 첫 blur 후부터 onChange처럼 동작 |
+| `all` | onBlur + onChange |
+
+저는 보통 `onBlur`를 씁니다.
+`onChange`는 입력할 때마다 검증해서 UX가 좀 부담스럽습니다.
+
+### useForm 반환값
+
+```typescript
+const {
+  register,      // input 연결
+  handleSubmit,  // 제출 핸들러
+  formState,     // 폼 상태 (errors, isSubmitting 등)
+  watch,         // 값 실시간 감시
+  setValue,      // 값 직접 설정
+  getValues,     // 현재 값 가져오기
+  reset,         // 폼 초기화
+  trigger,       // 수동으로 검증 실행
+  control,       // Controller용
+} = useForm<FormData>()
+```
+
+### register
+
+가장 기본적인 메서드입니다.
+
+```typescript
+<input {...register('email')} />
+
+// 옵션 추가
+<input {...register('email', { required: true })} />
+
+// 숫자 변환 (Zod coerce 대신 사용 가능)
+<input type="number" {...register('age', { valueAsNumber: true })} />
+```
+
+### watch
+
+값 변경을 실시간으로 감시합니다.
+
+```typescript
+// 특정 필드
+const email = watch('email')
+
+// 전체
+const allValues = watch()
+
+// 여러 필드
+const [email, password] = watch(['email', 'password'])
+```
+
+주의: `watch`는 리렌더를 발생시킵니다.
+조건부 렌더링에만 사용하고, 값만 필요하면 `getValues`를 쓰세요.
+
+### setValue / getValues
+
+```typescript
+// 값 설정
+setValue('email', 'test@example.com')
+
+// 값 설정 + 검증 트리거
+setValue('email', 'test@example.com', { shouldValidate: true })
+
+// 값 가져오기
+const email = getValues('email')
+const allValues = getValues()
+```
+
+### reset
+
+```typescript
+// 전체 초기화
+reset()
+
+// 특정 값으로 초기화
+reset({
+  email: '',
+  name: '홍길동',
+})
+
+// 서버에서 받은 데이터로 초기화 (수정 폼에서 유용)
+useEffect(() => {
+  if (userData) {
+    reset(userData)
+  }
+}, [userData, reset])
+```
+
+### trigger
+
+수동으로 검증을 실행합니다.
+
+```typescript
+// 특정 필드 검증
+await trigger('email')
+
+// 전체 검증
+await trigger()
+
+// 여러 필드
+await trigger(['email', 'password'])
+```
+
+다음 단계로 넘어가기 전에 현재 스텝의 필드들만 검증할 때 유용합니다.
+
+### formState
+
+```typescript
+const {
+  errors,        // 에러 객체
+  isSubmitting,  // 제출 중
+  isSubmitted,   // 제출됨
+  isValid,       // 유효함
+  isDirty,       // 변경됨
+  dirtyFields,   // 변경된 필드들
+  touchedFields, // 터치된 필드들
+} = formState
+```
+
+```typescript
+// 에러 메시지 표시
+{errors.email && <span>{errors.email.message}</span>}
+
+// 제출 중 버튼 비활성화
+<button disabled={isSubmitting}>
+  {isSubmitting ? '처리 중...' : '제출'}
+</button>
+```
+
+## Controller - 외부 컴포넌트 연동
+
+`register`는 일반 `<input>`에만 사용 가능합니다.
+UI 라이브러리 컴포넌트는 `Controller`를 써야 합니다.
+
+```typescript
+import { Controller, useForm } from 'react-hook-form'
+
+function Form() {
+  const { control, handleSubmit } = useForm<FormData>()
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        name="role"
+        control={control}
+        render={({ field, fieldState }) => (
+          <Select
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+          />
+          {fieldState.error && <span>{fieldState.error.message}</span>}
+        )}
+      />
+    </form>
+  )
+}
+```
+
+### shadcn/ui Form 컴포넌트
+
+shadcn/ui를 쓰면 더 깔끔합니다.
+
+```typescript
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+
+function LoginForm() {
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>이메일</FormLabel>
+              <FormControl>
+                <Input placeholder="이메일" {...field} />
+              </FormControl>
+              <FormMessage /> {/* 에러 메시지 자동 표시 */}
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>비밀번호</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <button type="submit">로그인</button>
+      </form>
+    </Form>
+  )
+}
+```
+
+## 자주 하는 실수들
+
+### 1. defaultValues 누락
+
+```typescript
+// ❌ defaultValues 없으면 undefined 관련 이슈 발생 가능
+const form = useForm<FormData>({
+  resolver: zodResolver(schema),
+})
+
+// ✅ defaultValues 명시
+const form = useForm<FormData>({
+  resolver: zodResolver(schema),
+  defaultValues: {
+    email: '',
+    name: '',
+  },
+})
+```
+
+### 2. 숫자 타입 처리
+
+HTML input은 항상 문자열을 반환합니다.
+
+```typescript
+// ❌ 스키마는 number인데 input은 string
+z.number()
+
+// ✅ 방법 1: coerce 사용
+z.coerce.number()
+
+// ✅ 방법 2: register 옵션 사용
+<input type="number" {...register('age', { valueAsNumber: true })} />
+```
+
+### 3. 빈 문자열 vs undefined
+
+```typescript
+// ❌ optional인데 빈 문자열 입력하면 검증 실패
+phone: z.string().regex(/^\d{3}-\d{4}-\d{4}$/).optional()
+
+// ✅ 빈 문자열도 허용
+phone: z.string().regex(/^\d{3}-\d{4}-\d{4}$/).optional().or(z.literal(''))
+
+// ✅ 또는 preprocess로 빈 문자열을 undefined로 변환
+phone: z.preprocess(
+  (val) => (val === '' ? undefined : val),
+  z.string().regex(/^\d{3}-\d{4}-\d{4}$/).optional()
+)
+```
+
+### 4. 배열 필드 초기화
+
+```typescript
+// ❌ 배열 필드인데 초기값이 undefined
+defaultValues: {
+  tags: undefined, // 에러 발생 가능
+}
+
+// ✅ 빈 배열로 초기화
+defaultValues: {
+  tags: [],
+}
+```
+
+## 정리
+
+Zod + React Hook Form 조합의 핵심입니다.
+
+**Zod**
+- 스키마로 검증 규칙 정의
+- `z.infer`로 타입 자동 생성
+- `.refine()`으로 커스텀 검증
+- `z.coerce`로 타입 변환
+
+**React Hook Form**
+- `register`로 input 연결
+- `Controller`로 외부 컴포넌트 연결
+- `watch`는 조건부 렌더링에만 (리렌더 주의)
+- `defaultValues` 꼭 설정
+
+처음에는 설정할 게 많아 보이지만,
+한번 익숙해지면 폼 개발이 훨씬 편해집니다.
+특히 타입 추론이 되니까 오타 걱정이 없어지는 게 큽니다.
+
+## 참고 자료
+
+- [React Hook Form 공식 문서](https://react-hook-form.com/)
+- [Zod 공식 문서](https://zod.dev/)
+- [@hookform/resolvers GitHub](https://github.com/react-hook-form/resolvers)
+- [shadcn/ui Form 문서](https://ui.shadcn.com/docs/forms/react-hook-form)

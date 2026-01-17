@@ -1,0 +1,403 @@
+---
+title: "FSD, 폴더 구조 고민의 끝판왕"
+description: "Feature First의 한계를 넘어 Feature-Sliced Design으로"
+date: "2025-09-15"
+mainTag: "Frontend"
+tags: ["Architecture", "FSD", "React"]
+thumbnail: /thumbnail/feature-sliced-design-guide.png
+published: true
+---
+
+프로젝트 규모가 커지면서 기존 Feature First 구조에 한계를 느끼게 됐습니다.
+이번 글에서는 Feature-Sliced Design(FSD)으로 전환하게 된 배경과 실제 적용 방법을 정리해봅니다.
+
+## Feature First의 한계
+
+Feature First는 기능 단위로 폴더를 나누는 직관적인 구조입니다.
+
+```
+src/
+├── features/
+│   ├── auth/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── utils/
+│   └── user/
+│       ├── components/
+│       ├── hooks/
+│       └── utils/
+└── shared/
+```
+
+소규모 프로젝트에서는 잘 동작하지만, 몇 가지 문제가 생기기 시작했습니다.
+
+### 문제 1: 기능 간 의존성 관리
+
+auth 기능에서 user 정보가 필요하면 어떻게 해야 할까요?
+`features/auth`에서 `features/user`를 직접 import하면 순환 의존성이 생길 수 있습니다.
+
+```typescript
+// features/auth/hooks/useLogin.ts
+import { updateUserProfile } from '../../user/api' // 이게 맞는 건가?
+```
+
+어디서 어디를 참조해도 되는지 명확한 규칙이 없었습니다.
+
+### 문제 2: 공유 코드의 위치
+
+여러 기능에서 사용하는 코드는 `shared`에 넣었는데, 시간이 지나면서 shared가 비대해졌습니다.
+그 안에서 또 어떻게 분류해야 할지 기준이 모호했습니다.
+
+### 문제 3: 비즈니스 로직과 UI의 혼재
+
+components 폴더 안에 순수 UI 컴포넌트와 비즈니스 로직이 섞인 컴포넌트가 함께 존재했습니다.
+
+<Callout type="info">
+이런 문제들은 프로젝트 초기에는 잘 드러나지 않습니다.
+보통 6개월 정도 지나면서 "이 코드 어디에 둬야 하지?" 하는 고민이 잦아질 때 느껴지기 시작합니다.
+</Callout>
+
+## FSD란
+
+Feature-Sliced Design은 러시아 개발자 커뮤니티에서 시작된 프론트엔드 아키텍처 방법론입니다.
+2018년경 Feature-Sliced라는 이름으로 처음 소개됐고, 점차 체계화되면서 현재의 FSD가 됐습니다.
+
+핵심 아이디어는 <Highlight color="blue">레이어와 슬라이스라는 두 가지 축으로 코드를 분리</Highlight>하는 것입니다.
+
+### 레이어 계층
+
+FSD는 7개의 레이어를 정의합니다. 위에서 아래로 갈수록 추상화 수준이 낮아집니다.
+
+```
+app      → 앱 초기화, 프로바이더, 라우팅
+pages    → 페이지 컴포넌트
+widgets  → 독립적인 UI 블록 (헤더, 사이드바 등)
+features → 사용자 시나리오, 비즈니스 로직
+entities → 비즈니스 엔티티 (User, Product 등)
+shared   → 재사용 가능한 유틸리티, UI 키트
+```
+
+<Callout type="warning">
+`processes` 레이어도 있었는데, 현재는 deprecated 됐습니다.
+복잡한 비즈니스 프로세스는 features에서 처리하는 것을 권장합니다.
+</Callout>
+
+### 의존성 규칙
+
+FSD의 가장 중요한 원칙입니다.
+
+> **상위 레이어는 하위 레이어만 참조할 수 있다**
+
+```typescript
+// ✅ 올바른 참조
+// pages → features, entities, shared
+// features → entities, shared
+// entities → shared
+
+// ❌ 잘못된 참조
+// entities → features (상위 레이어 참조)
+// shared → entities (상위 레이어 참조)
+```
+
+이 규칙 덕분에 순환 의존성 문제가 구조적으로 방지됩니다.
+
+## 실제 폴더 구조
+
+```
+src/
+├── app/
+│   ├── providers/
+│   │   ├── AuthProvider.tsx
+│   │   └── QueryProvider.tsx
+│   ├── routes/
+│   │   └── index.tsx
+│   └── index.tsx
+│
+├── pages/
+│   ├── home/
+│   │   └── ui/
+│   │       └── HomePage.tsx
+│   └── profile/
+│       └── ui/
+│           └── ProfilePage.tsx
+│
+├── widgets/
+│   ├── header/
+│   │   ├── ui/
+│   │   │   └── Header.tsx
+│   │   └── index.ts
+│   └── sidebar/
+│       ├── ui/
+│       │   └── Sidebar.tsx
+│       └── index.ts
+│
+├── features/
+│   ├── auth/
+│   │   ├── api/
+│   │   │   └── login.ts
+│   │   ├── model/
+│   │   │   └── useAuth.ts
+│   │   ├── ui/
+│   │   │   └── LoginForm.tsx
+│   │   └── index.ts
+│   └── search/
+│       ├── api/
+│       ├── model/
+│       ├── ui/
+│       └── index.ts
+│
+├── entities/
+│   ├── user/
+│   │   ├── api/
+│   │   │   └── userApi.ts
+│   │   ├── model/
+│   │   │   ├── types.ts
+│   │   │   └── userStore.ts
+│   │   ├── ui/
+│   │   │   └── UserCard.tsx
+│   │   └── index.ts
+│   └── product/
+│       ├── api/
+│       ├── model/
+│       ├── ui/
+│       └── index.ts
+│
+└── shared/
+    ├── api/
+    │   └── httpClient.ts
+    ├── config/
+    │   └── env.ts
+    ├── lib/
+    │   └── cn.ts
+    └── ui/
+        ├── Button.tsx
+        └── Input.tsx
+```
+
+### 슬라이스 내부 구조
+
+각 슬라이스(auth, user 등)는 세그먼트로 구성됩니다.
+
+| 세그먼트 | 역할 | 예시 |
+|---------|------|------|
+| api | 서버 통신 | API 함수, React Query 훅 |
+| model | 상태 관리, 비즈니스 로직 | Zustand 스토어, 커스텀 훅 |
+| ui | 컴포넌트 | React 컴포넌트 |
+| lib | 슬라이스 전용 유틸리티 | 헬퍼 함수 |
+| config | 슬라이스 설정 | 상수, 타입 |
+
+모든 세그먼트가 필요한 건 아닙니다.
+필요한 것만 만들면 됩니다.
+
+## Public API (index.ts)
+
+FSD에서 <Highlight color="fuchsia">Public API는 필수</Highlight>입니다.
+
+```typescript title="features/auth/index.ts"
+// Public API - 외부에서 사용 가능한 것만 export
+export { LoginForm } from './ui/LoginForm'
+export { useAuth } from './model/useAuth'
+export type { AuthUser } from './model/types'
+```
+
+외부에서는 반드시 index.ts를 통해서만 import합니다.
+
+```typescript
+// ✅ 올바른 import
+import { LoginForm, useAuth } from '@/features/auth'
+
+// ❌ 내부 경로 직접 접근 금지
+import { LoginForm } from '@/features/auth/ui/LoginForm'
+```
+
+이렇게 하면 내부 구조를 변경해도 외부에 영향을 주지 않습니다.
+
+<Callout type="tip">
+ESLint의 `import/no-internal-modules` 규칙이나
+`@feature-sliced/eslint-config`를 사용하면 이 규칙을 강제할 수 있습니다.
+</Callout>
+
+## 레이어별 역할 구분
+
+처음에 헷갈렸던 부분이 entities와 features의 구분이었습니다.
+
+### entities - "무엇"
+
+비즈니스 도메인의 핵심 개념을 표현합니다.
+User, Product, Order 같은 것들입니다.
+
+```typescript title="entities/user/model/types.ts"
+export interface User {
+  id: string
+  name: string
+  email: string
+  role: 'admin' | 'user'
+}
+```
+
+```typescript title="entities/user/ui/UserCard.tsx"
+interface UserCardProps {
+  user: User
+}
+
+export function UserCard({ user }: UserCardProps) {
+  return (
+    <div>
+      <span>{user.name}</span>
+      <span>{user.email}</span>
+    </div>
+  )
+}
+```
+
+entities의 컴포넌트는 <Highlight color="green">데이터를 받아서 표시만</Highlight> 합니다.
+비즈니스 로직이 없습니다.
+
+### features - "어떻게"
+
+사용자가 수행하는 액션을 처리합니다.
+로그인, 검색, 장바구니 추가 같은 것들입니다.
+
+```typescript title="features/auth/ui/LoginForm.tsx"
+import { useAuth } from '../model/useAuth'
+
+export function LoginForm() {
+  const { login, isLoading } = useAuth()
+
+  const handleSubmit = async (data: LoginData) => {
+    await login(data)
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* 폼 내용 */}
+    </form>
+  )
+}
+```
+
+features는 entities를 조합해서 사용자 시나리오를 구현합니다.
+
+## widgets vs features
+
+이것도 처음에 혼란스러웠습니다.
+
+| | widgets | features |
+|---|---------|----------|
+| 역할 | UI 조합 | 비즈니스 로직 |
+| 예시 | Header, Sidebar, ProductList | LoginForm, AddToCart |
+| 재사용 | 여러 페이지에서 사용 | 특정 기능에 종속 |
+
+widgets는 여러 features나 entities를 조합해서 독립적인 UI 블록을 만듭니다.
+
+```typescript title="widgets/header/ui/Header.tsx"
+import { UserMenu } from '@/features/auth'
+import { SearchBar } from '@/features/search'
+import { Logo } from '@/shared/ui'
+
+export function Header() {
+  return (
+    <header>
+      <Logo />
+      <SearchBar />
+      <UserMenu />
+    </header>
+  )
+}
+```
+
+## 도입 시 주의점
+
+### 점진적 마이그레이션
+
+기존 프로젝트에 한 번에 적용하려고 하면 힘듭니다.
+새로운 기능부터 FSD 구조로 만들고, 기존 코드는 천천히 옮기는 게 현실적입니다.
+
+### 과도한 분리 피하기
+
+모든 것을 레이어로 나눠야 한다는 강박은 버리는 게 좋습니다.
+
+```
+// 이렇게까지 할 필요는 없습니다
+entities/
+├── button/  ← shared/ui에 두면 됩니다
+├── input/
+└── modal/
+```
+
+shared/ui로 충분한 것들은 굳이 entities로 만들 필요 없습니다.
+
+### Cross-import 문제
+
+같은 레이어 내에서의 참조는 허용되지 않습니다.
+
+```typescript
+// ❌ entities/user에서 entities/product 참조 불가
+import { Product } from '@/entities/product'
+```
+
+이런 경우 상위 레이어(features나 widgets)에서 조합해야 합니다.
+
+<Callout type="warning">
+엄격하게 적용하면 코드량이 늘어날 수 있습니다.
+팀 상황에 맞게 유연하게 적용하는 것도 방법입니다.
+</Callout>
+
+## ESLint 설정
+
+FSD 규칙을 강제하려면 ESLint 설정이 도움이 됩니다.
+
+```bash
+npm install @feature-sliced/eslint-config --save-dev
+```
+
+```javascript title=".eslintrc.js"
+module.exports = {
+  extends: ['@feature-sliced'],
+  settings: {
+    'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+      },
+    },
+  },
+}
+```
+
+또는 직접 import 규칙을 설정할 수도 있습니다.
+
+```javascript
+rules: {
+  'import/no-internal-modules': [
+    'error',
+    {
+      allow: [
+        '**/shared/**',
+        '**/index',
+      ],
+    },
+  ],
+}
+```
+
+## 정리
+
+FSD를 도입하면서 느낀 점입니다.
+
+**장점**
+- 의존성 방향이 명확해서 코드 파악이 쉬워졌습니다
+- "이 코드 어디에 둬야 하지?" 고민이 줄었습니다
+- 새로운 팀원 온보딩 시 구조 설명이 간단해졌습니다
+
+**단점**
+- 초기 학습 비용이 있습니다
+- 작은 프로젝트에서는 오버엔지니어링일 수 있습니다
+- Public API 관리에 신경 써야 합니다
+
+중소규모 이상의 프로젝트, 특히 여러 명이 협업하는 환경이라면 FSD 도입을 고려해볼 만합니다.
+
+## 참고 자료
+
+- [Feature-Sliced Design 공식 문서](https://feature-sliced.design/)
+- [FSD GitHub](https://github.com/feature-sliced/documentation)
+- [FSD Examples](https://github.com/feature-sliced/examples)

@@ -1,0 +1,766 @@
+---
+title: "JWT 인증, 제대로 이해하고 구현하기"
+description: "Access Token과 Refresh Token의 동작 원리부터 React/Next.js 구현까지"
+date: "2025-10-20"
+mainTag: "Frontend"
+tags: ["Authentication", "JWT", "React", "Next.js"]
+thumbnail: /thumbnail/jwt-authentication-frontend-guide.png
+published: true
+---
+
+프론트엔드 개발하다 보면 인증은 피할 수 없는 주제입니다.
+"토큰이 뭔가요?", "Access Token이랑 Refresh Token 차이가 뭔가요?" 같은 질문을 받으면
+명확하게 설명하기 어려웠던 적이 있었습니다.
+
+이번 글에서는 JWT 기반 인증의 동작 원리부터 React와 Next.js에서의 구현 방식,
+그리고 <Highlight color="fuchsia">백엔드에서는 토큰을 어떻게 처리하는지</Highlight>까지 정리해봅니다.
+
+## JWT란
+
+JWT(JSON Web Token)는 당사자 간에 정보를 JSON 형태로 안전하게 전송하기 위한 표준입니다.
+토큰 자체에 정보가 담겨 있어서 서버가 별도로 세션을 저장할 필요가 없습니다.
+
+### 세션 vs JWT
+
+전통적인 세션 방식과 JWT 방식의 차이를 먼저 이해하면 좋습니다.
+
+**세션 방식**
+```
+1. 로그인 → 서버가 세션 ID 생성 → DB/메모리에 저장
+2. 클라이언트에 세션 ID만 전달 (쿠키)
+3. 요청마다 세션 ID로 서버에서 사용자 정보 조회
+```
+
+**JWT 방식**
+```
+1. 로그인 → 서버가 사용자 정보를 담은 토큰 생성
+2. 클라이언트에 토큰 전달
+3. 요청마다 토큰을 보내면 서버가 토큰 자체를 검증
+```
+
+JWT는 서버가 상태를 저장하지 않아도 됩니다(Stateless).
+서버를 여러 대 운영할 때 세션 공유 문제가 없어서 확장에 유리합니다.
+
+<Callout type="info">
+물론 JWT에도 단점이 있습니다.
+토큰이 탈취되면 만료 전까지 무효화하기 어렵고,
+토큰 크기가 세션 ID보다 커서 네트워크 오버헤드가 있습니다.
+</Callout>
+
+### JWT 구조
+
+JWT는 점(`.`)으로 구분된 세 부분으로 이루어져 있습니다.
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4ifQ.
+SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+**1. Header**
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+알고리즘과 토큰 타입 정보입니다.
+
+**2. Payload**
+```json
+{
+  "sub": "1234567890",
+  "name": "John",
+  "iat": 1516239022,
+  "exp": 1516242622
+}
+```
+실제 데이터가 들어가는 부분입니다.
+사용자 ID, 이름, 발급 시간(`iat`), 만료 시간(`exp`) 등이 포함됩니다.
+
+**3. Signature**
+```
+HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret
+)
+```
+위조 방지를 위한 서명입니다.
+비밀키로 서명하기 때문에 토큰이 변조되면 검증에 실패합니다.
+
+<Callout type="warning">
+Payload는 Base64로 인코딩된 것이지 암호화된 게 아닙니다.
+누구나 디코딩해서 내용을 볼 수 있으므로 비밀번호 같은 민감 정보는 넣으면 안 됩니다.
+</Callout>
+
+## Access Token과 Refresh Token
+
+처음에 "왜 토큰이 두 개나 필요하지?" 싶었습니다.
+하나로 충분한 거 아닌가?
+
+### Access Token만 사용할 때의 문제
+
+Access Token 하나만 사용한다고 가정해봅시다.
+
+**유효 시간이 긴 경우**
+- 토큰이 탈취되면 오랜 기간 악용 가능
+- 보안에 취약
+
+**유효 시간이 짧은 경우**
+- 자주 만료되어 재로그인 필요
+- UX가 나빠짐
+
+이 딜레마를 해결하는 게 Refresh Token입니다.
+
+### 두 토큰의 역할
+
+| | Access Token | Refresh Token |
+|---|--------------|---------------|
+| 역할 | API 요청 시 인증 | Access Token 갱신 |
+| 유효 시간 | 짧음 (5분~30분) | 김 (7일~30일) |
+| 저장 위치 | 메모리 or 쿠키 | HttpOnly 쿠키 |
+| 노출 위험 | 상대적으로 높음 | 낮게 유지해야 함 |
+
+Access Token은 짧은 유효 시간으로 탈취 피해를 최소화하고,
+Refresh Token으로 사용자가 재로그인 없이 새 Access Token을 받을 수 있습니다.
+
+### 인증 플로우
+
+```
+1. 로그인
+   └── 서버가 Access Token + Refresh Token 발급
+
+2. API 요청
+   └── Access Token을 Authorization 헤더에 담아 전송
+   └── 서버가 토큰 검증 후 응답
+
+3. Access Token 만료
+   └── 401 Unauthorized 응답
+   └── Refresh Token으로 새 Access Token 요청
+   └── 서버가 Refresh Token 검증 후 새 Access Token 발급
+
+4. Refresh Token 만료
+   └── 재로그인 필요
+```
+
+## 토큰 저장 위치
+
+토큰을 어디에 저장할지는 보안과 직결됩니다.
+<Highlight color="blue">여기서 많이들 실수합니다.</Highlight>
+
+### localStorage
+
+```typescript
+// 저장
+localStorage.setItem('accessToken', token)
+
+// 사용
+const token = localStorage.getItem('accessToken')
+```
+
+**장점**: 사용이 간편함, 새로고침해도 유지됨
+
+**단점**: XSS 공격에 취약
+
+JavaScript로 접근 가능해서, XSS 공격으로 악성 스크립트가 실행되면
+토큰이 그대로 탈취됩니다.
+
+### 메모리 (변수/상태)
+
+```typescript
+// React 예시
+const [accessToken, setAccessToken] = useState<string | null>(null)
+```
+
+**장점**: XSS로 직접 접근 어려움
+
+**단점**: 새로고침하면 토큰이 사라짐
+
+새로고침 시 토큰이 없어지는 건 Refresh Token으로 해결합니다.
+페이지 로드 시 Refresh Token으로 새 Access Token을 받아오면 됩니다.
+
+### HttpOnly 쿠키
+
+```typescript
+// 서버에서 쿠키 설정 (Express 예시)
+res.cookie('refreshToken', token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+})
+```
+
+**장점**: JavaScript로 접근 불가 (XSS 방어)
+
+**단점**: CSRF 공격에 주의 필요
+
+<Callout type="tip">
+일반적으로 권장되는 조합은:
+- Access Token → 메모리
+- Refresh Token → HttpOnly 쿠키
+
+Access Token은 요청마다 Authorization 헤더로 보내고,
+Refresh Token은 쿠키에서 자동으로 전송됩니다.
+</Callout>
+
+## React에서 구현
+
+React SPA에서 토큰 인증을 구현하는 방법입니다.
+
+### 인증 상태 관리
+
+```typescript title="auth-store.ts"
+import { create } from 'zustand'
+
+interface AuthState {
+  accessToken: string | null
+  user: User | null
+  setAuth: (token: string, user: User) => void
+  clearAuth: () => void
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
+  user: null,
+  setAuth: (token, user) => set({ accessToken: token, user }),
+  clearAuth: () => set({ accessToken: null, user: null }),
+}))
+```
+
+Access Token은 Zustand 같은 상태 관리 라이브러리에 저장합니다.
+메모리에만 존재하므로 localStorage보다 안전합니다.
+
+### API 클라이언트 설정
+
+```typescript title="api-client.ts"
+import axios from 'axios'
+import { useAuthStore } from './auth-store'
+
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, // 쿠키 전송을 위해 필요
+})
+
+// 요청 인터셉터: Access Token 추가
+apiClient.interceptors.request.use((config) => {
+  const { accessToken } = useAuthStore.getState()
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`
+  }
+
+  return config
+})
+
+// 응답 인터셉터: 토큰 갱신 처리
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+
+    // 401이고 재시도하지 않은 요청인 경우
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        // Refresh Token으로 새 Access Token 요청
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        )
+
+        // 새 토큰 저장
+        useAuthStore.getState().setAuth(data.accessToken, data.user)
+
+        // 원래 요청 재시도
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        // Refresh Token도 만료된 경우
+        useAuthStore.getState().clearAuth()
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+export default apiClient
+```
+
+핵심은 응답 인터셉터에서 401을 받았을 때 자동으로 토큰을 갱신하는 부분입니다.
+사용자는 토큰 만료를 인지하지 못하고 자연스럽게 서비스를 이용할 수 있습니다.
+
+### 동시 요청 처리
+
+위 코드에는 문제가 있습니다.
+여러 API 요청이 동시에 401을 받으면, 갱신 요청도 여러 번 발생합니다.
+
+```typescript title="api-client.ts"
+let isRefreshing = false
+let refreshSubscribers: ((token: string) => void)[] = []
+
+function subscribeTokenRefresh(callback: (token: string) => void) {
+  refreshSubscribers.push(callback)
+}
+
+function onTokenRefreshed(token: string) {
+  refreshSubscribers.forEach((callback) => callback(token))
+  refreshSubscribers = []
+}
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // 이미 갱신 중이면 대기
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`
+            resolve(apiClient(originalRequest))
+          })
+        })
+      }
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        )
+
+        useAuthStore.getState().setAuth(data.accessToken, data.user)
+        onTokenRefreshed(data.accessToken)
+
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        useAuthStore.getState().clearAuth()
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+```
+
+`isRefreshing` 플래그로 중복 갱신을 막고,
+대기 중인 요청들은 갱신 완료 후 새 토큰으로 재시도합니다.
+
+처음에 이 부분을 안 해서 토큰 갱신이 여러 번 되는 버그가 있었습니다.
+로그 보니까 refresh 요청이 3-4번씩 가고 있더라고요.
+
+### 앱 초기화 시 토큰 복구
+
+새로고침하면 메모리의 Access Token이 사라지므로,
+앱 시작 시 Refresh Token으로 복구해야 합니다.
+
+```typescript title="App.tsx"
+import { useEffect, useState } from 'react'
+import { useAuthStore } from './auth-store'
+import apiClient from './api-client'
+
+function App() {
+  const [isInitialized, setIsInitialized] = useState(false)
+  const { setAuth, clearAuth } = useAuthStore()
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        // Refresh Token으로 Access Token 요청
+        const { data } = await apiClient.post('/auth/refresh')
+        setAuth(data.accessToken, data.user)
+      } catch {
+        // Refresh Token이 없거나 만료됨
+        clearAuth()
+      } finally {
+        setIsInitialized(true)
+      }
+    }
+
+    initAuth()
+  }, [])
+
+  if (!isInitialized) {
+    return <div>Loading...</div>
+  }
+
+  return <RouterProvider router={router} />
+}
+```
+
+## Next.js에서 구현
+
+Next.js는 서버 컴포넌트가 있어서 React SPA와 다르게 처리해야 합니다.
+
+### 서버 컴포넌트에서의 인증
+
+서버 컴포넌트는 클라이언트 상태에 접근할 수 없습니다.
+쿠키를 직접 읽어서 인증 상태를 확인해야 합니다.
+
+```typescript title="lib/auth.ts"
+import { cookies } from 'next/headers'
+import { jwtVerify } from 'jose'
+
+export async function getServerSession() {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('accessToken')?.value
+
+  if (!token) {
+    return null
+  }
+
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const { payload } = await jwtVerify(token, secret)
+
+    return {
+      user: {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+      },
+    }
+  } catch {
+    return null
+  }
+}
+```
+
+```typescript title="app/dashboard/page.tsx"
+import { getServerSession } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+
+export default async function DashboardPage() {
+  const session = await getServerSession()
+
+  if (!session) {
+    redirect('/login')
+  }
+
+  return (
+    <div>
+      <h1>{session.user.name}님의 대시보드</h1>
+    </div>
+  )
+}
+```
+
+### 미들웨어로 보호
+
+여러 페이지를 한 번에 보호하려면 미들웨어를 사용합니다.
+
+```typescript title="middleware.ts"
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
+
+const protectedRoutes = ['/dashboard', '/profile', '/settings']
+const authRoutes = ['/login', '/register']
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const token = request.cookies.get('accessToken')?.value
+
+  // 토큰 검증
+  const isAuthenticated = await verifyToken(token)
+
+  // 보호된 경로에 미인증 접근
+  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  // 인증된 사용자가 로그인 페이지 접근
+  if (authRoutes.includes(pathname)) {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  return NextResponse.next()
+}
+
+async function verifyToken(token: string | undefined): Promise<boolean> {
+  if (!token) return false
+
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    await jwtVerify(token, secret)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/profile/:path*', '/login', '/register'],
+}
+```
+
+### Route Handler에서 토큰 발급
+
+```typescript title="app/api/auth/login/route.ts"
+import { NextResponse } from 'next/server'
+import { SignJWT } from 'jose'
+import { cookies } from 'next/headers'
+
+export async function POST(request: Request) {
+  const { email, password } = await request.json()
+
+  // 사용자 검증 (실제로는 DB 조회)
+  const user = await validateUser(email, password)
+
+  if (!user) {
+    return NextResponse.json(
+      { error: 'Invalid credentials' },
+      { status: 401 }
+    )
+  }
+
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+
+  // Access Token 생성
+  const accessToken = await new SignJWT({
+    sub: user.id,
+    email: user.email,
+    name: user.name,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('15m')
+    .sign(secret)
+
+  // Refresh Token 생성
+  const refreshToken = await new SignJWT({
+    sub: user.id,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('7d')
+    .sign(secret)
+
+  // 쿠키 설정
+  const cookieStore = await cookies()
+
+  cookieStore.set('accessToken', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 15, // 15분
+  })
+
+  cookieStore.set('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7일
+  })
+
+  return NextResponse.json({ user })
+}
+```
+
+<Callout type="info">
+Next.js에서는 Access Token도 HttpOnly 쿠키에 저장하는 게 일반적입니다.
+서버 컴포넌트에서 쿠키를 읽을 수 있어서 메모리 저장의 이점이 줄어들기 때문입니다.
+</Callout>
+
+## 백엔드에서의 토큰 처리
+
+프론트엔드 개발자도 백엔드가 토큰을 어떻게 처리하는지 알면 디버깅이 쉬워집니다.
+FastAPI로 구현했던 경험을 바탕으로 설명합니다.
+
+### 토큰 생성 (FastAPI)
+
+```python title="auth.py"
+from datetime import datetime, timedelta
+from jose import jwt
+from passlib.context import CryptContext
+
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "type": "access"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+```
+
+### 토큰 검증
+
+```python title="dependencies.py"
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
+
+security = HTTPBearer()
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> dict:
+    token = credentials.credentials
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+        # 토큰 타입 확인
+        if payload.get("type") != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type",
+            )
+
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+            )
+
+        return {"id": user_id, "email": payload.get("email")}
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+```
+
+### 라우터에서 사용
+
+```python title="routes/users.py"
+from fastapi import APIRouter, Depends
+from dependencies import get_current_user
+
+router = APIRouter()
+
+
+@router.get("/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    return current_user
+
+
+@router.get("/protected")
+async def protected_route(current_user: dict = Depends(get_current_user)):
+    return {"message": f"Hello, {current_user['email']}"}
+```
+
+`Depends(get_current_user)`를 넣으면 해당 라우트는 자동으로 인증이 필요해집니다.
+토큰이 없거나 유효하지 않으면 401을 반환합니다.
+
+### Refresh Token 처리
+
+```python title="routes/auth.py"
+from fastapi import APIRouter, Response, Cookie, HTTPException
+
+router = APIRouter()
+
+
+@router.post("/refresh")
+async def refresh_token(
+    response: Response,
+    refresh_token: str = Cookie(None),
+):
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+
+        user_id = payload.get("sub")
+
+        # 새 Access Token 발급
+        new_access_token = create_access_token({"sub": user_id})
+
+        # 쿠키로 전달하거나 JSON으로 반환
+        response.set_cookie(
+            key="accessToken",
+            value=new_access_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=60 * 15,
+        )
+
+        return {"accessToken": new_access_token}
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+```
+
+백엔드 코드를 보면 프론트에서 왜 특정 형식으로 요청해야 하는지 이해가 됩니다.
+Authorization 헤더에 `Bearer {token}` 형식으로 보내야 하는 것도
+`HTTPBearer`가 그 형식을 기대하기 때문입니다.
+
+## 보안 체크리스트
+
+토큰 인증 구현 시 확인할 사항들입니다.
+
+### 필수
+
+- [ ] Access Token은 짧은 유효 시간 (15분 이하)
+- [ ] Refresh Token은 HttpOnly 쿠키에 저장
+- [ ] HTTPS 사용 (Secure 쿠키)
+- [ ] Payload에 민감 정보 넣지 않기
+
+### 권장
+
+- [ ] Refresh Token Rotation (갱신 시 새 Refresh Token 발급)
+- [ ] 토큰 블랙리스트 (로그아웃 시 무효화)
+- [ ] CSRF 토큰 사용 (쿠키 기반일 때)
+- [ ] Rate Limiting (갱신 요청 제한)
+
+<Callout type="warning">
+Refresh Token Rotation은 Refresh Token이 탈취됐을 때를 대비한 것입니다.
+갱신할 때마다 새 Refresh Token을 발급하면,
+탈취된 토큰으로 갱신 시도 시 이미 사용된 토큰으로 감지할 수 있습니다.
+</Callout>
+
+## 정리
+
+JWT 인증의 핵심을 정리하면:
+
+1. **JWT는 자체 검증 가능한 토큰**이라 서버가 상태를 저장할 필요 없음
+2. **Access Token은 짧게, Refresh Token은 길게** 설정해서 보안과 UX 균형
+3. **저장 위치가 중요**: Access Token은 메모리, Refresh Token은 HttpOnly 쿠키
+4. **프론트에서 자동 갱신 로직** 구현이 핵심
+
+처음에는 복잡해 보이지만, 한 번 제대로 구현해두면 다른 프로젝트에서도 재사용할 수 있습니다.
+인증 모듈을 패키지로 만들어두면 편합니다.
+
+## 참고 자료
+
+- [JWT.io](https://jwt.io/) - JWT 디버거 및 라이브러리 목록
+- [OAuth 2.0 for Browser-Based Apps](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-browser-based-apps)
+- [OWASP JWT Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)

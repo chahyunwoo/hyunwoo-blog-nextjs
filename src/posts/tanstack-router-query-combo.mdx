@@ -1,0 +1,629 @@
+---
+title: "TanStack Router, 타입 안전한 라우팅의 신세계"
+description: "React Router 쓰다가 TanStack으로 넘어온 이유"
+date: "2025-11-29"
+mainTag: "Frontend"
+tags: ["TanStack", "Router", "React Query", "TypeScript"]
+thumbnail: /thumbnail/tanstack-router-query-combo.png
+published: true
+---
+
+React Router를 오래 썼습니다.
+v5에서 v6으로 넘어갈 때도 마이그레이션 했고, 별 불만 없이 잘 썼습니다.
+
+근데 TanStack Router를 써보고 나니까 돌아가기가 싫어졌습니다.
+특히 TypeScript 프로젝트에서 <Highlight color="fuchsia">타입 안전한 라우팅</Highlight>이 주는 편안함이 생각보다 컸습니다.
+
+## React Router의 불편했던 점
+
+### 1. 타입 안전성 부재
+
+React Router에서 params를 가져오면 항상 `string | undefined`입니다.
+
+```typescript
+// React Router
+const { id } = useParams() // id: string | undefined
+
+// 매번 타입 가드 필요
+if (!id) return <NotFound />
+const numericId = Number(id)
+if (isNaN(numericId)) return <NotFound />
+```
+
+URL 파라미터가 숫자인 걸 알아도 매번 검증해야 합니다.
+경로를 바꿔도 타입 에러가 안 나서 런타임에 터집니다.
+
+### 2. Link 컴포넌트의 타입
+
+```typescript
+// React Router - 존재하지 않는 경로도 에러 없음
+<Link to="/users/123/settingss">설정</Link> // 오타인데 안 잡힘
+<Link to={`/users/${userId}/settings`}>설정</Link> // 동적 경로도 불안
+```
+
+경로를 문자열로 직접 쓰니까 오타가 있어도 빌드가 됩니다.
+리팩토링할 때 경로 바꾸면 관련 Link를 일일이 찾아서 바꿔야 합니다.
+
+### 3. 데이터 로딩 패턴
+
+React Router v6.4에서 `loader`가 추가됐지만,
+TanStack Query랑 같이 쓰려면 좀 어색합니다.
+
+```typescript
+// React Router의 loader
+export const loader = async ({ params }) => {
+  return queryClient.fetchQuery({
+    queryKey: ['user', params.id],
+    queryFn: () => fetchUser(params.id),
+  })
+}
+
+// 컴포넌트에서는 또 useQuery 써야 함
+function UserPage() {
+  const user = useLoaderData()
+  // 근데 이러면 React Query의 캐싱 이점이 애매해짐
+}
+```
+
+loader를 쓰자니 React Query의 장점이 반감되고,
+안 쓰자니 waterfall 문제가 생기고.
+
+## TanStack Router란
+
+[TanStack Router](https://tanstack.com/router)는 Tanner Linsley가 만든 타입 안전한 라우터입니다.
+TanStack Query 만든 분이 같이 쓰기 좋게 만든 라우터라고 보면 됩니다.
+
+### 핵심 특징
+
+- **100% 타입 안전**: 경로, 파라미터, 검색 파라미터 전부 타입 추론
+- **파일 기반 라우팅**: Next.js처럼 파일 구조가 곧 라우트
+- **내장 데이터 로딩**: loader와 React Query 통합이 자연스러움
+- **검색 파라미터 관리**: URL search params도 타입 안전하게
+
+## 설치 및 기본 설정
+
+```bash
+npm install @tanstack/react-router
+npm install -D @tanstack/router-plugin @tanstack/router-devtools
+```
+
+### Vite 설정
+
+```typescript title="vite.config.ts"
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+
+export default defineConfig({
+  plugins: [
+    TanStackRouterVite(),
+    react(),
+  ],
+})
+```
+
+플러그인이 `routes` 폴더를 감시하면서 라우트 타입을 자동 생성합니다.
+
+### 라우터 설정
+
+```typescript title="src/router.ts"
+import { createRouter } from '@tanstack/react-router'
+import { routeTree } from './routeTree.gen' // 자동 생성됨
+
+export const router = createRouter({
+  routeTree,
+  defaultPreload: 'intent', // 호버 시 프리로드
+})
+
+// 타입 선언
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+```
+
+```typescript title="src/main.tsx"
+import { RouterProvider } from '@tanstack/react-router'
+import { router } from './router'
+
+createRoot(document.getElementById('root')!).render(
+  <RouterProvider router={router} />
+)
+```
+
+## 파일 기반 라우팅
+
+폴더 구조가 그대로 URL이 됩니다.
+
+```
+src/routes/
+├── __root.tsx          → 루트 레이아웃
+├── index.tsx           → /
+├── about.tsx           → /about
+├── users/
+│   ├── index.tsx       → /users
+│   └── $userId.tsx     → /users/:userId
+└── posts/
+    ├── index.tsx       → /posts
+    └── $postId/
+        ├── index.tsx   → /posts/:postId
+        └── edit.tsx    → /posts/:postId/edit
+```
+
+`$`가 붙으면 동적 파라미터입니다.
+Next.js의 `[param]`이랑 같은 역할입니다.
+
+### 루트 레이아웃
+
+```typescript title="src/routes/__root.tsx"
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+
+export const Route = createRootRoute({
+  component: () => (
+    <>
+      <header>
+        <nav>{/* 네비게이션 */}</nav>
+      </header>
+      <main>
+        <Outlet />
+      </main>
+      <TanStackRouterDevtools />
+    </>
+  ),
+})
+```
+
+### 기본 페이지
+
+```typescript title="src/routes/index.tsx"
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/')({
+  component: HomePage,
+})
+
+function HomePage() {
+  return <h1>홈페이지</h1>
+}
+```
+
+### 동적 라우트
+
+```typescript title="src/routes/users/$userId.tsx"
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/users/$userId')({
+  component: UserPage,
+})
+
+function UserPage() {
+  const { userId } = Route.useParams()
+  // userId의 타입이 string으로 자동 추론됨
+
+  return <h1>유저 {userId}</h1>
+}
+```
+
+<Callout type="tip">
+`Route.useParams()`에서 반환되는 값의 타입이 자동으로 추론됩니다.
+`/users/$userId`에서는 `{ userId: string }`이 되고,
+`/posts/$postId/comments/$commentId`에서는 `{ postId: string, commentId: string }`이 됩니다.
+</Callout>
+
+## 타입 안전한 네비게이션
+
+이게 TanStack Router의 가장 큰 장점입니다.
+
+### Link 컴포넌트
+
+```typescript
+import { Link } from '@tanstack/react-router'
+
+// ✅ 올바른 경로 - 자동완성 지원
+<Link to="/users/$userId" params={{ userId: '123' }}>
+  프로필
+</Link>
+
+// ❌ 잘못된 경로 - 타입 에러
+<Link to="/userss/$userId" params={{ userId: '123' }}>
+  프로필
+</Link>
+
+// ❌ params 누락 - 타입 에러
+<Link to="/users/$userId">
+  프로필
+</Link>
+```
+
+경로를 잘못 쓰면 빌드 단계에서 잡힙니다.
+자동완성도 되니까 경로 외우고 있을 필요도 없습니다.
+
+### useNavigate
+
+```typescript
+import { useNavigate } from '@tanstack/react-router'
+
+function UserActions({ userId }: { userId: string }) {
+  const navigate = useNavigate()
+
+  const handleEdit = () => {
+    navigate({
+      to: '/users/$userId/edit',
+      params: { userId },
+    })
+  }
+
+  const handleDelete = async () => {
+    await deleteUser(userId)
+    navigate({ to: '/users' })
+  }
+
+  return (
+    <div>
+      <button onClick={handleEdit}>수정</button>
+      <button onClick={handleDelete}>삭제</button>
+    </div>
+  )
+}
+```
+
+## 검색 파라미터 (Search Params)
+
+URL 쿼리스트링도 타입 안전하게 관리할 수 있습니다.
+이거 처음 썼을 때 진짜 편했습니다.
+
+### 스키마 정의
+
+```typescript title="src/routes/users/index.tsx"
+import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
+
+const userSearchSchema = z.object({
+  page: z.number().default(1),
+  limit: z.number().default(10),
+  search: z.string().optional(),
+  role: z.enum(['admin', 'user', 'guest']).optional(),
+})
+
+export const Route = createFileRoute('/users/')({
+  validateSearch: userSearchSchema,
+  component: UsersPage,
+})
+```
+
+### 컴포넌트에서 사용
+
+```typescript
+function UsersPage() {
+  const { page, limit, search, role } = Route.useSearch()
+  // page: number (기본값 1)
+  // limit: number (기본값 10)
+  // search: string | undefined
+  // role: 'admin' | 'user' | 'guest' | undefined
+
+  const navigate = useNavigate()
+
+  const handlePageChange = (newPage: number) => {
+    navigate({
+      search: (prev) => ({ ...prev, page: newPage }),
+    })
+  }
+
+  const handleFilter = (newRole: 'admin' | 'user' | 'guest') => {
+    navigate({
+      search: (prev) => ({ ...prev, role: newRole, page: 1 }),
+    })
+  }
+
+  // ...
+}
+```
+
+기존에 URLSearchParams 직접 다루면서 `parseInt` 하고 기본값 처리하던 코드가 사라졌습니다.
+
+### Link에서 search 전달
+
+```typescript
+<Link
+  to="/users"
+  search={{ page: 2, limit: 20, role: 'admin' }}
+>
+  관리자 목록 2페이지
+</Link>
+
+// search도 타입 체크됨
+<Link
+  to="/users"
+  search={{ page: '2' }} // ❌ 타입 에러 - page는 number
+>
+```
+
+## TanStack Query와 통합
+
+여기서부터가 진짜입니다.
+같은 TanStack 생태계라 통합이 자연스럽습니다.
+
+### 라우터에 QueryClient 연결
+
+```typescript title="src/router.ts"
+import { createRouter } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
+import { routeTree } from './routeTree.gen'
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5분
+    },
+  },
+})
+
+export const router = createRouter({
+  routeTree,
+  context: {
+    queryClient,
+  },
+  defaultPreload: 'intent',
+  defaultPreloadStaleTime: 0,
+})
+```
+
+### 루트에서 context 타입 정의
+
+```typescript title="src/routes/__root.tsx"
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
+
+interface RouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: () => (
+    <>
+      <Outlet />
+    </>
+  ),
+})
+```
+
+### loader에서 Query 사용
+
+```typescript title="src/routes/users/$userId.tsx"
+import { createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
+
+// Query Options 정의
+const userQueryOptions = (userId: string) => ({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+})
+
+export const Route = createFileRoute('/users/$userId')({
+  loader: ({ context: { queryClient }, params: { userId } }) => {
+    // 프리페치 - 이미 캐시에 있으면 스킵
+    return queryClient.ensureQueryData(userQueryOptions(userId))
+  },
+  component: UserPage,
+})
+
+function UserPage() {
+  const { userId } = Route.useParams()
+
+  // 컴포넌트에서는 동일한 queryKey로 useSuspenseQuery
+  const { data: user } = useSuspenseQuery(userQueryOptions(userId))
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  )
+}
+```
+
+<Callout type="info">
+`loader`에서 `ensureQueryData`로 프리페치하고,
+컴포넌트에서 `useSuspenseQuery`로 같은 데이터를 사용합니다.
+같은 queryKey라서 캐시를 공유하고, 중복 요청이 없습니다.
+</Callout>
+
+### 이 패턴의 장점
+
+**1. Waterfall 방지**
+
+```typescript
+// 이전: 컴포넌트 렌더 → useQuery → 로딩 → 데이터
+// loader 사용: 라우트 진입 전 데이터 로드 → 컴포넌트 렌더 → 이미 있음
+```
+
+페이지 이동 시 loader가 먼저 실행되어서 데이터가 준비된 상태로 렌더링됩니다.
+
+**2. 프리로드**
+
+```typescript
+<Link to="/users/$userId" params={{ userId: '123' }} preload="intent">
+  프로필
+</Link>
+```
+
+`preload="intent"`면 호버할 때 loader가 실행됩니다.
+사용자가 클릭하기 전에 데이터가 준비되어 있어서 체감 속도가 빨라집니다.
+
+**3. React Query 캐싱 그대로 활용**
+
+loader에서 로드한 데이터도 React Query 캐시에 들어갑니다.
+staleTime, refetchOnWindowFocus 등 기존 설정이 그대로 적용됩니다.
+
+## Pending UI와 에러 처리
+
+### 로딩 상태
+
+```typescript title="src/routes/users/$userId.tsx"
+export const Route = createFileRoute('/users/$userId')({
+  loader: async ({ context: { queryClient }, params: { userId } }) => {
+    return queryClient.ensureQueryData(userQueryOptions(userId))
+  },
+  pendingComponent: () => <UserSkeleton />,
+  component: UserPage,
+})
+```
+
+loader 실행 중에 `pendingComponent`가 표시됩니다.
+
+### 에러 처리
+
+```typescript
+export const Route = createFileRoute('/users/$userId')({
+  loader: async ({ context: { queryClient }, params: { userId } }) => {
+    return queryClient.ensureQueryData(userQueryOptions(userId))
+  },
+  errorComponent: ({ error }) => (
+    <div>
+      <h2>에러 발생</h2>
+      <p>{error.message}</p>
+      <Link to="/users">목록으로</Link>
+    </div>
+  ),
+  component: UserPage,
+})
+```
+
+loader에서 에러가 발생하면 `errorComponent`가 표시됩니다.
+
+### 전역 설정
+
+```typescript title="src/router.ts"
+export const router = createRouter({
+  routeTree,
+  context: { queryClient },
+  defaultPendingComponent: () => <GlobalLoading />,
+  defaultErrorComponent: ({ error }) => <GlobalError error={error} />,
+})
+```
+
+개별 라우트에서 지정하지 않으면 기본값이 사용됩니다.
+
+## 실제 사용 패턴
+
+프로젝트에서 쓰는 패턴을 정리해봤습니다.
+
+### Query Options 분리
+
+```typescript title="src/queries/user.ts"
+import { queryOptions } from '@tanstack/react-query'
+import { api } from '@/lib/api-client'
+
+export const userQueries = {
+  all: () => ['users'] as const,
+  lists: () => [...userQueries.all(), 'list'] as const,
+  list: (filters: UserFilters) =>
+    queryOptions({
+      queryKey: [...userQueries.lists(), filters],
+      queryFn: () => api.get('users', { searchParams: filters }).json<User[]>(),
+    }),
+  details: () => [...userQueries.all(), 'detail'] as const,
+  detail: (userId: string) =>
+    queryOptions({
+      queryKey: [...userQueries.details(), userId],
+      queryFn: () => api.get(`users/${userId}`).json<User>(),
+    }),
+}
+```
+
+### 라우트에서 사용
+
+```typescript title="src/routes/users/$userId.tsx"
+import { createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { userQueries } from '@/queries/user'
+
+export const Route = createFileRoute('/users/$userId')({
+  loader: ({ context: { queryClient }, params: { userId } }) => {
+    return queryClient.ensureQueryData(userQueries.detail(userId))
+  },
+  component: UserPage,
+})
+
+function UserPage() {
+  const { userId } = Route.useParams()
+  const { data: user } = useSuspenseQuery(userQueries.detail(userId))
+
+  return <UserProfile user={user} />
+}
+```
+
+Query Options를 한 곳에서 관리하니까 일관성이 좋습니다.
+
+## React Router에서 마이그레이션
+
+### 점진적 마이그레이션
+
+한 번에 다 바꾸기 힘들면 점진적으로 할 수 있습니다.
+TanStack Router는 특정 경로만 처리하고 나머지는 React Router에 위임하는 게 가능합니다.
+
+근데 저는 새 프로젝트에서 시작했습니다.
+기존 프로젝트를 마이그레이션하는 건 좀 공수가 큽니다.
+
+### 주요 변경점
+
+| React Router | TanStack Router |
+|--------------|-----------------|
+| `useParams()` | `Route.useParams()` |
+| `useSearchParams()` | `Route.useSearch()` |
+| `useNavigate()` | `useNavigate()` (비슷) |
+| `<Link to="/path">` | `<Link to="/path" params={...}>` |
+| `loader` (v6.4+) | `loader` (더 자연스러움) |
+| 문자열 경로 | 타입 안전한 경로 |
+
+## 아직 아쉬운 점
+
+### 1. 학습 곡선
+
+React Router보다 개념이 많습니다.
+파일 기반 라우팅, search params 스키마, context 등
+처음에 설정해야 할 게 좀 있습니다.
+
+### 2. 생태계
+
+React Router만큼 레퍼런스가 많지 않습니다.
+문제가 생기면 공식 문서나 GitHub Issues를 직접 찾아봐야 합니다.
+
+### 3. 번들 사이즈
+
+React Router보다 좀 큽니다.
+
+```
+react-router-dom: ~14KB (gzipped)
+@tanstack/react-router: ~20KB (gzipped)
+```
+
+타입 안전성으로 얻는 이점을 생각하면 감수할 만한 수준이긴 합니다.
+
+## 정리
+
+TanStack Router로 바꾸고 나서 느낀 점입니다.
+
+**좋은 점**
+- 경로 오타로 인한 버그가 사라졌습니다
+- Link 컴포넌트에서 자동완성이 됩니다
+- search params 관리가 훨씬 편해졌습니다
+- TanStack Query와 조합이 자연스럽습니다
+- 프리로드 덕분에 체감 속도가 좋아졌습니다
+
+**고려할 점**
+- 초기 설정이 좀 필요합니다
+- React Router만큼 대중적이지 않습니다
+- 기존 프로젝트 마이그레이션은 공수가 큽니다
+
+새 프로젝트라면 강력 추천합니다.
+특히 TypeScript 쓰는 프로젝트에서 타입 안전한 라우팅의 편안함은 직접 써봐야 알 수 있습니다.
+
+## 참고 자료
+
+- [TanStack Router 공식 문서](https://tanstack.com/router)
+- [TanStack Router GitHub](https://github.com/TanStack/router)
+- [TanStack Query 공식 문서](https://tanstack.com/query)
+- [TanStack Brand Guide](https://tanstack.com/brand-guide)

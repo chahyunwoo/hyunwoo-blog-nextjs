@@ -1,0 +1,646 @@
+---
+title: "Axios? 이제 Ky 씁니다"
+description: "3KB짜리 Fetch 래퍼로 HTTP 클라이언트 교체한 후기"
+date: "2025-11-03"
+mainTag: "Frontend"
+tags: ["HTTP Client", "Ky", "Axios", "TypeScript"]
+thumbnail: /thumbnail/axios-to-ky-migration.png
+published: true
+---
+
+Axios를 꽤 오래 썼습니다.
+인터셉터도 익숙하고, 에러 핸들링도 손에 익어서 굳이 바꿀 이유가 없었습니다.
+
+그런데 새 프로젝트 셋팅하면서 문득 생각이 들었습니다.
+"지금 시대에 굳이 Axios여야 하나?"
+
+결론부터 말하면, Ky로 갈아탔고 만족하고 있습니다.
+
+## Axios의 아쉬운 점들
+
+### 1. 번들 사이즈
+
+Axios는 생각보다 큽니다.
+
+```
+axios: ~13KB (gzipped)
+ky: ~3.5KB (gzipped)
+```
+
+물론 13KB가 치명적인 수준은 아닙니다.
+근데 HTTP 클라이언트 하나에 13KB면 좀 무겁다는 생각이 들었습니다.
+
+특히 모노레포에서 여러 앱이 Axios를 각각 번들링하면,
+전체적으로 보면 꽤 큰 용량이 됩니다.
+
+### 2. Fetch API와 동떨어진 API
+
+Axios는 Fetch 이전에 만들어진 라이브러리입니다.
+XMLHttpRequest 기반이고, Response 객체도 Fetch와 다릅니다.
+
+```typescript
+// Axios
+const response = await axios.get('/api/users')
+console.log(response.data) // 자동 파싱된 데이터
+
+// Fetch
+const response = await fetch('/api/users')
+const data = await response.json() // 직접 파싱 필요
+```
+
+Axios가 편하긴 한데, Fetch API를 배운 뒤에 Axios를 쓰면
+오히려 헷갈리는 부분이 있습니다.
+`response.data`인지 `response.body`인지 매번 헷갈렸습니다.
+
+### 3. 타입 추론의 한계
+
+이게 제일 불편했습니다.
+
+```typescript
+// Axios - 제네릭을 명시해야 함
+const response = await axios.get<User[]>('/api/users')
+const users = response.data // User[]
+
+// 근데 이렇게 쓰면 타입이 안 맞아도 에러가 안 남
+const response = await axios.get<User[]>('/api/posts') // 실제론 Post[]인데...
+```
+
+Axios의 제네릭은 런타임에 검증되지 않습니다.
+그냥 "이 타입이라고 믿을게"라는 의미에 가깝습니다.
+
+<Callout type="info">
+물론 Ky도 마찬가지로 런타임 검증은 없습니다.
+하지만 Ky는 `.json<T>()` 메서드로 타입을 지정하는 방식이라
+"파싱하면서 타입 지정한다"는 의도가 더 명확합니다.
+</Callout>
+
+### 4. Node.js 18 이후로 Fetch가 내장됨
+
+예전에는 Node.js에서 HTTP 요청하려면 `node-fetch`나 Axios가 필요했습니다.
+근데 Node.js 18부터 Fetch가 내장됐습니다.
+
+브라우저와 Node.js에서 같은 API를 쓸 수 있게 된 거죠.
+이 시점에서 Fetch 기반이 아닌 라이브러리를 굳이 써야 하나 싶었습니다.
+
+## Ky란
+
+[Ky](https://github.com/sindresorhus/ky)는 Sindre Sorhus가 만든 Fetch 기반 HTTP 클라이언트입니다.
+
+Fetch API를 그대로 사용하면서, 불편한 부분만 개선했습니다.
+"Fetch의 DX 개선판" 정도로 이해하면 됩니다.
+
+### Fetch의 불편한 점
+
+Fetch는 기본적으로 좋은데, 몇 가지 불편한 점이 있습니다.
+
+```typescript
+// 1. 4xx, 5xx가 에러로 처리되지 않음
+const response = await fetch('/api/users')
+if (!response.ok) {
+  throw new Error('Request failed')
+}
+const data = await response.json()
+
+// 2. 타임아웃이 없음
+const controller = new AbortController()
+const timeoutId = setTimeout(() => controller.abort(), 5000)
+const response = await fetch('/api/users', { signal: controller.signal })
+clearTimeout(timeoutId)
+
+// 3. JSON 전송이 번거로움
+await fetch('/api/users', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'John' }),
+})
+```
+
+매번 이런 보일러플레이트를 작성해야 합니다.
+
+### Ky가 해결해주는 것
+
+```typescript
+import ky from 'ky'
+
+// 1. 4xx, 5xx는 자동으로 에러
+const data = await ky.get('/api/users').json()
+
+// 2. 타임아웃 내장
+const data = await ky.get('/api/users', { timeout: 5000 }).json()
+
+// 3. JSON 전송이 간단
+await ky.post('/api/users', { json: { name: 'John' } })
+```
+
+Fetch API를 그대로 사용하면서, 편의 기능만 추가했습니다.
+
+## 설치
+
+```bash
+npm install ky
+```
+
+의존성이 없습니다. Fetch API만 있으면 동작합니다.
+
+## 기본 사용법
+
+### GET 요청
+
+```typescript
+import ky from 'ky'
+
+// JSON 응답
+const users = await ky.get('https://api.example.com/users').json<User[]>()
+
+// 텍스트 응답
+const html = await ky.get('https://example.com').text()
+
+// Blob 응답 (파일 다운로드 등)
+const blob = await ky.get('https://example.com/image.png').blob()
+```
+
+`.json<T>()`으로 타입을 지정하는 게 Axios보다 직관적입니다.
+"JSON으로 파싱하고, 그 결과는 T 타입이다"라는 의미가 명확합니다.
+
+### POST 요청
+
+```typescript
+// JSON 전송
+const user = await ky
+  .post('https://api.example.com/users', {
+    json: { name: 'John', email: 'john@example.com' },
+  })
+  .json<User>()
+
+// FormData 전송
+const formData = new FormData()
+formData.append('file', file)
+
+await ky.post('https://api.example.com/upload', { body: formData })
+```
+
+`json` 옵션을 쓰면 `Content-Type` 헤더가 자동으로 설정됩니다.
+Axios처럼 `data`가 아니라 `json`이라서 의도가 더 명확합니다.
+
+### 메서드 단축
+
+```typescript
+ky.get(url, options)
+ky.post(url, options)
+ky.put(url, options)
+ky.patch(url, options)
+ky.delete(url, options)
+ky.head(url, options)
+```
+
+Axios와 비슷합니다.
+
+## 인스턴스 생성
+
+Axios처럼 기본 설정이 적용된 인스턴스를 만들 수 있습니다.
+
+```typescript title="api-client.ts"
+import ky from 'ky'
+
+export const api = ky.create({
+  prefixUrl: import.meta.env.VITE_API_URL,
+  timeout: 10000,
+  headers: {
+    'Accept-Language': 'ko-KR',
+  },
+  credentials: 'include', // 쿠키 전송
+})
+
+// 사용
+const users = await api.get('users').json<User[]>()
+// → https://api.example.com/users 로 요청
+```
+
+`prefixUrl`이 Axios의 `baseURL`에 해당합니다.
+
+<Callout type="warning">
+`prefixUrl`을 사용할 때 주의할 점이 있습니다.
+요청 경로가 `/`로 시작하면 안 됩니다.
+
+```typescript
+// ✅ 올바름
+api.get('users')
+
+// ❌ 잘못됨 - prefixUrl이 무시됨
+api.get('/users')
+```
+
+처음에 이거 몰라서 한참 헤맸습니다.
+</Callout>
+
+## Hooks (인터셉터)
+
+Axios의 인터셉터에 해당하는 기능입니다.
+Ky에서는 Hooks라고 부릅니다.
+
+### beforeRequest
+
+요청 전에 실행됩니다.
+토큰 추가 같은 작업에 사용합니다.
+
+```typescript title="api-client.ts"
+import ky from 'ky'
+import { useAuthStore } from './auth-store'
+
+export const api = ky.create({
+  prefixUrl: import.meta.env.VITE_API_URL,
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        const { accessToken } = useAuthStore.getState()
+
+        if (accessToken) {
+          request.headers.set('Authorization', `Bearer ${accessToken}`)
+        }
+      },
+    ],
+  },
+})
+```
+
+Axios의 `request` 인터셉터와 같은 역할입니다.
+
+### afterResponse
+
+응답 후에 실행됩니다.
+에러 처리나 토큰 갱신에 사용합니다.
+
+```typescript
+hooks: {
+  afterResponse: [
+    async (request, options, response) => {
+      if (response.status === 401) {
+        // 토큰 갱신 로직
+        const newToken = await refreshAccessToken()
+
+        if (newToken) {
+          // 새 토큰으로 재요청
+          request.headers.set('Authorization', `Bearer ${newToken}`)
+          return ky(request)
+        }
+      }
+    },
+  ],
+}
+```
+
+### beforeRetry
+
+재시도 전에 실행됩니다.
+Ky는 기본적으로 실패한 요청을 재시도합니다.
+
+```typescript
+hooks: {
+  beforeRetry: [
+    async ({ request, options, error, retryCount }) => {
+      console.log(`Retry attempt ${retryCount}`)
+
+      // 특정 조건에서 재시도 중단
+      if (retryCount >= 2) {
+        throw error
+      }
+    },
+  ],
+}
+```
+
+<Callout type="tip">
+Axios에서는 재시도 기능이 없어서 `axios-retry` 같은 패키지를 따로 설치해야 했습니다.
+Ky는 재시도가 내장되어 있어서 편합니다.
+</Callout>
+
+## 토큰 갱신 구현
+
+실제로 사용하는 토큰 갱신 로직입니다.
+Axios에서 마이그레이션하면서 가장 신경 썼던 부분입니다.
+
+```typescript title="api-client.ts"
+import ky, { type KyInstance } from 'ky'
+import { useAuthStore } from './auth-store'
+
+let isRefreshing = false
+let refreshPromise: Promise<string | null> | null = null
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (refreshPromise) {
+    return refreshPromise
+  }
+
+  isRefreshing = true
+  refreshPromise = (async () => {
+    try {
+      const response = await ky
+        .post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
+          credentials: 'include',
+        })
+        .json<{ accessToken: string; user: User }>()
+
+      useAuthStore.getState().setAuth(response.accessToken, response.user)
+      return response.accessToken
+    } catch {
+      useAuthStore.getState().clearAuth()
+      return null
+    } finally {
+      isRefreshing = false
+      refreshPromise = null
+    }
+  })()
+
+  return refreshPromise
+}
+
+export const api: KyInstance = ky.create({
+  prefixUrl: import.meta.env.VITE_API_URL,
+  timeout: 10000,
+  credentials: 'include',
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        const { accessToken } = useAuthStore.getState()
+        if (accessToken) {
+          request.headers.set('Authorization', `Bearer ${accessToken}`)
+        }
+      },
+    ],
+    afterResponse: [
+      async (request, options, response) => {
+        if (response.status === 401 && !request.url.includes('/auth/refresh')) {
+          const newToken = await refreshAccessToken()
+
+          if (newToken) {
+            request.headers.set('Authorization', `Bearer ${newToken}`)
+            return ky(request)
+          } else {
+            window.location.href = '/login'
+          }
+        }
+      },
+    ],
+  },
+  retry: {
+    limit: 2,
+    statusCodes: [408, 500, 502, 503, 504],
+  },
+})
+```
+
+### 포인트
+
+1. **중복 갱신 방지**: `refreshPromise`로 동시 요청 시 하나의 갱신만 실행
+2. **갱신 API는 재귀 방지**: `/auth/refresh` 요청은 401이어도 갱신 시도 안 함
+3. **재시도 설정**: 네트워크 에러나 서버 에러만 재시도
+
+Axios에서 하던 것과 로직은 같은데, 코드가 더 깔끔해진 느낌입니다.
+
+## 에러 핸들링
+
+Ky는 4xx, 5xx 응답을 자동으로 에러로 처리합니다.
+`HTTPError`를 catch해서 처리합니다.
+
+```typescript
+import ky, { HTTPError } from 'ky'
+
+try {
+  const user = await api.get('users/123').json<User>()
+} catch (error) {
+  if (error instanceof HTTPError) {
+    const status = error.response.status
+    const body = await error.response.json()
+
+    if (status === 404) {
+      console.log('User not found')
+    } else if (status === 403) {
+      console.log('Permission denied')
+    }
+
+    // 서버에서 보낸 에러 메시지
+    console.log(body.message)
+  }
+}
+```
+
+### 에러 응답 타입 지정
+
+에러 응답 body의 타입도 지정할 수 있습니다.
+
+```typescript
+interface ApiError {
+  code: string
+  message: string
+}
+
+try {
+  await api.post('users', { json: userData })
+} catch (error) {
+  if (error instanceof HTTPError) {
+    const body = await error.response.json<ApiError>()
+    showToast(body.message)
+  }
+}
+```
+
+## Axios에서 마이그레이션
+
+기존 Axios 코드를 Ky로 바꾸는 건 어렵지 않습니다.
+
+### 요청 코드
+
+```typescript
+// Axios
+const response = await axios.get('/api/users')
+const users = response.data
+
+// Ky
+const users = await ky.get('/api/users').json()
+```
+
+### 인스턴스 생성
+
+```typescript
+// Axios
+const api = axios.create({
+  baseURL: 'https://api.example.com',
+  timeout: 10000,
+  withCredentials: true,
+})
+
+// Ky
+const api = ky.create({
+  prefixUrl: 'https://api.example.com',
+  timeout: 10000,
+  credentials: 'include',
+})
+```
+
+### 인터셉터 → Hooks
+
+```typescript
+// Axios
+api.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // 처리
+    }
+    return Promise.reject(error)
+  }
+)
+
+// Ky
+ky.create({
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        request.headers.set('Authorization', `Bearer ${token}`)
+      },
+    ],
+    afterResponse: [
+      async (request, options, response) => {
+        if (response.status === 401) {
+          // 처리
+        }
+      },
+    ],
+  },
+})
+```
+
+### 주요 차이점 정리
+
+| Axios | Ky |
+|-------|-----|
+| `baseURL` | `prefixUrl` |
+| `withCredentials: true` | `credentials: 'include'` |
+| `response.data` | `.json()` 결과 |
+| `data: { ... }` | `json: { ... }` |
+| `interceptors.request` | `hooks.beforeRequest` |
+| `interceptors.response` | `hooks.afterResponse` |
+| `axios-retry` 패키지 필요 | `retry` 옵션 내장 |
+
+## React Query와 함께 사용
+
+React Query(TanStack Query)와 같이 쓰는 패턴입니다.
+
+```typescript title="hooks/useUsers.ts"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { api } from '@/lib/api-client'
+import type { User, CreateUserDto } from '@/types'
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: () => api.get('users').json<User[]>(),
+  })
+}
+
+export function useUser(id: string) {
+  return useQuery({
+    queryKey: ['users', id],
+    queryFn: () => api.get(`users/${id}`).json<User>(),
+    enabled: !!id,
+  })
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: CreateUserDto) =>
+      api.post('users', { json: data }).json<User>(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+```
+
+Axios 쓸 때랑 거의 똑같습니다.
+`queryFn`에서 `.json<T>()`만 붙이면 됩니다.
+
+## 그래도 Axios가 나은 경우
+
+솔직히 모든 상황에서 Ky가 좋은 건 아닙니다.
+
+### 1. 업로드 진행률 표시
+
+Axios는 `onUploadProgress`를 지원하지만, Ky는 없습니다.
+파일 업로드 진행률을 표시하려면 직접 구현해야 합니다.
+
+```typescript
+// Axios - 간단
+await axios.post('/upload', formData, {
+  onUploadProgress: (progressEvent) => {
+    const percent = Math.round(
+      (progressEvent.loaded * 100) / progressEvent.total
+    )
+    setProgress(percent)
+  },
+})
+
+// Ky - 직접 구현 필요
+// ReadableStream을 사용해야 함
+```
+
+### 2. 요청 취소
+
+Axios는 `CancelToken`이 있었는데, Ky는 `AbortController`를 직접 써야 합니다.
+근데 이건 Fetch API 표준이라 오히려 장점이기도 합니다.
+
+```typescript
+const controller = new AbortController()
+
+// 요청
+const promise = ky.get('https://api.example.com/users', {
+  signal: controller.signal,
+})
+
+// 취소
+controller.abort()
+```
+
+### 3. 레거시 환경
+
+IE11 같은 레거시 브라우저를 지원해야 하면 Axios가 낫습니다.
+Ky는 Fetch API가 필요합니다.
+
+근데 2025년에 IE11 지원하는 프로젝트가 있을까 싶긴 합니다.
+
+## 정리
+
+Axios에서 Ky로 바꾸면서 느낀 점입니다.
+
+**좋은 점**
+- 번들 사이즈가 확 줄었습니다 (13KB → 3.5KB)
+- Fetch API 기반이라 표준에 가깝습니다
+- `.json<T>()` 방식이 타입 지정이 더 명확합니다
+- 재시도가 내장되어 있어서 편합니다
+- 의존성이 없습니다
+
+**아쉬운 점**
+- 업로드 진행률 표시가 불편합니다
+- Axios만큼 대중적이지 않아서 레퍼런스가 적습니다
+- `prefixUrl` 사용 시 `/` 붙이면 안 되는 게 처음엔 헷갈렸습니다
+
+새 프로젝트라면 Ky를 추천합니다.
+기존 프로젝트는 굳이 바꿀 필요까지는 없지만,
+번들 사이즈가 신경 쓰인다면 고려해볼 만합니다.
+
+개인적으로는 Fetch API를 감싸는 방식이 더 미래지향적이라고 생각합니다.
+표준이 발전하면 Ky도 자연스럽게 따라가니까요.
+
+## 참고 자료
+
+- [Ky GitHub](https://github.com/sindresorhus/ky)
+- [Ky npm](https://www.npmjs.com/package/ky)
+- [Fetch API - MDN](https://developer.mozilla.org/ko/docs/Web/API/Fetch_API)
+- [Why Ky is the Best Alternative to Axios - DEV.to](https://dev.to/usluer/why-ky-is-the-best-alternative-to-axios-and-fetch-for-modern-http-requests-27c3)

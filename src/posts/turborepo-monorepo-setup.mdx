@@ -1,0 +1,613 @@
+---
+title: "모노레포, 왜 진작 안 했을까"
+description: "Turborepo + React 19 + Tailwind 4 환경에서 겪은 시행착오"
+date: "2026-01-16"
+mainTag: "Frontend"
+tags: ["Turborepo", "Monorepo", "React", "Tailwind"]
+thumbnail: /thumbnail/turborepo-monorepo-setup.png
+published: true
+---
+
+회사에서 여러 개의 React 앱을 관리하게 됐습니다.
+백오피스만 3개, 프론트오피스도 여러 개.
+공통 컴포넌트와 유틸리티를 복붙하다가 한계를 느꼈습니다.
+
+"이거 모노레포로 해야 하는 거 아닌가?"
+
+결론부터 말하면, <Highlight color="fuchsia">Turborepo로 모노레포를 구축</Highlight>했고 만족하고 있습니다.
+근데 과정이 순탄하지만은 않았습니다.
+
+## 왜 모노레포인가
+
+### 멀티레포의 문제점
+
+기존에는 앱마다 별도 레포지토리였습니다.
+
+```
+company-admin/        # 관리자 백오피스
+company-console/      # 콘솔 백오피스
+company-shop/         # 쇼핑몰 프론트
+company-workspace/    # 워크스페이스 앱
+```
+
+문제가 뭐였냐면:
+
+1. **코드 중복**: 공통 컴포넌트를 각 레포에 복붙
+2. **버전 파편화**: 같은 라이브러리인데 버전이 제각각
+3. **변경 전파 어려움**: 공통 로직 수정하면 4개 레포 다 PR
+4. **설정 반복**: ESLint, TypeScript 설정을 매번 복붙
+
+### 모노레포로 해결되는 것
+
+```
+monorepo/
+├── apps/
+│   ├── admin/
+│   ├── console/
+│   ├── shop/
+│   └── workspace/
+├── packages/
+│   ├── ui/           # 공통 컴포넌트
+│   ├── utils/        # 공통 유틸리티
+│   └── config/       # 공통 설정
+└── package.json
+```
+
+- 공통 코드는 `packages/`에 한 번만 작성
+- 의존성 버전을 루트에서 통합 관리
+- 하나의 PR로 여러 앱에 영향을 주는 변경 가능
+- 설정 파일 공유
+
+## Turborepo 선택 이유
+
+모노레포 도구는 여러 가지가 있습니다.
+Nx, Lerna, pnpm workspace 등.
+
+Turborepo를 선택한 이유:
+
+1. **설정이 간단함**: Nx보다 러닝커브가 낮음
+2. **빌드 캐싱**: 변경되지 않은 패키지는 빌드 스킵
+3. **병렬 실행**: 독립적인 태스크는 동시에 실행
+4. **Vercel 통합**: 배포가 편함 (회사가 Vercel 씀)
+
+Nx가 기능은 더 많은데, 우리 규모에서는 오버스펙 같았습니다.
+
+## 프로젝트 생성
+
+```bash
+npx create-turbo@latest
+```
+
+이렇게 하면 기본 템플릿이 생성됩니다.
+근데 저는 기존 설정을 살리고 싶어서 수동으로 구성했습니다.
+
+### 폴더 구조
+
+```
+monorepo/
+├── apps/
+│   ├── admin/          # Vite + React
+│   ├── console/        # Vite + React
+│   └── shop/           # Vite + React
+├── packages/
+│   ├── ui/             # 공통 UI 컴포넌트
+│   ├── typescript-config/  # tsconfig 공유
+│   └── tailwind-config/    # Tailwind 설정 공유
+├── turbo.json
+├── package.json
+└── pnpm-workspace.yaml
+```
+
+### pnpm workspace 설정
+
+pnpm을 패키지 매니저로 선택했습니다.
+npm이나 yarn보다 디스크 효율이 좋고, 모노레포 지원이 잘 됩니다.
+
+```yaml title="pnpm-workspace.yaml"
+packages:
+  - "apps/*"
+  - "packages/*"
+```
+
+이렇게 하면 `apps/`와 `packages/` 하위가 워크스페이스로 인식됩니다.
+
+### 루트 package.json
+
+```json title="package.json"
+{
+  "name": "monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
+```
+
+<Callout type="warning">
+`packageManager` 필드를 명시하는 게 중요합니다.
+CI 환경에서 다른 패키지 매니저가 실행되는 걸 방지합니다.
+</Callout>
+
+### turbo.json
+
+```json title="turbo.json"
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    }
+  }
+}
+```
+
+#### 핵심 개념
+
+**`dependsOn: ["^build"]`**
+
+`^`는 의존하는 패키지의 태스크를 먼저 실행하라는 의미입니다.
+
+예를 들어 `apps/admin`이 `packages/ui`를 의존하면,
+`admin`의 `build` 전에 `ui`의 `build`가 먼저 실행됩니다.
+
+**`outputs`**
+
+빌드 결과물 경로입니다.
+Turborepo는 이걸 캐싱해서 변경이 없으면 빌드를 스킵합니다.
+
+**`cache: false`**
+
+dev 서버는 캐싱하면 안 되니까 false로 설정합니다.
+
+**`persistent: true`**
+
+dev 서버처럼 계속 실행되는 태스크에 필요합니다.
+
+## 내부 패키지 만들기
+
+### TypeScript 설정 공유
+
+모든 앱에서 같은 TypeScript 설정을 쓰고 싶었습니다.
+
+```json title="packages/typescript-config/package.json"
+{
+  "name": "@repo/typescript-config",
+  "private": true,
+  "files": ["base.json", "react.json", "node.json"]
+}
+```
+
+```json title="packages/typescript-config/base.json"
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
+  }
+}
+```
+
+```json title="packages/typescript-config/react.json"
+{
+  "extends": "./base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx"
+  }
+}
+```
+
+앱에서는 이렇게 사용합니다:
+
+```json title="apps/admin/tsconfig.json"
+{
+  "extends": "@repo/typescript-config/react.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}
+```
+
+### UI 패키지
+
+공통 컴포넌트를 담는 패키지입니다.
+
+```json title="packages/ui/package.json"
+{
+  "name": "@repo/ui",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./button": "./src/button.tsx",
+    "./input": "./src/input.tsx",
+    "./card": "./src/card.tsx"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^5.7.0"
+  }
+}
+```
+
+<Callout type="info">
+`exports` 필드로 개별 컴포넌트를 export합니다.
+이렇게 하면 트리쉐이킹이 잘 됩니다.
+</Callout>
+
+앱에서 사용:
+
+```typescript
+// apps/admin/src/App.tsx
+import { Button } from '@repo/ui/button'
+import { Card } from '@repo/ui/card'
+```
+
+### 내부 패키지 의존성 추가
+
+```json title="apps/admin/package.json"
+{
+  "name": "admin",
+  "dependencies": {
+    "@repo/ui": "workspace:*"
+  }
+}
+```
+
+`workspace:*`는 "같은 워크스페이스 내의 패키지"를 의미합니다.
+npm에 배포된 게 아니라 로컬 패키지를 참조합니다.
+
+## Tailwind 4 설정
+
+Tailwind 4가 나와서 적용해봤는데, 설정 방식이 많이 바뀌었습니다.
+
+### 기존 방식 (Tailwind 3)
+
+```javascript title="tailwind.config.js"
+module.exports = {
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#3b82f6',
+      },
+    },
+  },
+  plugins: [],
+}
+```
+
+### Tailwind 4 방식
+
+```css title="src/index.css"
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6;
+  --font-sans: "Pretendard", sans-serif;
+}
+```
+
+JavaScript 설정 파일 대신 CSS에서 직접 설정합니다.
+
+### 모노레포에서 Tailwind 4 공유
+
+처음에 이 부분이 헷갈렸습니다.
+패키지별로 CSS를 어떻게 공유하지?
+
+결론은 <Highlight color="blue">각 앱의 CSS에서 공통 테마를 import</Highlight>하는 방식입니다.
+
+```css title="packages/tailwind-config/theme.css"
+@theme {
+  /* 공통 색상 */
+  --color-primary: #3b82f6;
+  --color-secondary: #64748b;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* 공통 폰트 */
+  --font-sans: "Pretendard Variable", sans-serif;
+
+  /* 공통 반경 */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+}
+```
+
+```css title="apps/admin/src/index.css"
+@import "tailwindcss";
+@import "@repo/tailwind-config/theme.css";
+
+/* 앱별 추가 스타일 */
+```
+
+<Callout type="warning">
+Tailwind 4에서는 `content` 설정이 자동 감지됩니다.
+대부분의 경우 별도 설정이 필요 없지만,
+모노레포에서 다른 패키지의 컴포넌트를 사용한다면 `@source`를 추가해야 합니다.
+</Callout>
+
+```css title="apps/admin/src/index.css"
+@import "tailwindcss";
+@import "@repo/tailwind-config/theme.css";
+
+@source "../../packages/ui/src/**/*.tsx";
+```
+
+## shadcn/ui 설정
+
+shadcn/ui를 모노레포에서 쓸 때도 고민이 좀 있었습니다.
+
+### 방법 1: 각 앱에 설치
+
+가장 단순한 방법입니다.
+각 앱에서 `npx shadcn@latest init` 실행.
+
+근데 이러면 컴포넌트가 앱마다 중복됩니다.
+
+### 방법 2: packages/ui에 통합
+
+저는 이 방식을 선택했습니다.
+
+```bash
+cd packages/ui
+npx shadcn@latest init
+```
+
+shadcn 컴포넌트가 `packages/ui/src/components/ui/`에 생성됩니다.
+
+```json title="packages/ui/package.json"
+{
+  "exports": {
+    "./button": "./src/components/ui/button.tsx",
+    "./card": "./src/components/ui/card.tsx",
+    "./input": "./src/components/ui/input.tsx"
+  }
+}
+```
+
+앱에서는:
+
+```typescript
+import { Button } from '@repo/ui/button'
+import { Card, CardHeader, CardContent } from '@repo/ui/card'
+```
+
+### CSS 변수 공유
+
+shadcn은 CSS 변수로 테마를 관리합니다.
+이것도 공통 CSS로 빼면 됩니다.
+
+```css title="packages/tailwind-config/shadcn.css"
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    /* ... */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    /* ... */
+  }
+}
+```
+
+## React 19 관련 이슈
+
+React 19를 사용하면서 몇 가지 이슈가 있었습니다.
+
+### peerDependencies 경고
+
+일부 라이브러리가 아직 React 19를 peerDependencies에 포함하지 않아서 경고가 뜹니다.
+
+```
+WARN  Issues with peer dependencies found
+└─┬ some-package
+  └── ✕ unmet peer react@"^18.0.0": found 19.0.0
+```
+
+`.npmrc`에서 무시하도록 설정할 수 있습니다:
+
+```ini title=".npmrc"
+strict-peer-dependencies=false
+```
+
+### 타입 정의
+
+`@types/react`가 React 19에 맞게 업데이트되어야 합니다.
+
+```json title="packages/typescript-config/react.json"
+{
+  "compilerOptions": {
+    "types": ["react/canary"]
+  }
+}
+```
+
+## 개발 서버 실행
+
+### 전체 앱 실행
+
+```bash
+pnpm dev
+```
+
+Turborepo가 모든 앱의 dev 스크립트를 병렬로 실행합니다.
+
+### 특정 앱만 실행
+
+```bash
+pnpm dev --filter=admin
+```
+
+`--filter`로 특정 패키지만 실행할 수 있습니다.
+
+### 의존 패키지 포함
+
+```bash
+pnpm dev --filter=admin...
+```
+
+`...`을 붙이면 admin이 의존하는 패키지들도 함께 실행됩니다.
+UI 패키지 수정하면서 admin에서 확인하고 싶을 때 유용합니다.
+
+## 캐싱의 위력
+
+Turborepo의 가장 큰 장점입니다.
+
+### 로컬 캐싱
+
+```bash
+$ pnpm build
+
+Tasks:    4 successful, 4 total
+Cached:   3 cached, 4 total
+Time:     2.341s
+```
+
+변경되지 않은 패키지는 캐시에서 가져옵니다.
+처음 빌드는 1분 걸리던 게 두 번째부터는 몇 초면 끝납니다.
+
+### 리모트 캐싱
+
+팀원 간에 캐시를 공유할 수도 있습니다.
+
+```bash
+npx turbo login
+npx turbo link
+```
+
+Vercel 계정과 연동하면 리모트 캐시가 활성화됩니다.
+팀원 A가 빌드한 결과를 팀원 B가 그대로 사용할 수 있습니다.
+
+CI에서도 마찬가지입니다.
+이전 빌드 결과가 캐시되어 있으면 CI 시간이 확 줄어듭니다.
+
+## 헤맸던 부분들
+
+### 1. 내부 패키지 인식 안 됨
+
+처음에 `@repo/ui`를 import하는데 "모듈을 찾을 수 없습니다" 에러가 났습니다.
+
+원인: `pnpm install`을 안 했음.
+
+모노레포에서 패키지 간 의존성을 추가하면 `pnpm install`을 다시 실행해야 합니다.
+심볼릭 링크가 생성되어야 import가 됩니다.
+
+### 2. TypeScript 경로 인식
+
+Vite에서 `@repo/ui`를 찾는데, TypeScript가 타입을 못 찾는 경우가 있었습니다.
+
+`packages/ui/package.json`에 `types` 필드 추가:
+
+```json
+{
+  "exports": {
+    "./button": {
+      "types": "./src/button.tsx",
+      "default": "./src/button.tsx"
+    }
+  }
+}
+```
+
+### 3. Tailwind가 다른 패키지 클래스를 못 찾음
+
+`packages/ui`의 컴포넌트에 있는 Tailwind 클래스가 앱에서 적용이 안 됐습니다.
+
+원인: Tailwind가 해당 파일을 스캔하지 않음.
+
+Tailwind 4에서는 `@source`로 해결:
+
+```css
+@source "../../packages/ui/src/**/*.tsx";
+```
+
+### 4. HMR이 패키지 변경 감지 못함
+
+`packages/ui`의 컴포넌트를 수정해도 앱이 갱신이 안 됐습니다.
+
+Vite 설정에서 패키지를 감시 대상에 추가:
+
+```typescript title="apps/admin/vite.config.ts"
+export default defineConfig({
+  server: {
+    watch: {
+      // 심볼릭 링크 감시
+      followSymlinks: true,
+    },
+  },
+  optimizeDeps: {
+    // 내부 패키지는 번들링에서 제외
+    exclude: ['@repo/ui'],
+  },
+})
+```
+
+## 정리
+
+Turborepo 모노레포 구축하면서 느낀 점입니다.
+
+**좋은 점**
+- 코드 공유가 훨씬 쉬워졌습니다
+- 캐싱 덕분에 빌드가 빨라졌습니다
+- 의존성 관리가 단순해졌습니다
+- 한 번에 여러 앱에 영향을 주는 변경이 가능합니다
+
+**어려웠던 점**
+- 초기 설정에 시간이 좀 걸립니다
+- 패키지 간 의존성 관계를 이해해야 합니다
+- Tailwind, TypeScript 등 도구별 설정 방법을 알아야 합니다
+
+**팁**
+- 처음엔 `create-turbo`로 시작해서 구조 파악하기
+- 점진적으로 패키지 추가하기
+- 리모트 캐싱 꼭 설정하기 (CI 시간 단축)
+
+규모가 어느 정도 있는 프로젝트라면 모노레포 도입을 추천합니다.
+초기 비용은 있지만, 장기적으로 생산성이 올라갑니다.
+
+## 참고 자료
+
+- [Turborepo 공식 문서](https://turborepo.dev/docs)
+- [Turborepo GitHub](https://github.com/vercel/turborepo)
+- [pnpm Workspaces](https://pnpm.io/workspaces)
+- [Tailwind CSS v4 문서](https://tailwindcss.com/docs)
+- [Vercel Monorepo 가이드](https://vercel.com/docs/monorepos)

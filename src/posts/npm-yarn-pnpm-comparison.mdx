@@ -1,0 +1,483 @@
+---
+title: "npm, yarn, pnpm 뭐가 다른 건데?"
+description: "패키지 매니저 3대장 비교하고 pnpm 정착한 이야기"
+date: "2025-12-05"
+mainTag: "Programming"
+tags: ["pnpm", "npm", "yarn", "Package Manager"]
+thumbnail: /thumbnail/npm-yarn-pnpm-comparison.png
+published: true
+---
+
+한동안 npm만 썼습니다.
+"굳이 다른 거 써야 하나?" 싶었고, 별 불편함도 못 느꼈습니다.
+
+그러다 모노레포를 구축하면서 pnpm을 쓰게 됐는데,
+<Highlight color="fuchsia">왜 진작 안 썼나</Highlight> 싶을 정도로 만족스러웠습니다.
+
+이번 글에서는 npm, yarn, pnpm의 차이점과
+제가 pnpm을 선택한 이유를 정리해봅니다.
+
+## 패키지 매니저가 하는 일
+
+잠깐 기본부터 짚고 넘어가면,
+패키지 매니저는 프로젝트의 의존성을 관리하는 도구입니다.
+
+- 패키지 설치/삭제/업데이트
+- 의존성 트리 관리
+- lock 파일로 버전 고정
+- 스크립트 실행
+
+npm, yarn, pnpm 모두 이 역할을 합니다.
+그런데 내부 동작 방식이 다릅니다.
+
+## npm
+
+Node.js 설치하면 같이 딸려오는 기본 패키지 매니저입니다.
+
+### 특징
+
+- Node.js 공식 패키지 매니저
+- 가장 오래됐고, 레퍼런스가 많음
+- 별도 설치 필요 없음
+
+### 동작 방식
+
+```
+node_modules/
+├── lodash/
+├── react/
+│   └── node_modules/
+│       └── loose-envify/
+└── axios/
+    └── node_modules/
+        └── follow-redirects/
+```
+
+npm은 중첩된 `node_modules` 구조를 사용합니다.
+패키지 A가 패키지 B를 의존하면, A 폴더 안에 B가 설치됩니다.
+
+### 문제점
+
+**1. 유령 의존성 (Phantom Dependencies)**
+
+```json title="package.json"
+{
+  "dependencies": {
+    "some-package": "^1.0.0"
+  }
+}
+```
+
+`some-package`가 내부적으로 `lodash`를 사용한다고 합시다.
+npm은 `lodash`를 끌어올려서(hoisting) 최상위 `node_modules`에 설치합니다.
+
+```
+node_modules/
+├── some-package/
+└── lodash/        ← 내가 설치 안 했는데 있음
+```
+
+그러면 내 코드에서 이렇게 쓸 수 있게 됩니다:
+
+```typescript
+import _ from 'lodash' // 작동함... 근데 package.json에 없음
+```
+
+문제는 `some-package`가 업데이트되면서 `lodash` 의존을 제거하면,
+내 코드가 갑자기 터진다는 것입니다.
+
+**2. 디스크 공간 낭비**
+
+10개 프로젝트에서 같은 버전의 `lodash`를 쓰면,
+10번 다운로드해서 10곳에 저장합니다.
+SSD 용량이 아까웠습니다.
+
+**3. 설치 속도**
+
+패키지를 순차적으로 설치해서 느립니다.
+npm v7부터 개선됐지만, 여전히 pnpm보다는 느립니다.
+
+## yarn
+
+Facebook이 2016년에 만든 패키지 매니저입니다.
+npm의 문제점을 해결하려고 나왔습니다.
+
+### yarn classic (v1)
+
+```bash
+npm install -g yarn
+```
+
+- 병렬 설치로 npm보다 빠름
+- `yarn.lock`으로 결정론적 설치
+- 오프라인 캐시 지원
+- workspace 기능 (모노레포)
+
+출시 당시에는 npm보다 확실히 좋았습니다.
+근데 npm도 계속 발전해서 격차가 많이 줄었습니다.
+
+### yarn berry (v2+)
+
+yarn 2부터는 완전히 새로운 아키텍처입니다.
+
+```bash
+yarn set version berry
+```
+
+**Plug'n'Play (PnP)**
+
+`node_modules` 폴더 자체를 없앱니다.
+대신 `.pnp.cjs` 파일이 의존성 위치를 관리합니다.
+
+```
+.yarn/
+├── cache/
+│   ├── lodash-npm-4.17.21-xxxx.zip
+│   └── react-npm-18.2.0-xxxx.zip
+├── releases/
+└── .pnp.cjs
+```
+
+**Zero-Install**
+
+의존성을 zip으로 압축해서 `.yarn/cache`에 저장합니다.
+이걸 git에 커밋하면 `yarn install` 없이 바로 실행 가능합니다.
+
+<Callout type="warning">
+Yarn PnP는 `node_modules`를 전제로 하는 도구들과 호환성 문제가 있습니다.
+특히 일부 IDE, 번들러, 테스트 도구에서 설정이 필요합니다.
+</Callout>
+
+### yarn을 안 쓴 이유
+
+PnP가 혁신적이긴 한데, 호환성 이슈가 신경 쓰였습니다.
+"왜 안 되지?" 하고 헤맬 시간에 그냥 pnpm 쓰는 게 나았습니다.
+
+yarn classic은 npm과 큰 차이가 없어서 굳이 싶었고요.
+
+## pnpm
+
+performant npm의 약자입니다.
+2017년에 나왔고, 최근 급격히 점유율이 올라가고 있습니다.
+
+### 설치
+
+```bash
+# npm으로 설치
+npm install -g pnpm
+
+# 또는 corepack으로
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
+### 핵심: Content-addressable Storage
+
+pnpm의 가장 큰 특징입니다.
+
+패키지를 전역 저장소(`~/.pnpm-store`)에 한 번만 저장하고,
+프로젝트의 `node_modules`에는 심볼릭 링크로 연결합니다.
+
+```
+~/.pnpm-store/
+└── v3/
+    └── files/
+        ├── 00/
+        │   └── 1a2b3c...  (lodash 4.17.21의 파일들)
+        └── 01/
+            └── 4d5e6f...  (react 18.2.0의 파일들)
+
+프로젝트/node_modules/
+├── .pnpm/
+│   ├── lodash@4.17.21/
+│   │   └── node_modules/
+│   │       └── lodash -> ~/.pnpm-store/...
+│   └── react@18.2.0/
+│       └── node_modules/
+│           └── react -> ~/.pnpm-store/...
+├── lodash -> .pnpm/lodash@4.17.21/node_modules/lodash
+└── react -> .pnpm/react@18.2.0/node_modules/react
+```
+
+### 장점
+
+**1. 디스크 공간 절약**
+
+같은 패키지는 딱 한 번만 저장됩니다.
+10개 프로젝트에서 같은 `lodash`를 쓰면, 저장소에는 하나만 있고 10개가 링크됩니다.
+
+제 경우 프로젝트 10개 정도 있는데, pnpm으로 바꾸고 나서 20GB 정도 절약됐습니다.
+
+**2. 빠른 설치 속도**
+
+이미 저장소에 있는 패키지는 다운로드 없이 링크만 합니다.
+두 번째 프로젝트부터는 설치가 엄청 빠릅니다.
+
+```bash
+# 첫 설치 (다운로드 필요)
+$ pnpm install
+Packages: +1423
+++++++++++++++++++++++++++++++++
+Progress: resolved 1423, reused 0, downloaded 1423, added 1423
+Done in 45.2s
+
+# 새 프로젝트 (캐시 있음)
+$ pnpm install
+Packages: +1423
+++++++++++++++++++++++++++++++++
+Progress: resolved 1423, reused 1423, downloaded 0, added 1423
+Done in 8.3s
+```
+
+**3. 엄격한 의존성 관리**
+
+pnpm은 `package.json`에 명시된 것만 접근할 수 있게 합니다.
+유령 의존성 문제가 원천 차단됩니다.
+
+```typescript
+// package.json에 lodash가 없으면
+import _ from 'lodash' // ❌ 에러! Cannot find module 'lodash'
+```
+
+처음에 이거 때문에 기존 프로젝트 마이그레이션할 때 에러가 좀 났습니다.
+알고 보니 유령 의존성을 쓰고 있었던 거였습니다.
+오히려 좋은 거죠. 숨어있던 문제를 찾은 셈입니다.
+
+**4. 모노레포 지원**
+
+workspace 기능이 기본 내장되어 있습니다.
+
+```yaml title="pnpm-workspace.yaml"
+packages:
+  - "apps/*"
+  - "packages/*"
+```
+
+Turborepo랑 조합이 잘 맞습니다.
+
+## 벤치마크 비교
+
+[pnpm 공식 벤치마크](https://pnpm.io/benchmarks)에서 가져온 수치입니다.
+
+### 설치 속도 (cache 없이)
+
+| | npm | yarn | pnpm |
+|---|-----|------|------|
+| 설치 시간 | 51s | 45s | 14s |
+
+### 설치 속도 (cache 있을 때)
+
+| | npm | yarn | pnpm |
+|---|-----|------|------|
+| 설치 시간 | 32s | 28s | 1.2s |
+
+캐시가 있을 때 pnpm이 압도적으로 빠릅니다.
+이미 저장소에 있으면 링크만 하면 되니까요.
+
+### 디스크 사용량
+
+| | npm | yarn | pnpm |
+|---|-----|------|------|
+| node_modules | 237MB | 231MB | 139MB |
+
+<Callout type="info">
+벤치마크 수치는 프로젝트와 환경에 따라 다를 수 있습니다.
+하지만 경향성은 일관됩니다. pnpm이 빠르고 가볍습니다.
+</Callout>
+
+## npm에서 pnpm으로 마이그레이션
+
+### 1. pnpm 설치
+
+```bash
+npm install -g pnpm
+```
+
+### 2. lock 파일 변환
+
+```bash
+# package-lock.json 기반으로 pnpm-lock.yaml 생성
+pnpm import
+```
+
+기존 `package-lock.json`을 읽어서 `pnpm-lock.yaml`을 만들어줍니다.
+
+### 3. node_modules 삭제 후 재설치
+
+```bash
+rm -rf node_modules
+rm package-lock.json
+pnpm install
+```
+
+### 4. 스크립트 수정
+
+`npm run` → `pnpm` (run 생략 가능)
+
+```bash
+# npm
+npm run dev
+npm run build
+
+# pnpm
+pnpm dev
+pnpm build
+```
+
+### 5. CI 설정 수정
+
+GitHub Actions 예시:
+
+```yaml title=".github/workflows/ci.yml"
+- name: Install pnpm
+  uses: pnpm/action-setup@v4
+  with:
+    version: 9
+
+- name: Install dependencies
+  run: pnpm install --frozen-lockfile
+```
+
+## 마이그레이션 시 주의점
+
+### 유령 의존성 에러
+
+pnpm으로 바꾸면 숨어있던 유령 의존성이 드러납니다.
+
+```
+Error: Cannot find module 'some-package'
+```
+
+해결: 실제로 쓰는 패키지를 `package.json`에 추가
+
+```bash
+pnpm add some-package
+```
+
+귀찮긴 한데, 오히려 의존성을 명확하게 정리하는 기회가 됩니다.
+
+### peer dependencies 경고
+
+```
+WARN  Issues with peer dependencies found
+```
+
+pnpm은 peer dependencies를 엄격하게 체크합니다.
+경고가 많이 뜨면 `.npmrc`에서 완화할 수 있습니다:
+
+```ini title=".npmrc"
+strict-peer-dependencies=false
+auto-install-peers=true
+```
+
+### shamefully-hoist
+
+일부 패키지가 pnpm의 엄격한 구조에서 동작하지 않을 수 있습니다.
+이럴 때 임시방편으로:
+
+```ini title=".npmrc"
+shamefully-hoist=true
+```
+
+이러면 npm처럼 평탄화(hoisting)가 됩니다.
+근데 이름처럼 "수치스러운" 옵션이라 웬만하면 안 쓰는 게 좋습니다.
+
+## 자주 쓰는 pnpm 명령어
+
+```bash
+# 패키지 설치
+pnpm add lodash
+pnpm add -D typescript
+
+# 전역 설치
+pnpm add -g turbo
+
+# 의존성 설치
+pnpm install
+pnpm i  # 줄임
+
+# 스크립트 실행
+pnpm dev
+pnpm build
+
+# 특정 워크스페이스에서 실행 (모노레포)
+pnpm --filter admin dev
+pnpm -F admin dev  # 줄임
+
+# 모든 워크스페이스에서 실행
+pnpm -r build
+
+# 의존성 업데이트
+pnpm update
+pnpm up -i  # interactive
+
+# 캐시 정리
+pnpm store prune
+```
+
+### npm과 다른 점
+
+| npm | pnpm |
+|-----|------|
+| `npm install` | `pnpm install` |
+| `npm install lodash` | `pnpm add lodash` |
+| `npm run dev` | `pnpm dev` |
+| `npm ci` | `pnpm install --frozen-lockfile` |
+
+`install`로 패키지 추가하는 게 아니라 `add`를 씁니다.
+`run`은 생략 가능합니다.
+
+## 그래서 뭘 써야 하나
+
+### npm을 쓰면 좋은 경우
+
+- 추가 설치 없이 바로 쓰고 싶을 때
+- 팀원들이 다른 패키지 매니저에 익숙하지 않을 때
+- 아주 간단한 프로젝트
+
+### yarn을 쓰면 좋은 경우
+
+- PnP의 Zero-Install을 쓰고 싶을 때
+- 이미 yarn 생태계에 익숙할 때
+- monorepo에서 yarn workspaces를 쓰고 있을 때
+
+### pnpm을 쓰면 좋은 경우
+
+- 디스크 공간이 부족할 때
+- 여러 프로젝트를 관리할 때
+- 모노레포를 구축할 때
+- 빠른 설치 속도가 필요할 때
+- 엄격한 의존성 관리를 원할 때
+
+저는 대부분의 경우 pnpm을 추천합니다.
+특별한 이유가 없으면 pnpm 쓰세요.
+
+## 정리
+
+npm에서 pnpm으로 바꾸면서 느낀 점입니다.
+
+**좋은 점**
+- 설치가 진짜 빠릅니다
+- 디스크 공간이 확 줄었습니다
+- 유령 의존성 문제가 사라졌습니다
+- 모노레포 지원이 좋습니다
+
+**적응이 필요한 점**
+- `add` vs `install` 헷갈림 (금방 적응됨)
+- 유령 의존성 정리 필요 (일회성)
+- CI 설정 수정 필요 (한 번만)
+
+2024년 기준 npm이 56.6%로 1위지만,
+pnpm이 19.9%로 빠르게 성장하고 있습니다.
+특히 모노레포 프로젝트에서 pnpm 채택률이 높습니다.
+
+아직 npm만 쓰고 계시다면, 다음 프로젝트에서 pnpm 한번 써보세요.
+돌아가기 싫어질 겁니다.
+
+## 참고 자료
+
+- [pnpm 공식 문서](https://pnpm.io/)
+- [pnpm 벤치마크](https://pnpm.io/benchmarks)
+- [yarn 공식 문서](https://yarnpkg.com/)
+- [npm 공식 문서](https://docs.npmjs.com/)
+- [Why you should prefer using pnpm - Refine](https://refine.dev/blog/pnpm-vs-npm-and-yarn/)
