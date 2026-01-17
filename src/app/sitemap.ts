@@ -1,48 +1,65 @@
 import { MetadataRoute } from "next";
+import { getPublishedPosts } from "@/services/post";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [
+const BASE_URL = "https://chahyunwoo.dev";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await getPublishedPosts();
+
+  const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.meta.slug}`,
+    lastModified: new Date(post.meta.date).toISOString(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  const staticPages: MetadataRoute.Sitemap = [
     {
-      url: "https://chahyunwoo.dev",
+      url: BASE_URL,
       lastModified: new Date().toISOString(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: "https://chahyunwoo.dev/about/ko",
+      url: `${BASE_URL}/about/ko`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: "https://chahyunwoo.dev/about/en",
+      url: `${BASE_URL}/about/en`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: "https://chahyunwoo.dev/about/jp",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: "https://chahyunwoo.dev/?category=Frontend",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: "https://chahyunwoo.dev/?tag=Next.js&parentCategory=Frontend",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: "https://chahyunwoo.dev/blog/migrate-from-next13-to-next15",
+      url: `${BASE_URL}/about/jp`,
       lastModified: new Date().toISOString(),
       changeFrequency: "monthly",
       priority: 0.8,
     },
   ];
+
+  const categoryPages: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE_URL}/?category=Frontend`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/?category=Backend`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/?category=Programming`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+  ];
+
+  return [...staticPages, ...categoryPages, ...blogPosts];
 }
