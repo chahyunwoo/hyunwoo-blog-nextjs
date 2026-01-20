@@ -1,9 +1,9 @@
 ---
 title: "내가 보려고 만든 개발 환경 설정 - 윈도우편"
-description: "윈도우 환경 적응하려고 만든 개발 환경 설정 포스팅"
+description: "윈도우에서 맥처럼 개발하기 위한 환경 설정 가이드"
 date: "2025-08-25T14:10:45"
 mainTag: "Programming"
-tags: ["Windows", "Development", "Environment", "Setting"]
+tags: ["Windows", "Development", "Environment", "WSL"]
 thumbnail: /thumbnail/setting-up-development-env-window.png
 published: true
 ---
@@ -11,192 +11,620 @@ published: true
 필자는 대학생 시절부터 스타벅스 출입증을 부여받기 위해 맥북만을 고집했습니다.
 그놈의 사과 감성이 뭐라고, 어릴 적 윈도우와의 추억을 모두 버리고 맥북을 사용하게 되면서 처음에는 맥북의 인터페이스에 많이 당황했습니다만, 지금은 오히려 macOS 환경이 더 익숙해졌습니다.
 
-개발을 하면서 항상 macOS 환경에서만 개발을 진행하다가,
 최근에 윈도우 환경에서 개발을 진행할 일이 생겨 윈도우 노트북을 구입하게 되었고,
-윈도우 환경에서 개발을 진행하면서 필요한 개발 환경 설정을 정리하려고 합니다.
+**맥에서 쓰던 것처럼** 윈도우에서 개발할 수 있도록 환경을 구축한 내용을 정리합니다.
 
 <Callout type="warning">
 해당 포스팅은 FE Developer의 환경 설정에 초점을 맞추고 있습니다.
 </Callout>
 
-## 1. 시스템 기본 설정 및 업데이트
+---
+
+## 1. 시스템 기본 설정
 
 ### 윈도우 업데이트
 
-윈도우 업데이트를 진행하고, 기본적인 설정을 진행합니다.
-
-- 설정 -> 업데이트 및 보안 -> Windows Update
+- 설정 → 업데이트 및 보안 → Windows Update
 - 업데이트 설치 완료 후 재부팅
 
 ### 개발자 모드 활성화
 
-- 설정 -> 업데이트 및 보안 -> 개발자용
+- 설정 → 업데이트 및 보안 → 개발자용
 - `개발자 모드` 활성화
 
-### Powershell 실행 정책 변경
+### PowerShell 실행 정책 변경
 
 관리자 권한으로 PowerShell을 실행한 후 다음 명령어를 입력합니다.
 
-```powershell title="Powershell 실행 정책 변경"
+```powershell title="PowerShell 실행 정책 변경"
 Set-ExecutionPolicy RemoteSigned
 ```
 
-## 2. 필수 브라우저 및 개발 도구 설치
+---
 
-### 브라우저 설치
+## 2. Windows Terminal 설치
 
-<Callout type="info">
-브라우저는 본인의 선호도에 따라 설치하시면 됩니다.
-크롬 브라우저가 가장 많이 사용되고 있으므로, 필자는 크롬 브라우저를 메인으로 사용합니다.
-</Callout>
+WSL을 설치하기 전에 먼저 터미널 환경을 준비합니다.
 
-- **Chrome**: 주 개발 브라우저
-- **Firefox**: 크로스브라우저 테스트 용
-- **Edge**: ~~윈도우 기본 브라우저이지만 거의 사용하지 않습니다.~~
+### 설치
 
-### Git 설치 및 설정
+Microsoft Store에서 `Windows Terminal`을 설치합니다.
 
-1. [Git for Windows](https://git-scm.com/downloads) 다운로드 및 설치
-2. Git Bash 설정
+### 폰트 설치
 
-```bash title="Git Bash 설정"
-git config --global user.name "유저 이름"
-git config --global user.email "유저 이메일"
+맥의 터미널 느낌을 내려면 개발자용 폰트를 설치하는 게 좋습니다.
+
+```powershell title="JetBrains Mono 설치"
+winget install JetBrains.JetBrainsMono
 ```
 
-## 코드 에디터 및 IDE 설치
+Powerlevel10k 테마를 사용할 예정이라면 [MesloLGS NF](https://github.com/romkatv/powerlevel10k#fonts) 폰트도 다운받아 설치합니다.
 
-<Callout type="info">
-코드 에디터 또한 본인의 선호도에 따라 설치하시면 됩니다.
-저는 `Cursor`를 메인 코드 에디터로 사용하고 있습니다.
-VSCode의 확장프로그램을 import 하기 위해 VSCode 부터 설치하겠습니다.
-</Callout>
+---
 
-### Visual Studio Code
+## 3. WSL (Windows Subsystem for Linux) 설치
 
-1. [Visual Studio Code](https://code.visualstudio.com/download) 다운로드 및 설치
-2. 확장프로그램 설치
-  - Korean Language Pack
-  - Auto Rename Tag
-  - Prettier
-  - Material Icon Theme
-  - indent-rainbow
-  - GitLens
-  - ESLint
+<Highlight>윈도우에서 개발한다면 WSL은 거의 필수입니다.</Highlight>
 
-<Highlight>주로 사용하는 프레임워크에 대한 확장 프로그램을 설정하는 것이 좋습니다. 
-위의 확장프로그램은 거의 필수적으로 설치하는 프로그램입니다.</Highlight>
+맥의 터미널 환경과 거의 동일하게 사용할 수 있고, 대부분의 FE 도구들이 Linux 환경에서 더 잘 작동합니다.
 
-### Cursor AI
+### WSL 설치
 
-1. [Cursor](https://www.cursor.com/download) 다운로드 및 설치
-2. Cursor AI 실행
-3. vscode import 
-
-## Node.js 및 패키지 매니저 설치
-
-### Node Version Manager (nvm-windows) 설치
-
-여러 Node.js 버전을 관리하기 위해 `nvm`을 사용하는 것이 좋습니다.
-
-1. [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) 다운로드 및 설치
-2. 설치 후 Powershell 재시작
-3. Node.js LTS 버전 설치
-
-```bash title="Node.js LTS 버전 설치"
-nvm install lts
-nvm use lts
-```
-
-### 패키지 매니저 설정
-
-Node.js 설치가 되면 npm이 자동으로 설치됩니다. 
-필자는 npm 보다는 yarn 혹은 pnpm을 주로 사용하므로 설치하겠습니다.
-
-```bash title="yarn 설치"
-npm install -g yarn
-```
-
-```bash title="pnpm 설치"
-npm install -g pnpm
-```
-
-## 터미널 환경 개선
-
-윈도우의 터미널은 기본적으로 터미널 환경이 매우 좋지 않고,
-가시성이 굉장히 떨어지기 때문에 터미널 환경을 개선하는 것이 좋습니다.
-
-### Windows Terminal 설치
-
-[Windows Terminal](https://github.com/microsoft/terminal/releases) 다운로드 및 설치
-
-### PowerShell 설치
-
-[PowerShell](https://github.com/PowerShell/PowerShell/releases) 다운로드 및 설치
-
-### Oh My Posh 설치 (터미널 테마) <Highlight>✅ 선택 사항</Highlight>
-
-```bash
-winget install JanDeDobbeleer.OhMyPosh
-```
-
-설정 파일을 생성합니다.
-
-```bash
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\jandedobbeleer.omp.json" | Invoke-Expression
-```
-
-## WSL (WIndows Subsystem for Linux) 설치 <Highlight>✅ 선택 사항</Highlight>
-
-많은 FE 도구들이 Linux 환경에서 더 잘 작동하므로 WSL 설치하는 것이 좋습니다.
+관리자 권한으로 PowerShell을 열고 실행합니다.
 
 ```powershell title="WSL 설치"
 wsl --install
 ```
 
-재부팅 후 Ubuntu 설치를 완료하고, 사용자 계정을 생성합니다.
+재부팅 후 Ubuntu가 자동으로 설치됩니다. 사용자 계정과 비밀번호를 설정합니다.
 
-### WSL에서 개발 환경 구축
+### Windows Terminal 기본 프로필 변경
+
+1. Windows Terminal 실행
+2. 상단 탭 옆 `∨` 버튼 → 설정 (또는 `Ctrl + ,`)
+3. **시작** → **기본 프로필**을 `Ubuntu`로 변경
+4. **시작** → **기본 터미널 응용 프로그램**을 `Windows 터미널`로 변경
+
+<Callout type="tip">
+이렇게 설정하면 터미널을 열 때마다 자동으로 WSL Ubuntu가 실행됩니다.
+</Callout>
+
+### 폰트 적용
+
+1. 설정 → 프로필 → Ubuntu → 모양
+2. **글꼴** → `MesloLGS NF` 또는 `JetBrains Mono` 선택
+3. **글꼴 크기** → 12~14 추천
+
+### WSL 기본 설정
+
+```bash title="시스템 업데이트"
+sudo apt update && sudo apt upgrade -y
+```
+
+```bash title="필수 패키지 설치"
+sudo apt install -y build-essential curl wget git unzip zsh
+```
+
+---
+
+## 4. 터미널 꾸미기 (Oh My Zsh)
+
+맥에서 iTerm2 + Oh My Zsh 조합을 쓰듯이, WSL에서도 동일하게 구성합니다.
+
+### Oh My Zsh 설치
+
+```bash title="Oh My Zsh 설치"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+설치 중 기본 쉘을 Zsh로 변경할지 묻는 프롬프트가 나오면 `Y`를 입력합니다.
+
+### Powerlevel10k 테마 설치
+
+```bash title="Powerlevel10k 설치"
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+`~/.zshrc` 파일을 열어 테마를 변경합니다.
+
+```bash title="~/.zshrc"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+```
+
+터미널을 재시작하면 Powerlevel10k 설정 마법사가 실행됩니다.
+
+### 필수 플러그인 설치
+
+<Highlight color="blue">zsh-autosuggestions</Highlight>: 이전에 입력한 명령어를 자동으로 제안해줍니다.
+
+```bash title="zsh-autosuggestions 설치"
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+
+<Highlight color="blue">zsh-syntax-highlighting</Highlight>: 명령어 문법에 따라 색상을 표시해줍니다.
+
+```bash title="zsh-syntax-highlighting 설치"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
+
+`~/.zshrc` 파일을 열어 플러그인을 추가합니다.
+
+```bash title="~/.zshrc 플러그인 설정"
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  node
+  npm
+)
+```
+
+설정 적용:
 
 ```bash
-# 시스템 업데이트
-sudo apt update && sudo apt upgrade
-
-# Node.js 설치 (WSL 환경에서 설치)
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# 혹은 nvm을 설치합니다
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.zshrc
 ```
 
-## 개발 도구 및 유틸리티 설치
+---
 
-### 필수 유틸리티
-- **Postman** or **Insomnia**: API 테스트 도구
-- **Figma**: 디자인 협업 도구
+## 5. Git 설정
 
-### 추가 유틸리티
+### Git 기본 설정
+
+```bash title="Git 사용자 설정"
+git config --global user.name "유저 이름"
+git config --global user.email "유저 이메일"
+```
+
+### SSH 키 생성 및 GitHub 연결
+
+```bash title="SSH 키 생성"
+ssh-keygen -t ed25519 -C "your.email@example.com"
+```
+
+```bash title="SSH 에이전트 실행 및 키 추가"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+```
+
+```bash title="공개키 복사"
+cat ~/.ssh/id_ed25519.pub
+```
+
+출력된 키를 복사하여 **GitHub → Settings → SSH and GPG keys**에 추가합니다.
+
+---
+
+## 6. Node.js 환경 구축
+
+### NVM 설치
+
+```bash title="NVM 설치"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+```
+
+터미널을 재시작하거나 `source ~/.zshrc`를 실행합니다.
+
+### Node.js 설치
+
+```bash title="Node.js LTS 설치"
+nvm install --lts
+nvm use --lts
+nvm alias default node
+```
+
+### 패키지 매니저 설치
+
+```bash title="pnpm 설치 (권장)"
+npm install -g pnpm
+```
+
+---
+
+## 7. 코드 에디터 설치
+
+### Visual Studio Code
+
+1. [Visual Studio Code](https://code.visualstudio.com/download) 다운로드 및 설치
+2. **WSL 확장 설치**: VSCode에서 `Remote - WSL` 확장을 설치합니다.
+
+<Callout type="info">
+WSL 내에서 `code .` 명령어를 실행하면 해당 디렉토리를 VSCode로 열 수 있습니다.
+</Callout>
+
+### 추천 확장 프로그램
+
+- Korean Language Pack
+- Auto Rename Tag
+- Prettier
+- ESLint
+- Material Icon Theme
+- GitLens
+
+### Cursor AI
+
+1. [Cursor](https://www.cursor.com/download) 다운로드 및 설치
+2. VSCode 설정/확장 import
+
+### 에디터 폰트 설정 (맥과 동일하게)
+
+맥에서 사용하던 폰트 설정을 그대로 가져옵니다.
+
+먼저 폰트를 설치합니다:
+
+```powershell title="JetBrains Mono 설치"
+winget install JetBrains.JetBrainsMono
+```
+
+[MesloLGS NF](https://github.com/romkatv/powerlevel10k#fonts) 폰트도 다운받아 설치합니다.
+
+VSCode/Cursor 설정 (`Ctrl + ,` → 우측 상단 JSON 아이콘):
+
+```json title="settings.json"
+{
+  "editor.fontFamily": "JetBrains Mono",
+  "editor.fontSize": 16,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "normal",
+  "terminal.integrated.fontFamily": "MesloLGS NF",
+  "terminal.integrated.fontSize": 14,
+  "workbench.colorTheme": "Monokai Winter Night",
+  "workbench.iconTheme": "material-icon-theme"
+}
+```
+
+<Callout type="tip">
+**JetBrains Mono**는 프로그래밍용으로 설계된 폰트로, 코드 가독성이 좋고 ligatures(합자) 기능을 지원합니다.
+`!=`, `=>`, `===` 같은 기호가 하나로 연결되어 보입니다.
+</Callout>
+
+---
+
+## 8. Claude Code 설치
+
+<Highlight>터미널에서 Claude AI를 사용할 수 있는 CLI 도구입니다.</Highlight>
+
+### 설치
+
+```bash title="Claude Code 설치"
+npm install -g @anthropic-ai/claude-code
+```
+
+### 초기 설정
+
+```bash title="Claude Code 실행"
+claude
+```
+
+처음 실행하면 Anthropic API 키를 입력하거나 브라우저 인증을 진행합니다.
+
+### 유용한 명령어
+
+```bash title="Claude Code 사용법"
+# 현재 디렉토리에서 실행
+claude
+
+# 특정 질문으로 시작
+claude "이 프로젝트 구조 설명해줘"
+
+# 대화 이어가기
+claude --continue
+```
+
+---
+
+## 9. 맥 키보드 단축키 매핑 (AutoHotkey)
+
+맥에서 사용하던 키보드 단축키를 윈도우에서도 **키 위치 기준**으로 동일하게 사용할 수 있도록 설정합니다.
+
+| 맥 | 윈도우 | 키보드 위치 |
+|---|---|---|
+| Cmd | Ctrl | 스페이스바 바로 옆 |
+| Option | Alt | Cmd/Ctrl 바깥쪽 |
+
+<Highlight>윈도우 기본 단축키(Ctrl + C 등)가 이미 맥의 Cmd와 같은 위치이므로, 커서 이동/선택 관련만 추가로 매핑합니다.</Highlight>
+
+### AutoHotkey v2 설치
+
+[AutoHotkey](https://www.autohotkey.com/)에서 v2 버전을 다운로드하여 설치합니다.
+
+### 스크립트 생성
+
+`문서` 폴더에 `mac-keys.ahk` 파일을 생성합니다.
+
+```ahk title="mac-keys.ahk"
+#Requires AutoHotkey v2.0
+
+; ========================================
+; 맥 스타일 키보드 단축키 (윈도우용)
+; 키 위치 기준 매핑:
+;   Mac Cmd = Win Ctrl (스페이스바 옆)
+;   Mac Option = Win Alt
+; ========================================
+
+; --- 줄 이동 (Ctrl + 방향키) = 맥의 Cmd + 방향키 ---
+^Left::Send "{Home}"
+^Right::Send "{End}"
+
+; --- 줄 선택 (Ctrl + Shift + 좌우) = 맥의 Cmd + Shift + 방향키 ---
+^+Left::Send "+{Home}"
+^+Right::Send "+{End}"
+
+; --- 단어 이동 (Alt + 방향키) = 맥의 Option + 방향키 ---
+!Left::Send "^{Left}"
+!Right::Send "^{Right}"
+
+; --- 단어 선택 (Alt + Shift + 좌우) = 맥의 Option + Shift + 방향키 ---
+!+Left::Send "^+{Left}"
+!+Right::Send "^+{Right}"
+
+; --- 텍스트 삭제 ---
+; Ctrl + Backspace: 줄 처음까지 삭제 (맥의 Cmd + Backspace)
+^BS::Send "+{Home}{Del}"
+
+; Alt + Backspace: 단어 삭제 (맥의 Option + Backspace)
+!BS::Send "^{BS}"
+
+; --- 파일 탐색기 파일 삭제 ---
+#HotIf WinActive("ahk_class CabinetWClass") or WinActive("ahk_class ExploreWClass")
+; Ctrl + Backspace: 휴지통으로 삭제 (맥의 Cmd + Backspace)
+^BS::Send "{Delete}"
+; Ctrl + Alt + Backspace: 영구 삭제 (맥의 Cmd + Option + Backspace)
+^!BS::Send "+{Delete}"
+#HotIf
+```
+
+### 시작 프로그램에 등록
+
+1. `Win + R`을 눌러 `shell:startup` 입력
+2. 열린 폴더에 `mac-keys.ahk` 파일의 바로가기를 추가
+
+<Callout type="info">
+**텍스트 편집 시 (맥과 동일한 키 위치):**
+- **Ctrl + ←/→**: 줄 처음/끝 이동 (맥의 Cmd + 방향키)
+- **Ctrl + Shift + ←/→**: 줄 처음/끝까지 선택
+- **Alt + ←/→**: 단어 단위 이동 (맥의 Option + 방향키)
+- **Alt + Shift + ←/→**: 단어 단위 선택
+- **Ctrl + Backspace**: 줄 처음까지 삭제 (맥의 Cmd + Backspace)
+- **Alt + Backspace**: 단어 삭제 (맥의 Option + Backspace)
+
+**파일 탐색기에서:**
+- **Ctrl + Backspace**: 휴지통으로 삭제 (맥의 Cmd + Backspace)
+- **Ctrl + Alt + Backspace**: 영구 삭제 (맥의 Cmd + Option + Backspace)
+</Callout>
+
+---
+
+## 10. 창 관리 (Rectangle처럼 사용하기)
+
+맥에서 Rectangle을 사용해서 창을 관리했다면, 윈도우에서는 **PowerToys FancyZones**로 비슷하게 구현할 수 있습니다.
+
+### PowerToys 설치
+
+```powershell title="PowerToys 설치"
+winget install Microsoft.PowerToys
+```
+
+### FancyZones 설정
+
+1. PowerToys 실행 → FancyZones
+2. **Enable FancyZones** 켜기
+
+### 커스텀 레이아웃 설정 (1/4, 3/4 포함)
+
+FancyZones 레이아웃은 JSON 파일로 저장됩니다. 아래 설정 파일을 직접 적용하면 됩니다.
+
+**파일 위치**: `%LocalAppData%\Microsoft\PowerToys\FancyZones\custom-layouts.json`
+
+```json title="custom-layouts.json"
+{
+  "custom-layouts": [
+    {
+      "uuid": "{11111111-1111-1111-1111-111111111111}",
+      "name": "1/4 + 3/4",
+      "type": "canvas",
+      "info": {
+        "ref-width": 1920,
+        "ref-height": 1080,
+        "zones": [
+          { "X": 0, "Y": 0, "width": 480, "height": 1080 },
+          { "X": 480, "Y": 0, "width": 1440, "height": 1080 }
+        ]
+      }
+    },
+    {
+      "uuid": "{22222222-2222-2222-2222-222222222222}",
+      "name": "3/4 + 1/4",
+      "type": "canvas",
+      "info": {
+        "ref-width": 1920,
+        "ref-height": 1080,
+        "zones": [
+          { "X": 0, "Y": 0, "width": 1440, "height": 1080 },
+          { "X": 1440, "Y": 0, "width": 480, "height": 1080 }
+        ]
+      }
+    },
+    {
+      "uuid": "{33333333-3333-3333-3333-333333333333}",
+      "name": "1/2 + 1/2",
+      "type": "canvas",
+      "info": {
+        "ref-width": 1920,
+        "ref-height": 1080,
+        "zones": [
+          { "X": 0, "Y": 0, "width": 960, "height": 1080 },
+          { "X": 960, "Y": 0, "width": 960, "height": 1080 }
+        ]
+      }
+    },
+    {
+      "uuid": "{44444444-4444-4444-4444-444444444444}",
+      "name": "1/4 + 1/2 + 1/4",
+      "type": "canvas",
+      "info": {
+        "ref-width": 1920,
+        "ref-height": 1080,
+        "zones": [
+          { "X": 0, "Y": 0, "width": 480, "height": 1080 },
+          { "X": 480, "Y": 0, "width": 960, "height": 1080 },
+          { "X": 1440, "Y": 0, "width": 480, "height": 1080 }
+        ]
+      }
+    }
+  ]
+}
+```
+
+<Callout type="info">
+PowerToys를 종료한 상태에서 파일을 수정하고 다시 실행하면 적용됩니다.
+해상도가 다르면 비율에 맞게 자동 조절됩니다.
+</Callout>
+
+### Rectangle 스타일 단축키 매핑
+
+AutoHotkey 스크립트에 창 관리 단축키를 추가합니다.
+
+```ahk title="mac-keys.ahk에 추가"
+; ========================================
+; 창 관리 (Rectangle 스타일)
+; Ctrl + Alt = 맥의 Ctrl + Option
+; ========================================
+
+; --- 좌우 절반 ---
+; Ctrl + Alt + Left: 왼쪽 절반
+^!Left::Send "#{Left}"
+
+; Ctrl + Alt + Right: 오른쪽 절반
+^!Right::Send "#{Right}"
+
+; --- 상하 절반 ---
+; Ctrl + Alt + Up: 상단 절반
+^!Up::{
+    WinGetPos(&x, &y, &w, &h, "A")
+    WinMove(0, 0, A_ScreenWidth, A_ScreenHeight // 2, "A")
+}
+
+; Ctrl + Alt + Down: 하단 절반
+^!Down::{
+    WinMove(0, A_ScreenHeight // 2, A_ScreenWidth, A_ScreenHeight // 2, "A")
+}
+
+; --- 전체화면 ---
+; Ctrl + Alt + Enter: 최대화
+^!Enter::Send "#{Up}"
+
+; --- 1/4, 3/4 ---
+; Ctrl + Alt + Z: 왼쪽 1/4
+^!z::{
+    WinMove(0, 0, A_ScreenWidth // 4, A_ScreenHeight, "A")
+}
+
+; Ctrl + Alt + X: 왼쪽 3/4
+^!x::{
+    WinMove(0, 0, A_ScreenWidth * 3 // 4, A_ScreenHeight, "A")
+}
+```
+
+### FancyZones 활용 팁
+
+<Callout type="tip">
+**Shift 키를 누른 채로 창을 드래그**하면 FancyZones 레이아웃이 표시됩니다.
+원하는 존에 놓으면 창이 해당 크기로 조절됩니다.
+</Callout>
+
+| 맥 (Rectangle) | 윈도우 (설정 후) |
+|---|---|
+| Ctrl + Option + ← | Ctrl + Alt + ← (왼쪽 절반) |
+| Ctrl + Option + → | Ctrl + Alt + → (오른쪽 절반) |
+| Ctrl + Option + ↑ | Ctrl + Alt + ↑ (상단 절반) |
+| Ctrl + Option + ↓ | Ctrl + Alt + ↓ (하단 절반) |
+| Ctrl + Option + Enter | Ctrl + Alt + Enter (최대화) |
+| Ctrl + Option + Z | Ctrl + Alt + Z (왼쪽 1/4) |
+| Ctrl + Option + X | Ctrl + Alt + X (왼쪽 3/4) |
+
+---
+
+## 11. 윈도우 시스템 폰트 변경 (선택)
+
+윈도우 기본 폰트가 맥에 비해 투박하게 느껴진다면, 시스템 폰트를 변경할 수 있습니다.
+
+### 방법 1: MacType (폰트 렌더링 개선)
+
+윈도우의 폰트 렌더링을 맥처럼 부드럽게 바꿔줍니다.
+
+1. [MacType](https://github.com/snowie2000/mactype/releases)에서 다운로드
+2. 설치 후 **Registry** 모드로 설정 (가장 호환성 좋음)
+3. 프로필은 **Default** 또는 **LCD** 선택
+
+### 방법 2: 시스템 폰트 변경 (noMeiryoUI)
+
+윈도우 시스템 UI 폰트 자체를 변경합니다.
+
+1. [noMeiryoUI](https://github.com/Tatsu-syo/noMeiryoUI/releases) 다운로드
+2. 원하는 폰트 선택 (예: **Pretendard**, **Apple SD Gothic Neo**)
+3. 모든 항목에 적용
+
+<Callout type="warning">
+**Apple SD Gothic Neo** 폰트는 macOS에서 추출해야 합니다. 저작권 이슈가 있을 수 있으니 개인 사용 목적으로만 권장합니다.
+대안으로 **Pretendard** 폰트를 추천합니다. 애플 폰트와 비슷한 느낌이면서 무료입니다.
+</Callout>
+
+### Pretendard 폰트 설치
+
+```powershell title="Pretendard 설치"
+# 수동 설치: https://github.com/orioncactus/pretendard/releases
+# ttf 파일 다운로드 후 우클릭 → 설치
+```
+
+---
+
+## 13. 추가 유틸리티
+
+### 필수 프로그램
+
+- **Chrome**: 주 개발 브라우저
+- **Postman** 또는 **Insomnia**: API 테스트
+- **Figma**: 디자인 협업
+
+### 생산성 도구
+
+- **PowerToys**: 윈도우 생산성 확장 (FancyZones, PowerRename 등)
+- **Everything**: 빠른 파일 검색
 - **7-Zip**: 압축 파일 관리
-- **Everything**: 파일 검색 도구
-- **PowerToys**: 윈도우 생산성 확장 도구들이
 
-### 패키지 매니저를 통한 설치
-`Chocolatey` 또는 `winget`을 사용하여 프로그램을 쉽게 설치할 수 있습니다.
+### winget으로 일괄 설치
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```powershell title="필수 프로그램 일괄 설치"
+winget install Google.Chrome
+winget install Microsoft.PowerToys
+winget install voidtools.Everything
+winget install 7zip.7zip
+winget install Postman.Postman
 ```
 
-### 필요한 프로그램 일괄 설치
-```powershell
-choco install googlechrome firefox vscode git nodejs postman 7zip everything powertoys -y
-```
+---
 
 ## 마무리
 
-FE 개발자의 환경에 맞는 윈도우 개발 환경 셋팅에 대하여 알아보았습니다.
-필자가 윈도우로 처음 개발을 시작하게 되면서 개발 환경 설정에 애를 먹었는데,
-까먹지 않고 다음에 다른 Windows PC에서 개발을 시작할 때 참고하면 좋을 것 같아 작성하게 되었습니다. (오직 나를 위한)
+윈도우에서 맥처럼 개발하기 위한 핵심은 **WSL + 터미널 환경 + 키보드 매핑 + 창 관리 + 폰트**입니다.
 
-긴 글 읽어주셔서 감사합니다.
+| 맥 | 윈도우 (설정 후) |
+|---|---|
+| iTerm2 + Oh My Zsh | Windows Terminal + WSL + Oh My Zsh |
+| Cmd + 방향키 (줄 이동) | Ctrl + 방향키 |
+| Option + 방향키 (단어 이동) | Alt + 방향키 |
+| Cmd + Backspace (삭제) | Ctrl + Backspace |
+| Option + Shift + ↑/↓ (줄 복사) | Alt + Shift + ↑/↓ |
+| Rectangle | PowerToys FancyZones |
+| Homebrew | apt (WSL 내) |
+| SF Mono / Apple SD Gothic | JetBrains Mono / Pretendard |
+
+### 에디터 폰트 설정 요약
+
+| 항목 | 폰트 | 크기 |
+|---|---|---|
+| 에디터 | JetBrains Mono | 16px |
+| 터미널 | MesloLGS NF | 14px |
+
+제가 다음에 윈도우 PC에서 개발을 시작할 때 이 글만 보고 바로 환경 설정할 수 있도록 작성했습니다.
