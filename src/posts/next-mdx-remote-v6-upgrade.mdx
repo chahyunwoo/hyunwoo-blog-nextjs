@@ -1,0 +1,201 @@
+---
+title: "next-mdx-remote v6 업그레이드 가이드"
+description: "보안 취약점 패치와 업그레이드 과정에서 만난 이슈 해결기"
+date: "2026-02-14"
+mainTag: "Frontend"
+tags: ["Next.js", "MDX", "next-mdx-remote"]
+thumbnail: /thumbnail/next-mdx-remote-v6-upgrade.png
+published: true
+---
+
+Vercel에서 메일이 하나 날아왔습니다.
+
+> 귀하의 프로젝트에서 원격 코드 실행 취약점의 영향을 받는 next-mdx-remote 버전을 사용하고 있습니다.
+
+이 블로그가 `next-mdx-remote` v5를 사용하고 있었는데, 보안 취약점이 발견되어 v6으로 업그레이드해야 한다는 내용이었습니다.
+단순한 버전 업데이트일 줄 알았는데, 생각보다 신경 쓸 게 있었습니다.
+
+이번 글에서는 업그레이드 배경부터 실제 마이그레이션 과정, 그리고 발생한 이슈와 해결 방법을 정리합니다.
+
+## 무슨 취약점이었나
+
+2026년 2월, `next-mdx-remote` v4.3.0 ~ v5.0.0에서 <Highlight color="blue">원격 코드 실행(RCE) 취약점</Highlight>이 발견되었습니다.
+CVE-2026-0969로 등록되었고, HashiCorp에서 보안 공지(HCSEC-2026-01)를 통해 공개했습니다.
+
+핵심은 이렇습니다.
+
+- MDX를 서버에서 컴파일할 때 JavaScript 표현식이 실행될 수 있음
+- 신뢰할 수 없는 MDX 콘텐츠를 렌더링하는 경우, 공격자가 서버에서 임의 코드를 실행할 수 있음
+
+이 블로그처럼 직접 작성한 MDX만 렌더링하는 경우엔 실질적인 위험은 낮지만, 패치된 버전으로 업그레이드하는 게 맞다고 판단했습니다.
+
+## v6의 주요 변경점
+
+v6에서 가장 큰 변화는 <Highlight color="fuchsia">JavaScript 표현식 차단이 기본값</Highlight>이 된 것입니다.
+
+### blockJS 옵션
+
+`serialize`와 `compileMDX` 함수에 두 가지 옵션이 추가되었습니다.
+
+```typescript title="SerializeOptions (v6 신규 옵션)"
+interface SerializeOptions {
+  // 기존 옵션들...
+  blockJS?: boolean;           // 기본값: true (JS 표현식 차단)
+  blockDangerousJS?: boolean;  // 기본값: true (위험한 JS 차단)
+}
+```
+
+`blockJS: true`가 기본값이기 때문에, MDX 안에서 `{variable}`이나 `{func()}`  같은 JavaScript 표현식을 사용하고 있었다면 v6 업그레이드 후 해당 표현식이 제거됩니다.
+
+### 3단계 보안 수준
+
+프로젝트 상황에 맞게 선택할 수 있습니다.
+
+| 수준 | 설정 | 설명 |
+|------|------|------|
+| **최고 보안** | 기본값 (변경 없음) | JS 표현식 완전 차단 |
+| **신뢰 콘텐츠** | `blockJS: false` | JS 허용, 위험한 전역 객체는 차단 |
+| **완전 신뢰** | `blockJS: false`, `blockDangerousJS: false` | 모든 JS 허용 (주의 필요) |
+
+<Callout type="info">
+JSX 컴포넌트의 문자열 속성은 차단되지 않습니다. `<Callout type="tip">` 같은 리터럴 문자열 props는 정상적으로 동작합니다.
+</Callout>
+
+## 업그레이드 과정
+
+### 1단계: 미사용 패키지 정리
+
+업그레이드 전에 먼저 프로젝트를 점검했습니다. `package.json`을 보니 사용하지 않는 구문 강조 패키지가 4개나 쌓여 있었습니다.
+
+```bash title="미사용 패키지 제거"
+npm uninstall rehype-highlight rehype-prism-plus rehype-shiki prismjs
+```
+
+실제로는 `rehype-pretty-code`만 사용하고 있었는데, 이전에 여러 라이브러리를 시도하면서 정리가 안 된 채 남아있었습니다.
+이런 게 쌓이면 빌드 시간이나 의존성 트리에 영향을 줄 수 있으니 주기적으로 확인하는 게 좋습니다.
+
+### 2단계: next-mdx-remote 업그레이드
+
+```bash title="v6 설치"
+npm install next-mdx-remote@6
+```
+
+이 블로그는 `next-mdx-remote/rsc`의 `MDXRemote` 컴포넌트를 사용하고 있고, MDX 파일에서 JavaScript 표현식을 사용하지 않기 때문에 코드 변경 없이 기본값(`blockJS: true`)으로 동작합니다.
+
+만약 MDX 안에서 JS 표현식을 사용하는 프로젝트라면, options에 `blockJS: false`를 추가해야 합니다.
+
+```typescript title="src/components/features/blog/post-body.tsx"
+<MDXRemote
+  source={post.content}
+  options={{
+    mdxOptions: {
+      remarkPlugins: [remarkGfm, remarkBreaks],
+      rehypePlugins: [
+        [rehypePrettyCode, prettyCodeOptions],
+        [rehypeSlug],
+        [rehypeAutolinkHeadings, { behavior: "append" }],
+      ],
+    },
+    // JS 표현식을 사용하는 경우에만 추가
+    // blockJS: false,
+  }}
+  components={MdxComponents}
+/>
+```
+
+### 3단계: next.config 정리
+
+업그레이드 김에 `next.config.mjs`도 정리했습니다.
+
+```javascript title="next.config.mjs (정리 전)"
+const nextConfig = {
+  transpilePackages: ["next-mdx-remote"],  // v6에서 불필요
+  reactStrictMode: false,
+  experimental: {
+    esmExternals: true,  // Next.js 15 기본값
+  },
+  pageExtensions: ["js", "jsx", "ts", "tsx", "mdx", "md"],  // MDX를 페이지로 안 쓰므로 불필요
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+};
+```
+
+```javascript title="next.config.mjs (정리 후)"
+const nextConfig = {
+  reactStrictMode: false,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+};
+```
+
+- `transpilePackages` — v6는 ESM을 제대로 지원하므로 제거
+- `experimental.esmExternals` — Next.js 15에서 이미 기본값이 `true`
+- `pageExtensions` — App Router에서 MDX를 페이지 파일로 직접 사용하지 않고, `src/posts/`에서 문자열로 읽어오는 구조이므로 제거
+
+## 업그레이드 후 발생한 이슈
+
+빌드는 문제없이 성공했습니다. 42개 페이지 전부 정상 생성.
+
+그런데 `npm run dev`로 개발 서버를 띄우니 블로그 포스트 페이지에서 500 에러가 발생했습니다.
+
+```
+⨯ [TypeError: Cannot read properties of undefined (reading 'stack')] {
+  digest: '231488239'
+}
+⨯ [Error: failed to pipe response] {
+  [cause]: [TypeError: Cannot read properties of undefined (reading 'stack')]
+}
+GET /blog/docker-concepts-for-frontend-developers 500 in 518ms
+```
+
+당황스러운 부분은 <Highlight>프로덕션 빌드는 성공하는데 dev 서버에서만 에러가 난다</Highlight>는 점이었습니다.
+
+### 원인 파악
+
+처음에는 `blockJS` 설정 문제인 줄 알고 `blockJS: false`도 넣어보고, `compileMDX`를 직접 호출하는 방식으로도 바꿔봤지만 동일한 에러가 계속 발생했습니다.
+
+Node.js에서 직접 MDX 컴파일을 테스트하면 정상 동작하는데, Turbopack dev 서버에서만 실패하는 상황이었습니다.
+
+검색해보니 Next.js GitHub에 이미 보고된 이슈였습니다.
+
+<Callout type="warning">
+`next-mdx-remote/rsc`가 Next.js 15.2.0 이상의 dev 모드에서 `TypeError: Cannot read properties of undefined (reading 'stack')` 에러를 발생시키는 문제는 React 19.0.x와의 호환성 이슈입니다.
+</Callout>
+
+### 해결 방법
+
+React를 19.1.0 이상으로 업그레이드하면 해결됩니다.
+
+```bash title="React 업그레이드"
+npm install react@^19.1.0 react-dom@^19.1.0
+```
+
+이 프로젝트의 경우 React 19.0.0 → 19.2.4로 업데이트했고, 에러가 깔끔하게 사라졌습니다.
+
+## 정리
+
+단순한 패키지 업데이트인 줄 알았는데, 의존성 간 호환성 문제까지 만나면서 배운 게 있었습니다.
+
+**좋은 점**
+
+- RCE 취약점 패치로 보안 강화
+- `blockJS` 기본 차단으로 신뢰할 수 없는 MDX 콘텐츠에 대한 방어가 기본값이 됨
+- 업그레이드 과정에서 미사용 패키지 4개를 정리할 수 있었음
+- next.config의 레거시 설정도 함께 정리
+
+**고려할 점**
+
+- JS 표현식을 사용하는 MDX 프로젝트는 `blockJS: false` 설정 필요
+- React 19.0.x에서 dev 모드 호환성 이슈가 있으므로 React도 함께 업그레이드해야 함
+- 프로덕션 빌드만 테스트하고 넘어가면 dev 환경에서 문제를 놓칠 수 있음
+
+패키지 업그레이드할 때는 빌드 성공만 확인하지 말고, dev 서버에서도 실제로 페이지를 열어보는 습관을 들이는 게 좋겠습니다.
+
+## 참고 자료
+
+- [next-mdx-remote v6.0.0 릴리즈 노트](https://github.com/hashicorp/next-mdx-remote/releases/tag/v6.0.0)
+- [CVE-2026-0969 취약점 상세](https://cyberpress.org/vulnerability-in-next-mdx-remote-enables/)
+- [Next.js #77216 - dev 모드 호환성 이슈](https://github.com/vercel/next.js/issues/77216)
+- [next-mdx-remote GitHub](https://github.com/hashicorp/next-mdx-remote)
