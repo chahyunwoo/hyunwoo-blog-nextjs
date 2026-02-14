@@ -75,30 +75,55 @@ export default async function Page({ params }: Params<{ slug: string }>) {
     notFound();
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.meta.title,
-    description: post.meta.description,
-    image: `${BASE_URL}${post.meta.thumbnail}`,
-    datePublished: post.meta.date,
-    dateModified: post.meta.date,
-    author: {
-      "@type": "Person",
-      name: "Hyunwoo Cha",
-      url: BASE_URL,
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.meta.title,
+      description: post.meta.description,
+      image: `${BASE_URL}${post.meta.thumbnail}`,
+      datePublished: post.meta.date,
+      dateModified: post.meta.date,
+      author: {
+        "@type": "Person",
+        name: "Hyunwoo Cha",
+        url: BASE_URL,
+      },
+      publisher: {
+        "@type": "Person",
+        name: "Hyunwoo Cha",
+        url: BASE_URL,
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `${BASE_URL}/blog/${slug}`,
+      },
+      keywords: post.meta.tags.join(", "),
     },
-    publisher: {
-      "@type": "Person",
-      name: "Hyunwoo Cha",
-      url: BASE_URL,
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "홈",
+          item: BASE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: post.meta.mainTag,
+          item: `${BASE_URL}/?category=${post.meta.mainTag}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: post.meta.title,
+        },
+      ],
     },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${BASE_URL}/blog/${slug}`,
-    },
-    keywords: post.meta.tags.join(", "),
-  };
+  ];
 
   return (
     <>

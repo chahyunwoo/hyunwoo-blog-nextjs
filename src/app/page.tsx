@@ -46,6 +46,27 @@ export async function generateMetadata({
   };
 }
 
+const BASE_URL = "https://chahyunwoo.dev";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "hyunwoo.dev",
+  url: BASE_URL,
+  description:
+    "프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.",
+  author: {
+    "@type": "Person",
+    name: "Hyunwoo Cha",
+    url: BASE_URL,
+  },
+  publisher: {
+    "@type": "Person",
+    name: "Hyunwoo Cha",
+    url: BASE_URL,
+  },
+};
+
 export default async function Home({
   searchParams,
 }: {
@@ -54,14 +75,20 @@ export default async function Home({
   const { category, tag, parentCategory } = await searchParams;
 
   return (
-    <BlogLayout>
-      <Suspense fallback={<PostSkeleton count={6} />}>
-        <PostListContainer
-          category={category}
-          tag={tag}
-          parentCategory={parentCategory}
-        />
-      </Suspense>
-    </BlogLayout>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BlogLayout>
+        <Suspense fallback={<PostSkeleton count={6} />}>
+          <PostListContainer
+            category={category}
+            tag={tag}
+            parentCategory={parentCategory}
+          />
+        </Suspense>
+      </BlogLayout>
+    </>
   );
 }

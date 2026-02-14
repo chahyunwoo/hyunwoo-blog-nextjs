@@ -5,7 +5,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: ["/_next/", "/api/"],
     },
     sitemap: "https://chahyunwoo.dev/sitemap.xml",
+    host: "https://chahyunwoo.dev",
   };
 }
