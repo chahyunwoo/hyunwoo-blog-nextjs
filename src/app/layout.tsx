@@ -52,6 +52,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: "@chahyunwoo_dev",
     title: "hyunwoo.dev | 프론트엔드 개발 블로그",
     description:
       "프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.",
