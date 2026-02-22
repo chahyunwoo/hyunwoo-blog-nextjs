@@ -40,7 +40,7 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
       <div className="mt-4">
         <Image
           src={profileImage}
-          alt="profile"
+          alt={`${profile.name}, ${profile.job}`}
           className="rounded-full"
           width={200}
           height={200}

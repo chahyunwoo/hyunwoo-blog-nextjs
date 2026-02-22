@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { getCategoriesWithTags, getPublishedPosts } from "@/services/post";
 
 const BASE_URL = "https://chahyunwoo.dev";
+const ABOUT_LAST_MODIFIED = "2025-03-27T00:00:00.000Z";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPublishedPosts();
@@ -23,19 +24,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/about/ko`,
-      lastModified: new Date().toISOString(),
+      lastModified: ABOUT_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/about/en`,
-      lastModified: new Date().toISOString(),
+      lastModified: ABOUT_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/about/jp`,
-      lastModified: new Date().toISOString(),
+      lastModified: ABOUT_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.8,
     },
