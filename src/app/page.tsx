@@ -5,13 +5,14 @@ import { Metadata } from "next";
 import { BlogLayout } from "@/components/layout/blog-layout";
 import { BlogParams } from "@/types";
 
+const BASE_URL = "https://chahyunwoo.dev";
+
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: BlogParams;
 }): Promise<Metadata> {
   const { category, tag, parentCategory } = await searchParams;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
   let title = "hyunwoo.dev";
   let description = "최신 기술 관련 글과 경험을 공유합니다.";
@@ -31,12 +32,15 @@ export async function generateMetadata({
     title,
     description,
     keywords,
+    alternates: {
+      canonical: BASE_URL,
+    },
     openGraph: {
       title,
       description,
       images: [
         {
-          url: `${baseUrl}/images/og-image.png`,
+          url: `${BASE_URL}/images/og-image.png`,
           width: 1200,
           height: 630,
           alt: "hyunwoo.dev",
@@ -45,8 +49,6 @@ export async function generateMetadata({
     },
   };
 }
-
-const BASE_URL = "https://chahyunwoo.dev";
 
 const jsonLd = {
   "@context": "https://schema.org",
