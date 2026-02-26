@@ -57,7 +57,7 @@ export const PROFILE_EN = {
     {
       title: "Financial Back-Office System Development (Fintech)",
       role: "FE Developer / Freelancer",
-      period: "2025 - Now",
+      period: "2026 - Now",
       responsibilities: [
         "Designed and built Feature-First Architecture based on React 19 + TypeScript + Vite, establishing domain-centric modular structure",
         "Built TanStack Router file-based routing system and eliminated page transition loading through Route Loader data prefetching",

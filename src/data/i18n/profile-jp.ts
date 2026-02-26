@@ -42,7 +42,7 @@ export const PROFILE_JP = {
     {
       title: "Discord マルチボット (chwzp.ai バトラーBot)",
       role: "フルスタック開発（個人）",
-      period: "2025.01 ~ 現在",
+      period: "2026 - 現在",
       responsibilities: [
         "Python + discord.pyによるマルチ機能ボットの設計・開発（Cogモジュールアーキテクチャ）",
         "OPINET・VWorld API連携によるリアルタイム給油最安値アラートシステムの構築（座標ベース半径検索、損益分岐点計算、価格トレンド分析）",
