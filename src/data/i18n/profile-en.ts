@@ -40,6 +40,21 @@ export const PROFILE_EN = {
   ],
   experience: [
     {
+      title: "Discord Multi-Bot (chwzp.ai Butler Bot)",
+      role: "Full-Stack Development (Solo)",
+      period: "2025.01 ~ Present",
+      responsibilities: [
+        "Designed and developed a multi-feature bot using Python + discord.py with modular Cog architecture",
+        "Built real-time gas price alert system integrating OPINET and VWorld APIs (coordinate-based radius search, breakeven calculator, price trend analysis)",
+        "Developed train booking assistance system with Korail and SRT API integration (real-time seat lookup, async-sync bridge pattern using threading + asyncio)",
+        "Implemented async data management with aiosqlite (subscription, history, and cache schema design with auto-migration)",
+        "Built aiohttp web form server with one-time token authentication (5-min TTL, 256-bit entropy)",
+        "Managed multiple scheduled tasks via APScheduler (30-min alert checks, daily price reports, history snapshots, data cleanup)",
+        "Engineered OPINET API rate-limit handling (in-memory TTL cache with cache-only mode fallback near quota)",
+        "Set up Docker multi-stage builds + docker compose deployment, GitHub Actions CI/CD (pytest → SSH auto-deploy)",
+      ],
+    },
+    {
       title: "Financial Back-Office System Development (Fintech)",
       role: "FE Developer / Freelancer",
       period: "2025 - Now",

@@ -40,6 +40,21 @@ export const PROFILE_KO = {
   ],
   experience: [
     {
+      title: "Discord 멀티봇 (chwzp.ai 집사봇)",
+      role: "풀스택 개발 (1인)",
+      period: "2025.01 ~ 현재",
+      responsibilities: [
+        "Python + discord.py 기반 멀티 기능 봇 설계 및 개발 (Cog 모듈 아키텍처)",
+        "OPINET·VWorld API 연동 실시간 주유 최저가 알림 시스템 구축 (좌표 기반 반경 검색, 손익분기점 계산, 가격 추세 분석)",
+        "Korail·SRT API 연동 열차 예매 보조 시스템 개발 (실시간 좌석 조회, 비동기-동기 브릿지 패턴, threading + asyncio 구조)",
+        "aiosqlite 기반 비동기 데이터 관리 (구독·이력·캐시 스키마 설계, 자동 마이그레이션)",
+        "aiohttp 웹폼 서버 구현 (1회용 토큰 인증, 5분 TTL, 256bit 엔트로피)",
+        "APScheduler 기반 다중 스케줄 태스크 (알림 체크 30분, 일일 유가 리포트, 히스토리 스냅샷, 데이터 정리)",
+        "OPINET API 레이트리밋 관리 (인메모리 TTL 캐시, 한도 근접 시 캐시 전용 모드 전환)",
+        "Docker 멀티스테이지 빌드 + docker compose 배포, GitHub Actions CI/CD (pytest → SSH 자동 배포)",
+      ],
+    },
+    {
       title: "금융권 백오피스 시스템 개발 (Fintech)",
       role: "FE Developer / Freelancer",
       period: "2025 - Now",

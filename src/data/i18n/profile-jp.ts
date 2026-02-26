@@ -40,6 +40,21 @@ export const PROFILE_JP = {
   ],
   experience: [
     {
+      title: "Discord マルチボット (chwzp.ai バトラーBot)",
+      role: "フルスタック開発（個人）",
+      period: "2025.01 ~ 現在",
+      responsibilities: [
+        "Python + discord.pyによるマルチ機能ボットの設計・開発（Cogモジュールアーキテクチャ）",
+        "OPINET・VWorld API連携によるリアルタイム給油最安値アラートシステムの構築（座標ベース半径検索、損益分岐点計算、価格トレンド分析）",
+        "Korail・SRT API連携による列車予約補助システムの開発（リアルタイム座席照会、非同期-同期ブリッジパターン、threading + asyncio構造）",
+        "aiosqliteベースの非同期データ管理（サブスクリプション・履歴・キャッシュスキーマ設計、自動マイグレーション）",
+        "aiohttpウェブフォームサーバーの実装（ワンタイムトークン認証、5分TTL、256bitエントロピー）",
+        "APSchedulerによる複数スケジュールタスク管理（30分間隔アラートチェック、日次価格レポート、履歴スナップショット、データクリーンアップ）",
+        "OPINET APIレートリミット管理（インメモリTTLキャッシュ、クォータ接近時キャッシュ専用モード切替）",
+        "Dockerマルチステージビルド + docker composeデプロイ、GitHub Actions CI/CD（pytest → SSH自動デプロイ）",
+      ],
+    },
+    {
       title: "金融バックオフィスシステム開発 (Fintech)",
       role: "FE Developer / Freelancer",
       period: "2025 - Now",
