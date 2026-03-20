@@ -20,7 +20,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "glob": "^13.0.6",
+    "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.482.0",
     "next": "^15.2.8",
