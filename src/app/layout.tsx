@@ -93,6 +93,11 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net"
           crossOrigin="anonymous"
         />
+        <link
+          rel="preload"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
+          as="style"
+        />
       </head>
       <body
         className={`font-pretendard antialiased min-h-screen flex flex-col`}
