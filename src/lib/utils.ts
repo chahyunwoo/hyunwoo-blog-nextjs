@@ -6,12 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'long',
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
-  }).format(date)
+    year: 'numeric',
+  })
+}
+
+export function estimateReadingTime(content: string) {
+  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
+  return Math.max(1, Math.ceil(words / 200))
 }
 
 export async function delay(ms: number) {

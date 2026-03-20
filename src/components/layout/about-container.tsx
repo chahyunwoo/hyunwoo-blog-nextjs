@@ -5,9 +5,12 @@ interface AboutContainerProps {
 
 export default function AboutContainer({ title, children }: AboutContainerProps) {
   return (
-    <div className="mt-6 pb-6">
-      <h2 className="text-xl font-black mb-4">{title}</h2>
+    <section className="mt-10 pb-6">
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6 flex items-center gap-2">
+        <span className="w-1 h-4 bg-primary rounded-full" />
+        {title}
+      </h2>
       {children}
-    </div>
+    </section>
   )
 }

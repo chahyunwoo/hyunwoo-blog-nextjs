@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { MobileTOC } from '@/components/features/blog/mobile-toc'
 import { PostBody } from '@/components/features/blog/post-body'
 import { PostFooter } from '@/components/features/blog/post-footer'
 import { PostHead } from '@/components/features/blog/post-head'
+import { PostTOC } from '@/components/features/blog/post-toc'
+import { ReadingProgress } from '@/components/features/blog/reading-progress'
 import { InnerContainer } from '@/components/layout/inner-container'
 import { getPostBySlug, getPublishedPosts } from '@/services/post'
 import type { Params } from '@/types'
@@ -126,13 +129,20 @@ export default async function Page({ params }: Params<{ slug: string }>) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <InnerContainer>
-        <div className="container max-w-2xl mx-auto py-8">
-          <article className="prose dark:prose-invert mx-auto tracking-wide leading-relaxed">
+      <ReadingProgress />
+      <InnerContainer className="py-8">
+        <div className="flex justify-center gap-10">
+          <article className="prose dark:prose-invert tracking-wide leading-relaxed max-w-4xl w-full min-w-0">
             <PostHead post={post} />
+            <MobileTOC />
             <PostBody post={post} />
             <PostFooter post={post} />
           </article>
+          <aside className="hidden xl:block w-48 shrink-0">
+            <div className="sticky top-20">
+              <PostTOC />
+            </div>
+          </aside>
         </div>
       </InnerContainer>
     </>

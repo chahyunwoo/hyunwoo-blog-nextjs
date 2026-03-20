@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cn, formatDate, getParamFromHref } from '@/lib/utils'
+import { cn, estimateReadingTime, formatDate, getParamFromHref } from '@/lib/utils'
 
 describe('cn', () => {
   it('should merge class names', () => {
@@ -16,11 +16,22 @@ describe('cn', () => {
 })
 
 describe('formatDate', () => {
-  it('should format date in Korean', () => {
+  it('should format date in English', () => {
     const result = formatDate('2025-01-15')
-    expect(result).toContain('2025')
-    expect(result).toContain('1')
+    expect(result).toContain('Jan')
     expect(result).toContain('15')
+    expect(result).toContain('2025')
+  })
+})
+
+describe('estimateReadingTime', () => {
+  it('should return at least 1 minute', () => {
+    expect(estimateReadingTime('short')).toBe(1)
+  })
+
+  it('should estimate based on word count', () => {
+    const words = Array(400).fill('word').join(' ')
+    expect(estimateReadingTime(words)).toBe(2)
   })
 })
 

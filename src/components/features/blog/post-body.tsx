@@ -6,7 +6,6 @@ import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import { MdxComponents } from '@/components/mdx'
 import type { Post } from '@/types'
-import { PostTOC } from './post-toc'
 
 const prettyCodeOptions: Options = {
   keepBackground: true,
@@ -18,29 +17,26 @@ const prettyCodeOptions: Options = {
 
 export function PostBody({ post }: { post: Post }) {
   return (
-    <>
-      <PostTOC />
-      <div className="py-12 border-y border-border">
-        <MDXRemote
-          source={post.content}
-          options={{
-            mdxOptions: {
-              remarkPlugins: [remarkGfm, remarkBreaks],
-              rehypePlugins: [
-                [rehypePrettyCode, prettyCodeOptions],
-                [rehypeSlug],
-                [
-                  rehypeAutolinkHeadings,
-                  {
-                    behavior: 'append',
-                  },
-                ],
+    <div className="py-12">
+      <MDXRemote
+        source={post.content}
+        options={{
+          mdxOptions: {
+            remarkPlugins: [remarkGfm, remarkBreaks],
+            rehypePlugins: [
+              [rehypePrettyCode, prettyCodeOptions],
+              [rehypeSlug],
+              [
+                rehypeAutolinkHeadings,
+                {
+                  behavior: 'append',
+                },
               ],
-            },
-          }}
-          components={MdxComponents}
-        />
-      </div>
-    </>
+            ],
+          },
+        }}
+        components={MdxComponents}
+      />
+    </div>
   )
 }

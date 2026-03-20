@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { PostListContainer } from '@/components/features/blog/post-list'
+import { PostListContainer } from '@/components/features/blog/post-list-container'
 import { BlogLayout } from '@/components/layout/blog-layout'
 import { PostSkeleton } from '@/components/skeleton/post-skeleton'
 import type { BlogParams } from '@/types'

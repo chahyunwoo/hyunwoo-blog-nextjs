@@ -1,12 +1,7 @@
 'use client'
 
-import { ChevronDown, List } from 'lucide-react'
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 interface Heading {
@@ -18,7 +13,6 @@ interface Heading {
 export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolean }) {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>('')
-  const [isOpen, setIsOpen] = useState(true)
 
   const collectHeadings = useCallback(() => {
     const headingElements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
@@ -62,11 +56,11 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
 
     const observer = new IntersectionObserver(
       entries => {
-        entries.forEach(entry => {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id)
           }
-        })
+        }
       },
       {
         rootMargin: '0px 0px -80% 0px',
@@ -76,75 +70,57 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
 
     const elementsToObserve = skipFirstHeading ? headingElements.slice(1) : headingElements
 
-    elementsToObserve.forEach(heading => {
+    for (const heading of elementsToObserve) {
       if (heading.id) {
         observer.observe(heading)
       }
-    })
+    }
 
     return () => {
       document.documentElement.style.scrollBehavior = ''
       document.head.removeChild(style)
 
-      elementsToObserve.forEach(heading => {
+      for (const heading of elementsToObserve) {
         if (heading.id) {
           observer.unobserve(heading)
         }
-      })
+      }
     }
   }, [collectHeadings, skipFirstHeading])
 
-  const renderHeadingItems = useMemo(() => {
-    return headings.map(heading => (
-      <li
-        key={heading.id}
-        className={cn('transition-all duration-200 py-1', activeId === heading.id ? 'text-primary font-medium' : '')}
-      >
-        <a
-          href={`#${heading.id}`}
-          onClick={e => handleLinkClick(e, heading.id)}
-          className="hover:text-primary transition-colors block"
-        >
-          {heading.text}
-        </a>
-      </li>
-    ))
-  }, [headings, activeId, handleLinkClick])
+  const minLevel = useMemo(() => Math.min(...headings.map(h => h.level)), [headings])
 
   if (headings.length === 0) {
     return null
   }
 
   return (
-    <Card className="my-6 border border-border/40 py-0 rounded-sm bg-background">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CardHeader className="py-3">
-          <CollapsibleTrigger className="flex items-center justify-between w-full">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <List className="h-5 w-5" />
-              <span>TABLE</span>
-              <Badge variant="outline" className="ml-2 text-xs font-normal">
-                {headings.length}개 항목
-              </Badge>
-            </CardTitle>
-            <ChevronDown
-              className={cn(
-                'h-4 w-4 text-muted-foreground transition-transform duration-200',
-                isOpen ? 'transform rotate-180' : '',
-              )}
-            />
-          </CollapsibleTrigger>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent>
-            <ScrollArea className="max-h-[60vh] overflow-y-auto" scrollHideDelay={100}>
-              <nav aria-label="Table of contents">
-                <ul className="space-y-1 text-sm">{renderHeadingItems}</ul>
-              </nav>
-            </ScrollArea>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+    <nav aria-label="Table of contents">
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">On this page</p>
+      <ul className="space-y-1 text-[13px] border-l border-border/40">
+        {headings.map(heading => {
+          const indent = (heading.level - minLevel) * 12
+          const isActive = activeId === heading.id
+
+          return (
+            <li key={heading.id}>
+              <a
+                href={`#${heading.id}`}
+                onClick={e => handleLinkClick(e, heading.id)}
+                style={{ paddingLeft: `${indent + 12}px` }}
+                className={cn(
+                  'block py-1 border-l-2 -ml-px transition-colors duration-150',
+                  isActive
+                    ? 'border-primary text-primary font-medium'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border',
+                )}
+              >
+                {heading.text}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </nav>
   )
 }

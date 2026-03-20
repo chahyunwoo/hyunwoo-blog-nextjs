@@ -8,23 +8,24 @@ import profileImage from '../../../../public/images/chahyunwoo-profile.jpg'
 
 export default function ProfileHeader({ profile }: { profile: Profile }) {
   return (
-    <div className="flex gap-4 items-center md:items-end justify-between flex-col-reverse md:flex-row pb-6">
+    <div className="flex gap-8 items-center justify-between flex-col-reverse md:flex-row pb-8 border-b border-border">
       <div className="flex flex-col items-center md:items-start">
         <LanguageSwitch />
-        <h1 className="font-black text-2xl mb-4">{profile.name}</h1>
-        <p className="text-muted-foreground mb-1 max-w-[400px] text-center md:text-left min-h-[48px]">{profile.job}</p>
-        <p className="flex items-center gap-2 text-muted-foreground">
-          <MapPin className="w-4 h-4" />
-          <span>{profile.location}</span>
+        <h1 className="font-black text-3xl mb-2 tracking-tight">{profile.name}</h1>
+        <p className="text-primary font-medium mb-3">{profile.job}</p>
+        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="w-3.5 h-3.5" />
+          {profile.location}
         </p>
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-2 mt-5">
           {profile.link.map(link => (
             <IconButton
               key={link.name}
               variant="outline"
               icon={link.icon}
-              className="cursor-pointer"
+              className="cursor-pointer h-9 w-9"
               href={link.href}
+              aria-label={link.name}
             />
           ))}
           <CopyButton
@@ -35,13 +36,13 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
           />
         </div>
       </div>
-      <div className="mt-4">
+      <div>
         <Image
           src={profileImage}
           alt={`${profile.name}, ${profile.job}`}
-          className="rounded-full"
-          width={200}
-          height={200}
+          className="rounded-full ring-2 ring-border"
+          width={180}
+          height={180}
           priority
         />
       </div>
