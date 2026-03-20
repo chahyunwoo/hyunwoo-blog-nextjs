@@ -7,9 +7,9 @@
 
 # 🌐 hyunwoo.dev
 
-**프론트엔드 개발자 현우의 기술 블로그**
+*"Write code, share stories."*
 
-React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.
+**Dev. Cha Hyunwoo** | Full-Stack Engineer
 
 <br />
 
