@@ -119,7 +119,7 @@ sudo pmset -a sleep 0
 
 ## Docker + CI/CD — GitHub Actions에서 맥미니로 자동 배포
 
-맥미니에서 서비스를 운영하려면 Docker가 필요합니다. 저의 경우 디스코드 봇을 Docker Compose로 돌리고 있는데, 원래는 AWS Lightsail에서 운영하고 있었습니다. 근데 어차피 맥미니가 24시간 켜져있으니 거기로 옮기면 월 비용을 아낄 수 있었습니다.
+맥미니에서 서비스를 운영하려면 Docker가 필요합니다. Docker가 아직 익숙하지 않다면 [프론트엔드 개발자가 Docker를 알아야 하는 이유](/blog/docker-concepts-for-frontend-developers) 포스트를 먼저 보시는 걸 추천합니다. 저의 경우 디스코드 봇을 Docker Compose로 돌리고 있는데, 원래는 AWS Lightsail에서 운영하고 있었습니다. 근데 어차피 맥미니가 24시간 켜져있으니 거기로 옮기면 월 비용을 아낄 수 있었습니다.
 
 문제는 CI/CD였습니다. AWS는 GitHub Actions에서 공인 IP로 SSH 접근이 가능했는데, 맥미니는 홈 네트워크 안에 있어서 외부에서 직접 접근이 안 됩니다. 여기서도 Tailscale이 답이었습니다.
 
@@ -227,7 +227,7 @@ services:
 
 장비를 늘려도 Tailscale에 추가하면 끝이고, Docker + CI/CD를 붙이면 홈서버에서 확장 가능합니다. AWS 같은 클라우드 비용도 아낄 수 있습니다.
 
-맥을 여러 대 쓰고 있다면 한번 시도해볼 만한 구성입니다.
+맥을 여러 대 쓰고 있다면 한번 시도해볼 만한 구성입니다. 그리고 장비가 여러 대라면 개발 환경 셋팅도 자동화하는 게 좋은데, [dotfiles로 새 장비 셋팅 자동화하기](/blog/dotfiles-setup-automation) 포스트도 함께 보시면 도움이 될 겁니다.
 
 ## 참고 자료
 
