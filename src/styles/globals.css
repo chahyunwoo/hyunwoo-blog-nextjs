@@ -200,7 +200,7 @@
     }
 
     .anchor {
-      @apply text-primary underline underline-offset-4 hover:text-primary/70 transition-colors;
+      @apply text-green-500 underline underline-offset-4 hover:text-green-600/80 transition-colors;
     }
 
     .external-link p {
