@@ -1,62 +1,62 @@
-import type { Metadata } from "next";
-import "@/styles/globals.css";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { Header } from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
+import type { Metadata } from 'next'
+import '@/styles/globals.css'
+import Footer from '@/components/layout/footer'
+import { Header } from '@/components/layout/header'
+import { ThemeProvider } from '@/providers/theme-provider'
 
-const BASE_URL = "https://chahyunwoo.dev";
+const BASE_URL = 'https://chahyunwoo.dev'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "hyunwoo.dev | 프론트엔드 개발 블로그",
-    template: "%s | hyunwoo.dev",
+    default: 'hyunwoo.dev | 프론트엔드 개발 블로그',
+    template: '%s | hyunwoo.dev',
   },
   description:
-    "프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.",
+    '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
   keywords: [
-    "프론트엔드",
-    "Frontend",
-    "React",
-    "Next.js",
-    "TypeScript",
-    "JavaScript",
-    "웹 개발",
-    "개발 블로그",
-    "기술 블로그",
+    '프론트엔드',
+    'Frontend',
+    'React',
+    'Next.js',
+    'TypeScript',
+    'JavaScript',
+    '웹 개발',
+    '개발 블로그',
+    '기술 블로그',
   ],
-  authors: [{ name: "Hyunwoo Cha", url: BASE_URL }],
-  creator: "Hyunwoo Cha",
-  publisher: "Hyunwoo Cha",
+  authors: [{ name: 'Hyunwoo Cha', url: BASE_URL }],
+  creator: 'Hyunwoo Cha',
+  publisher: 'Hyunwoo Cha',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    type: "website",
-    locale: "ko_KR",
+    type: 'website',
+    locale: 'ko_KR',
     url: BASE_URL,
-    siteName: "hyunwoo.dev",
-    title: "hyunwoo.dev | 프론트엔드 개발 블로그",
+    siteName: 'hyunwoo.dev',
+    title: 'hyunwoo.dev | 프론트엔드 개발 블로그',
     description:
-      "프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.",
+      '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
     images: [
       {
-        url: "/images/og-image.png",
+        url: '/images/og-image.png',
         width: 1200,
         height: 630,
-        alt: "hyunwoo.dev",
+        alt: 'hyunwoo.dev',
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
-    site: "@chahyunwoo_dev",
-    title: "hyunwoo.dev | 프론트엔드 개발 블로그",
+    card: 'summary_large_image',
+    site: '@chahyunwoo_dev',
+    title: 'hyunwoo.dev | 프론트엔드 개발 블로그',
     description:
-      "프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.",
-    images: ["/images/og-image.png"],
+      '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
+    images: ['/images/og-image.png'],
   },
   robots: {
     index: true,
@@ -64,9 +64,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
   verification: {
@@ -75,12 +75,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: BASE_URL,
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
@@ -88,20 +88,14 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-        <link
-          rel="preconnect"
-          href="https://cdn.jsdelivr.net"
-          crossOrigin="anonymous"
-        />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link
           rel="preload"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
           as="style"
         />
       </head>
-      <body
-        className={`font-pretendard antialiased min-h-screen flex flex-col`}
-      >
+      <body className={`font-pretendard antialiased min-h-screen flex flex-col`}>
         <ThemeProvider>
           <Header />
           <main className="flex-1 flex mt-12">{children}</main>
@@ -109,5 +103,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

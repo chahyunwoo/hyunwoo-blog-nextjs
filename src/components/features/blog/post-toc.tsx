@@ -1,135 +1,118 @@
-"use client";
+'use client'
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { List, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChevronDown, List } from 'lucide-react'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 
 interface Heading {
-  id: string;
-  text: string;
-  level: number;
+  id: string
+  text: string
+  level: number
 }
 
-export function PostTOC({
-  skipFirstHeading = true,
-}: {
-  skipFirstHeading?: boolean;
-}) {
-  const [headings, setHeadings] = useState<Heading[]>([]);
-  const [activeId, setActiveId] = useState<string>("");
-  const [isOpen, setIsOpen] = useState(true);
+export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolean }) {
+  const [headings, setHeadings] = useState<Heading[]>([])
+  const [activeId, setActiveId] = useState<string>('')
+  const [isOpen, setIsOpen] = useState(true)
 
   const collectHeadings = useCallback(() => {
-    const headingElements = Array.from(
-      document.querySelectorAll("h1, h2, h3, h4, h5, h6")
-    );
+    const headingElements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
 
     const headingData = headingElements
-      .map((heading) => ({
+      .map(heading => ({
         id: heading.id,
-        text: heading.textContent?.trim() || "",
-        level: parseInt(heading.tagName[1]),
+        text: heading.textContent?.trim() || '',
+        level: parseInt(heading.tagName[1], 10),
       }))
       .filter((_, index) => !skipFirstHeading || index !== 0)
-      .filter((heading) => heading.id && heading.text);
+      .filter(heading => heading.id && heading.text)
 
-    setHeadings(headingData);
-    return headingElements;
-  }, [skipFirstHeading]);
+    setHeadings(headingData)
+    return headingElements
+  }, [skipFirstHeading])
 
-  const handleLinkClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-      e.preventDefault();
-      const element = document.getElementById(id);
-      if (element) {
-        window.scrollTo({
-          top: element.offsetTop - 100,
-          behavior: "smooth",
-        });
-      }
-    },
-    []
-  );
+  const handleLinkClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+    const element = document.getElementById(id)
+    if (element) {
+      window.scrollTo({
+        top: element.offsetTop - 100,
+        behavior: 'smooth',
+      })
+    }
+  }, [])
 
   useEffect(() => {
-    document.documentElement.style.scrollBehavior = "smooth";
+    document.documentElement.style.scrollBehavior = 'smooth'
 
-    const style = document.createElement("style");
+    const style = document.createElement('style')
     style.innerHTML = `
       h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 100px;
       }
-    `;
-    document.head.appendChild(style);
+    `
+    document.head.appendChild(style)
 
-    const headingElements = collectHeadings();
+    const headingElements = collectHeadings()
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
+      entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+            setActiveId(entry.target.id)
           }
-        });
+        })
       },
       {
-        rootMargin: "0px 0px -80% 0px",
+        rootMargin: '0px 0px -80% 0px',
         threshold: 0.1,
-      }
-    );
+      },
+    )
 
-    const elementsToObserve = skipFirstHeading
-      ? headingElements.slice(1)
-      : headingElements;
+    const elementsToObserve = skipFirstHeading ? headingElements.slice(1) : headingElements
 
-    elementsToObserve.forEach((heading) => {
+    elementsToObserve.forEach(heading => {
       if (heading.id) {
-        observer.observe(heading);
+        observer.observe(heading)
       }
-    });
+    })
 
     return () => {
-      document.documentElement.style.scrollBehavior = "";
-      document.head.removeChild(style);
+      document.documentElement.style.scrollBehavior = ''
+      document.head.removeChild(style)
 
-      elementsToObserve.forEach((heading) => {
+      elementsToObserve.forEach(heading => {
         if (heading.id) {
-          observer.unobserve(heading);
+          observer.unobserve(heading)
         }
-      });
-    };
-  }, [collectHeadings, skipFirstHeading]);
+      })
+    }
+  }, [collectHeadings, skipFirstHeading])
 
   const renderHeadingItems = useMemo(() => {
-    return headings.map((heading) => (
+    return headings.map(heading => (
       <li
         key={heading.id}
-        className={cn(
-          "transition-all duration-200 py-1",
-          activeId === heading.id ? "text-primary font-medium" : ""
-        )}
+        className={cn('transition-all duration-200 py-1', activeId === heading.id ? 'text-primary font-medium' : '')}
       >
         <a
           href={`#${heading.id}`}
-          onClick={(e) => handleLinkClick(e, heading.id)}
+          onClick={e => handleLinkClick(e, heading.id)}
           className="hover:text-primary transition-colors block"
         >
           {heading.text}
         </a>
       </li>
-    ));
-  }, [headings, activeId, handleLinkClick]);
+    ))
+  }, [headings, activeId, handleLinkClick])
 
   if (headings.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -146,18 +129,15 @@ export function PostTOC({
             </CardTitle>
             <ChevronDown
               className={cn(
-                "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                isOpen ? "transform rotate-180" : ""
+                'h-4 w-4 text-muted-foreground transition-transform duration-200',
+                isOpen ? 'transform rotate-180' : '',
               )}
             />
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
           <CardContent>
-            <ScrollArea
-              className="max-h-[60vh] overflow-y-auto"
-              scrollHideDelay={100}
-            >
+            <ScrollArea className="max-h-[60vh] overflow-y-auto" scrollHideDelay={100}>
               <nav aria-label="Table of contents">
                 <ul className="space-y-1 text-sm">{renderHeadingItems}</ul>
               </nav>
@@ -166,5 +146,5 @@ export function PostTOC({
         </CollapsibleContent>
       </Collapsible>
     </Card>
-  );
+  )
 }

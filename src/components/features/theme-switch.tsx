@@ -1,32 +1,26 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { useTheme } from "next-themes";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { memo, useCallback } from "react";
-import { THEME_TYPES } from "@/lib/constants";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import type * as React from 'react'
+import { memo, useCallback } from 'react'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { THEME_TYPES } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 
 export default memo(function ThemeSwitch() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme()
 
   const handleThemeChange = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      const themeName = event.currentTarget.dataset.theme;
+      const themeName = event.currentTarget.dataset.theme
       if (themeName) {
-        setTheme(themeName);
+        setTheme(themeName)
       }
     },
-    [setTheme]
-  );
+    [setTheme],
+  )
 
   return (
     <DropdownMenu>
@@ -43,10 +37,7 @@ export default memo(function ThemeSwitch() {
             key={name}
             onClick={handleThemeChange}
             data-theme={name}
-            className={cn(
-              "flex items-center gap-2",
-              theme === name ? "bg-accent font-medium" : ""
-            )}
+            className={cn('flex items-center gap-2', theme === name ? 'bg-accent font-medium' : '')}
           >
             <Icon className="h-4 w-4" />
             <span>{name}</span>
@@ -54,5 +45,5 @@ export default memo(function ThemeSwitch() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-});
+  )
+})

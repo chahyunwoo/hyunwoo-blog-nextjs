@@ -1,16 +1,16 @@
-import { InnerContainer } from "@/components/layout/inner-container";
-import ThemeSwitch from "@/components/features/theme-switch";
-import MobileMenu from "@/components/features/navigation/mobile-menu";
-import { MENU_ITEMS } from "@/lib/constants";
-import DesktopMenu from "@/components/features/navigation/desktop-menu";
-import Link from "next/link";
-import Logo from "../ui/logo";
-import { IconButton } from "@/components/ui/button";
-import { Github } from "lucide-react";
-import { getCategoriesWithTags } from "@/services/post";
+import { Github } from 'lucide-react'
+import Link from 'next/link'
+import DesktopMenu from '@/components/features/navigation/desktop-menu'
+import MobileMenu from '@/components/features/navigation/mobile-menu'
+import ThemeSwitch from '@/components/features/theme-switch'
+import { InnerContainer } from '@/components/layout/inner-container'
+import { IconButton } from '@/components/ui/button'
+import { MENU_ITEMS } from '@/lib/constants'
+import { getCategoriesWithTags } from '@/services/post'
+import Logo from '../ui/logo'
 
 export async function Header() {
-  const categories = await getCategoriesWithTags();
+  const categories = await getCategoriesWithTags()
 
   return (
     <header className="fixed w-full border-b backdrop-blur-xl bg-background/50 z-10">
@@ -39,5 +39,5 @@ export async function Header() {
         </div>
       </InnerContainer>
     </header>
-  );
+  )
 }

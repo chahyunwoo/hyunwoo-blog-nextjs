@@ -1,5 +1,5 @@
-import AboutContainer from "../../layout/about-container";
-import type { Profile } from "@/types";
+import type { Profile } from '@/types'
+import AboutContainer from '../../layout/about-container'
 
 export default function BriefIntroduction({ profile }: { profile: Profile }) {
   return (
@@ -18,5 +18,5 @@ export default function BriefIntroduction({ profile }: { profile: Profile }) {
         </span>
       </p>
     </AboutContainer>
-  );
+  )
 }

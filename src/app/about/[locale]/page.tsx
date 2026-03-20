@@ -1,24 +1,23 @@
-import { InnerContainer } from "@/components/layout/inner-container";
-import ProfileHeader from "@/components/features/about/profile-header";
-import Education from "@/components/features/about/education";
-import Skills from "@/components/features/about/skills";
-import RecentExperience from "@/components/features/about/recent-experience";
-import type { Locale } from "@/types";
-import { PROFILE_DATA } from "@/data/i18n";
-import BriefIntroduction from "@/components/features/about/brief-introduction";
-import type { Params } from "@/types";
+import BriefIntroduction from '@/components/features/about/brief-introduction'
+import Education from '@/components/features/about/education'
+import ProfileHeader from '@/components/features/about/profile-header'
+import RecentExperience from '@/components/features/about/recent-experience'
+import Skills from '@/components/features/about/skills'
+import { InnerContainer } from '@/components/layout/inner-container'
+import { PROFILE_DATA } from '@/data/i18n'
+import type { Locale, Params } from '@/types'
 
 export function generateStaticParams() {
-  return Object.keys(PROFILE_DATA).map((locale) => ({
+  return Object.keys(PROFILE_DATA).map(locale => ({
     locale,
-  }));
+  }))
 }
 
-const BASE_URL = "https://chahyunwoo.dev";
+const BASE_URL = 'https://chahyunwoo.dev'
 
 export async function generateMetadata({ params }: Params<{ locale: Locale }>) {
-  const { locale } = await params;
-  const profile = PROFILE_DATA[locale];
+  const { locale } = await params
+  const profile = PROFILE_DATA[locale]
 
   return {
     title: `${profile.name} | ${profile.job}`,
@@ -43,27 +42,27 @@ export async function generateMetadata({ params }: Params<{ locale: Locale }>) {
         },
       ],
     },
-  };
+  }
 }
 
-function getPersonJsonLd(profile: (typeof PROFILE_DATA)["ko"]) {
+function getPersonJsonLd(profile: (typeof PROFILE_DATA)['ko']) {
   return {
-    "@context": "https://schema.org",
-    "@type": "Person",
+    '@context': 'https://schema.org',
+    '@type': 'Person',
     name: profile.name,
     url: BASE_URL,
     jobTitle: profile.job,
     address: {
-      "@type": "PostalAddress",
+      '@type': 'PostalAddress',
       addressLocality: profile.location,
     },
-    sameAs: profile.link.map((l) => l.href),
-  };
+    sameAs: profile.link.map(l => l.href),
+  }
 }
 
 export default async function Page({ params }: Params<{ locale: Locale }>) {
-  const { locale } = await params;
-  const profile = PROFILE_DATA[locale];
+  const { locale } = await params
+  const profile = PROFILE_DATA[locale]
 
   return (
     <InnerContainer className="py-12" data-locale={locale}>
@@ -89,5 +88,5 @@ export default async function Page({ params }: Params<{ locale: Locale }>) {
         <RecentExperience profile={profile} />
       </div>
     </InnerContainer>
-  );
+  )
 }

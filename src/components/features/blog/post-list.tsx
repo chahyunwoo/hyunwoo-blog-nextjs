@@ -1,9 +1,10 @@
-import { PostCard } from "./post-card";
-import type { Post } from "@/types";
-import Link from "next/link";
-import { getPublishedPosts } from "@/services/post";
+import Link from 'next/link'
+import { getPublishedPosts } from '@/services/post'
+import type { Post } from '@/types'
+import { PostCard } from './post-card'
+
 interface PostListProps {
-  posts: Post[];
+  posts: Post[]
 }
 
 export async function PostListContainer({
@@ -11,27 +12,21 @@ export async function PostListContainer({
   tag,
   parentCategory,
 }: {
-  category?: string;
-  tag?: string;
-  parentCategory?: string;
+  category?: string
+  tag?: string
+  parentCategory?: string
 }) {
-  const allPosts = await getPublishedPosts();
+  const allPosts = await getPublishedPosts()
 
-  let filteredPosts = allPosts;
-  let title = "ALL";
+  let filteredPosts = allPosts
 
   if (category) {
-    filteredPosts = allPosts.filter((post) => post.meta.mainTag === category);
-    title = `${category}`;
+    filteredPosts = allPosts.filter(post => post.meta.mainTag === category)
   } else if (tag && parentCategory) {
-    filteredPosts = allPosts.filter(
-      (post) =>
-        post.meta.tags.includes(tag) && post.meta.mainTag === parentCategory
-    );
-    title = `${parentCategory} > ${tag}`;
+    filteredPosts = allPosts.filter(post => post.meta.tags.includes(tag) && post.meta.mainTag === parentCategory)
   }
 
-  return <PostList posts={filteredPosts} />;
+  return <PostList posts={filteredPosts} />
 }
 
 function PostList({ posts }: PostListProps) {
@@ -40,17 +35,12 @@ function PostList({ posts }: PostListProps) {
       {posts && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post, index) => (
-            <Link
-              href={`/blog/${post.meta.slug}`}
-              key={post.meta.slug}
-              className="block"
-              prefetch={index < 4}
-            >
+            <Link href={`/blog/${post.meta.slug}`} key={post.meta.slug} className="block" prefetch={index < 4}>
               <PostCard key={post.meta.slug} post={post} index={index} />
             </Link>
           ))}
         </div>
       )}
     </div>
-  );
+  )
 }
