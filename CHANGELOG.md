@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.0.0](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/compare/v1.0.0...v2.0.0) (2026-03-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* 컬러 테마, 레이아웃, 검색, About 페이지 전면 개편
+
+### Features
+
+* 블로그 v2 디자인 리뉴얼 완료 ([b5a26f5](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/b5a26f5ba51eabfb5ae538f19de4f64d64f3d3ea))
+* 블로그 디자인 전면 리뉴얼 v2 ([e66d49a](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/e66d49aede2a76f8d1efefcf86036aad2d3cfa61))
+* 블로그 디자인 전면 리뉴얼 v2 ([8b2cbed](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/8b2cbed6736d65f863e473de69466c8c7526c49e))
+
+
+### Bug Fixes
+
+* button 중첩 hydration 에러 수정 ([7933965](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/793396533a06b1caf9a5c573d4bf5d205b5055b4))
+* button 중첩 hydration 에러 수정 ([9257fca](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/9257fca1d3891a6a12c542ff15115cedeaec72f9))
+* CodeQL HTML sanitization 경고 해결 ([2fb6c72](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/2fb6c72391d4aa68f20071d697b3a65590f7b2bd))
+
 ## 1.0.0 (2026-03-20)
 
 
