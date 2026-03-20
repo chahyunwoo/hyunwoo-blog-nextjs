@@ -14,7 +14,14 @@ export function formatDate(dateString: string) {
 }
 
 export function estimateReadingTime(content: string) {
-  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
+  let text = ''
+  let inTag = false
+  for (const char of content) {
+    if (char === '<') inTag = true
+    else if (char === '>') inTag = false
+    else if (!inTag) text += char
+  }
+  const words = text.split(/\s+/).filter(Boolean).length
   return Math.max(1, Math.ceil(words / 200))
 }
 
