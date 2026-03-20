@@ -30,7 +30,7 @@ export default function MobileMenu({ menuItems, categories = [] }: MobileMenuPro
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[280px] sm:w-[320px] overflow-y-auto">
+      <SheetContent side="left" className="w-[300px] sm:w-[340px] overflow-y-auto">
         <SheetHeader className="border-b pb-4">
           <SheetTitle className="px-2">
             <Logo />

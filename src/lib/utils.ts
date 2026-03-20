@@ -6,12 +6,23 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(dateString: string) {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'long',
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
-  }).format(date)
+    year: 'numeric',
+  })
+}
+
+export function estimateReadingTime(content: string) {
+  let text = ''
+  let inTag = false
+  for (const char of content) {
+    if (char === '<') inTag = true
+    else if (char === '>') inTag = false
+    else if (!inTag) text += char
+  }
+  const words = text.split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.ceil(words / 200))
 }
 
 export async function delay(ms: number) {

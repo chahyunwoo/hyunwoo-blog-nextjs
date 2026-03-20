@@ -98,7 +98,7 @@ export default function RootLayout({
       <body className={`font-pretendard antialiased min-h-screen flex flex-col`}>
         <ThemeProvider>
           <Header />
-          <main className="flex-1 flex mt-12">{children}</main>
+          <main className="flex-1 flex mt-14">{children}</main>
           <Footer />
         </ThemeProvider>
       </body>

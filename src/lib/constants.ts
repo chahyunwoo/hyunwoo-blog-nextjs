@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { Laptop, Moon, Sun } from 'lucide-react'
-import type { ChartConfig } from '@/components/ui/chart'
 import type { Locale, MenuItem } from '@/types'
 
 // HEADER
@@ -25,22 +24,6 @@ export const LANGUAGE_MAP: Record<Locale, string> = {
   en: 'English',
   jp: '日本語',
 }
-
-export const SKILLS_DATA = [
-  { skill: 'JavaScript', level: 95 },
-  { skill: 'React', level: 90 },
-  { skill: 'RN', level: 55 },
-  { skill: 'TypeScript', level: 90 },
-  { skill: 'Vuejs', level: 65 },
-  { skill: 'Nextjs', level: 85 },
-]
-
-export const CHART_CONFIG = {
-  desktop: {
-    label: 'level',
-    color: 'var(--chart-1)',
-  },
-} satisfies ChartConfig
 
 // NAVIGATION
 export const LINK_TYPES = {
