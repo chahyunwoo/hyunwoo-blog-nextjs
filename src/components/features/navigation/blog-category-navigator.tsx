@@ -3,8 +3,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { Briefcase, Code, Container, LayoutGrid, Monitor, Server } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { useCallback, useMemo } from 'react'
 import { LINK_TYPES } from '@/lib/constants'
 import { getParamFromHref } from '@/lib/utils'
 import type { CategoryData, LinkType } from '@/types'
@@ -21,18 +20,10 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
 interface BlogCategoryNavigatorProps {
   categories: CategoryData[]
   variant: 'menu' | 'sidebar'
-  menuName?: string
   closeMenu?: () => void
 }
 
-export function BlogCategoryNavigator({
-  categories,
-  variant,
-  menuName = 'Categories',
-  closeMenu = () => {},
-}: BlogCategoryNavigatorProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(true)
-
+export function BlogCategoryNavigator({ categories, variant, closeMenu = () => {} }: BlogCategoryNavigatorProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -47,10 +38,6 @@ export function BlogCategoryNavigator({
   const totalPostCount = useMemo(() => {
     return categories.reduce((sum, cat) => sum + cat.postCount, 0)
   }, [categories])
-
-  const toggleMenuHandler = useCallback(() => {
-    setIsMenuOpen(prev => !prev)
-  }, [])
 
   const checkIsActive = useCallback(
     (href: string, title: string, type: LinkType) => {
@@ -72,7 +59,7 @@ export function BlogCategoryNavigator({
     [pathname, urlParams],
   )
 
-  const renderCategoriesContent = () => (
+  const categoriesContent = (
     <div className="space-y-0.5">
       <ActiveLink
         href="/"
@@ -103,29 +90,13 @@ export function BlogCategoryNavigator({
   )
 
   if (variant === 'menu') {
-    return (
-      <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen} className="w-full">
-        <CollapsibleTrigger asChild className="flex justify-between items-center w-full px-4 py-2">
-          <ActiveLink
-            title={menuName}
-            href="/"
-            isDropdown
-            isOpen={isMenuOpen}
-            onToggleDropdown={toggleMenuHandler}
-            onClick={closeMenu}
-            prefetch={false}
-          />
-        </CollapsibleTrigger>
-
-        <CollapsibleContent className="pl-4">{renderCategoriesContent()}</CollapsibleContent>
-      </Collapsible>
-    )
+    return categoriesContent
   }
 
   return (
     <nav>
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-3">Categories</p>
-      {renderCategoriesContent()}
+      {categoriesContent}
     </nav>
   )
 }

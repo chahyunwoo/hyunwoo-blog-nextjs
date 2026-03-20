@@ -29,14 +29,14 @@ export function MdxImage({
           alt={alt}
           width={width || 1200}
           height={height || 630}
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 896px"
+          loading={priority ? 'eager' : 'lazy'}
           priority={priority}
           className={cn('w-full h-full object-cover mt-0 my-0', className)}
           {...props}
         />
       </div>
-      {caption && (
-        <figcaption className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">{caption}</figcaption>
-      )}
+      {caption && <figcaption className="mt-2 text-center text-sm text-muted-foreground">{caption}</figcaption>}
     </figure>
   )
 }

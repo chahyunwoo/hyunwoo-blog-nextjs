@@ -15,7 +15,7 @@ export function PostFooter({ post }: PostFooterProps) {
         <div className="flex justify-between mb-10">
           <div className="pt-8 flex-1">
             <div className="flex items-start gap-2">
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Tag className="h-3 w-3 text-primary" />
                 <span className="font-medium text-sm">Tags:</span>
               </div>
@@ -28,7 +28,7 @@ export function PostFooter({ post }: PostFooterProps) {
               </div>
             </div>
           </div>
-          <div className="flex-shrink-0 pt-8 relative -top-1.5">
+          <div className="shrink-0 pt-8 relative -top-1.5">
             <CopyButton description="링크가 복사되었습니다." icon="Share2" useCurrentUrl />
           </div>
         </div>

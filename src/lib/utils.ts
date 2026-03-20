@@ -25,10 +25,6 @@ export function estimateReadingTime(content: string) {
   return Math.max(1, Math.ceil(words / 200))
 }
 
-export async function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 export const getParamFromHref = (paramName: string, url: string) => {
   const match = url.match(new RegExp(`[?&]${paramName}=([^&]*)`))
   return match ? decodeURIComponent(match[1]) : ''

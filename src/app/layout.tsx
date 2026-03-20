@@ -90,9 +90,8 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link
-          rel="preload"
+          rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
-          as="style"
         />
       </head>
       <body className={`font-pretendard antialiased min-h-screen flex flex-col`}>
