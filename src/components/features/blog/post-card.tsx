@@ -20,7 +20,7 @@ export function PostCard({ post, index }: PostCardProps) {
   return (
     <Card className="h-full flex flex-col overflow-hidden border-none py-0 pb-4 rounded-sm gap-2">
       {post.meta.thumbnail && (
-        <div className="relative w-full aspect-video md:aspect-[4/3] overflow-hidden bg-black">
+        <div className="relative w-full aspect-video overflow-hidden bg-black">
           <Image
             src={post.meta.thumbnail}
             alt={post.meta.title}
@@ -30,7 +30,7 @@ export function PostCard({ post, index }: PostCardProps) {
             loading={isAboveTheFold ? "eager" : "lazy"}
             priority={isAboveTheFold}
             placeholder="blur"
-            blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='%23f1f5f9'/%3E%3C/svg%3E"
+            blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='%23000000'/%3E%3C/svg%3E"
           />
         </div>
       )}
