@@ -19,7 +19,7 @@ export function SidebarTagCloud({ tags, totalCount }: SidebarTagCloudProps) {
   return (
     <nav>
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-3">Tags</p>
-      <div className="flex flex-wrap gap-1.5 px-3">
+      <div className="flex flex-wrap gap-2 px-3">
         {tags.map(([tag, count]) => {
           const isActive = currentTag === tag
           const href = isActive ? '/' : `/?tag=${tag}`
@@ -29,7 +29,7 @@ export function SidebarTagCloud({ tags, totalCount }: SidebarTagCloudProps) {
               <Badge
                 variant={isActive ? 'default' : 'outline'}
                 className={cn(
-                  'text-[10px] transition-colors cursor-pointer',
+                  'text-[10px] transition-colors cursor-pointer min-h-[28px] py-1',
                   isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-accent',
                 )}
               >

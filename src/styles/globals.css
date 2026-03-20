@@ -4,6 +4,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Pretendard Fallback";
+  src: local("Arial");
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+  size-adjust: 104%;
+}
+
 @layer base {
   * {
     @apply border-border break-keep;
@@ -16,12 +25,12 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: Pretendard, sans-serif;
+    font-family: Pretendard, "Pretendard Fallback", sans-serif;
   }
 }
 
 @theme {
-  --font-pretendard: Pretendard, sans-serif;
+  --font-pretendard: Pretendard, "Pretendard Fallback", sans-serif;
   --color-shiki-dark: #bfbdb6;
   --color-shiki-dark-bg: #0b0e14;
   --color-shiki-light: #565859;
