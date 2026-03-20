@@ -1,0 +1,17 @@
+{
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "quickFix.biome": "explicit",
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "tailwindCSS.classAttributes": ["class", "className", "classList"],
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.rulers": [120],
+  "workbench.colorCustomizations": {
+    "editorRuler.foreground": "#2222220a"
+  }
+}

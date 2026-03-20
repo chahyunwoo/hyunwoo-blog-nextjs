@@ -19,7 +19,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: Pretendard;
+    font-family: Pretendard, sans-serif;
   }
 }
 
@@ -126,7 +126,7 @@
   }
 
   code span[data-highlighted-line] {
-    background-color: rgba(235, 148, 148, 0.12) !important;
+    background-color: rgba(235, 148, 148, 0.12);
   }
 }
 
@@ -183,7 +183,7 @@
   }
 
   code span[data-highlighted-line] {
-    background-color: rgba(253, 224, 71, 0.2) !important;
+    background-color: rgba(253, 224, 71, 0.2);
   }
 }
 

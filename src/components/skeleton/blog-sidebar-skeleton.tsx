@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from '../ui/skeleton'
 
 interface BlogSidebarSkeletonProps {
-  count?: number;
+  count?: number
 }
 
 export function BlogSidebarSkeleton({ count = 6 }: BlogSidebarSkeletonProps) {
@@ -31,10 +31,7 @@ export function BlogSidebarSkeleton({ count = 6 }: BlogSidebarSkeletonProps) {
                   {Array.from({
                     length: Math.floor(Math.random() * 3) + 1,
                   }).map((_, subIndex) => (
-                    <div
-                      key={subIndex}
-                      className="flex justify-between items-center px-2 py-1 rounded-md w-full"
-                    >
+                    <div key={subIndex} className="flex justify-between items-center px-2 py-1 rounded-md w-full">
                       <Skeleton className="h-4 w-16" />
                       <Skeleton className="h-3 w-4" />
                     </div>
@@ -46,5 +43,5 @@ export function BlogSidebarSkeleton({ count = 6 }: BlogSidebarSkeletonProps) {
         </div>
       </nav>
     </aside>
-  );
+  )
 }

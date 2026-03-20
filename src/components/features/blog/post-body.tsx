@@ -1,20 +1,20 @@
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { MdxComponents } from "@/components/mdx";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypePrettyCode, { type Options } from "rehype-pretty-code";
-import { Post } from "@/types";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import remarkBreaks from "remark-breaks";
-import { PostTOC } from "./post-toc";
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypePrettyCode, { type Options } from 'rehype-pretty-code'
+import rehypeSlug from 'rehype-slug'
+import remarkBreaks from 'remark-breaks'
+import remarkGfm from 'remark-gfm'
+import { MdxComponents } from '@/components/mdx'
+import type { Post } from '@/types'
+import { PostTOC } from './post-toc'
 
 const prettyCodeOptions: Options = {
   keepBackground: true,
   theme: {
-    dark: "ayu-dark",
-    light: "snazzy-light",
+    dark: 'ayu-dark',
+    light: 'snazzy-light',
   },
-};
+}
 
 export function PostBody({ post }: { post: Post }) {
   return (
@@ -32,7 +32,7 @@ export function PostBody({ post }: { post: Post }) {
                 [
                   rehypeAutolinkHeadings,
                   {
-                    behavior: "append",
+                    behavior: 'append',
                   },
                 ],
               ],
@@ -42,5 +42,5 @@ export function PostBody({ post }: { post: Post }) {
         />
       </div>
     </>
-  );
+  )
 }

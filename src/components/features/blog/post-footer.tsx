@@ -1,11 +1,11 @@
-import { Post } from "@/types";
-import { Badge } from "@/components/ui/badge";
-import { Giscus } from "./giscus";
-import { Tag } from "lucide-react";
-import CopyButton from "@/components/common/copy-button";
+import { Tag } from 'lucide-react'
+import CopyButton from '@/components/common/copy-button'
+import { Badge } from '@/components/ui/badge'
+import type { Post } from '@/types'
+import { Giscus } from './giscus'
 
 interface PostFooterProps {
-  post: Post;
+  post: Post
 }
 
 export function PostFooter({ post }: PostFooterProps) {
@@ -20,12 +20,8 @@ export function PostFooter({ post }: PostFooterProps) {
                 <span className="font-medium text-sm">Tags:</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {post?.meta.tags.map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="hover:bg-primary/10 transition-colors cursor-pointer"
-                  >
+                {post?.meta.tags.map(tag => (
+                  <Badge key={tag} variant="secondary" className="hover:bg-primary/10 transition-colors cursor-pointer">
                     {tag}
                   </Badge>
                 ))}
@@ -33,15 +29,11 @@ export function PostFooter({ post }: PostFooterProps) {
             </div>
           </div>
           <div className="flex-shrink-0 pt-8 relative -top-1.5">
-            <CopyButton
-              description="링크가 복사되었습니다."
-              icon="Share2"
-              useCurrentUrl
-            />
+            <CopyButton description="링크가 복사되었습니다." icon="Share2" useCurrentUrl />
           </div>
         </div>
         <Giscus />
       </div>
     </div>
-  );
+  )
 }

@@ -1,10 +1,10 @@
-import { IconButton } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
-import Image from "next/image";
-import profileImage from "../../../../public/images/chahyunwoo-profile.jpg";
-import type { Profile } from "@/types";
-import LanguageSwitch from "@/components/features/language-switch";
-import CopyButton from "@/components/common/copy-button";
+import { MapPin } from 'lucide-react'
+import Image from 'next/image'
+import CopyButton from '@/components/common/copy-button'
+import LanguageSwitch from '@/components/features/language-switch'
+import { IconButton } from '@/components/ui/button'
+import type { Profile } from '@/types'
+import profileImage from '../../../../public/images/chahyunwoo-profile.jpg'
 
 export default function ProfileHeader({ profile }: { profile: Profile }) {
   return (
@@ -12,15 +12,13 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
       <div className="flex flex-col items-center md:items-start">
         <LanguageSwitch />
         <h1 className="font-black text-2xl mb-4">{profile.name}</h1>
-        <p className="text-muted-foreground mb-1 max-w-[400px] text-center md:text-left min-h-[48px]">
-          {profile.job}
-        </p>
+        <p className="text-muted-foreground mb-1 max-w-[400px] text-center md:text-left min-h-[48px]">{profile.job}</p>
         <p className="flex items-center gap-2 text-muted-foreground">
           <MapPin className="w-4 h-4" />
           <span>{profile.location}</span>
         </p>
         <div className="flex items-center gap-2 mt-4">
-          {profile.link.map((link) => (
+          {profile.link.map(link => (
             <IconButton
               key={link.name}
               variant="outline"
@@ -48,5 +46,5 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
         />
       </div>
     </div>
-  );
+  )
 }

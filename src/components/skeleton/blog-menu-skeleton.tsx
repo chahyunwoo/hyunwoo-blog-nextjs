@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function BlogMenuSkeleton() {
   return (
@@ -14,7 +14,7 @@ export function BlogMenuSkeleton() {
           <Skeleton className="h-4 w-12" />
           <Skeleton className="h-3 w-5" />
         </div>
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <div key={i} className="space-y-2">
             <div className="flex justify-between items-center px-2 py-1.5">
               <Skeleton className="h-4 w-24" />
@@ -24,11 +24,8 @@ export function BlogMenuSkeleton() {
               </div>
             </div>
             <div className="pl-4 space-y-2">
-              {[1, 2].map((j) => (
-                <div
-                  key={j}
-                  className="flex justify-between items-center px-2 py-1"
-                >
+              {[1, 2].map(j => (
+                <div key={j} className="flex justify-between items-center px-2 py-1">
                   <Skeleton className="h-3 w-20" />
                   <Skeleton className="h-3 w-4" />
                 </div>
@@ -38,5 +35,5 @@ export function BlogMenuSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }
