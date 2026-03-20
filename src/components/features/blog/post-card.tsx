@@ -20,13 +20,13 @@ export function PostCard({ post, index }: PostCardProps) {
   return (
     <Card className="h-full flex flex-col overflow-hidden border-none py-0 pb-4 rounded-sm gap-2">
       {post.meta.thumbnail && (
-        <div className="relative w-full aspect-video md:aspect-[4/3] overflow-hidden">
+        <div className="relative w-full aspect-video md:aspect-[4/3] overflow-hidden bg-black">
           <Image
             src={post.meta.thumbnail}
             alt={post.meta.title}
             fill
             sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 350px"
-            className="object-cover transition-transform hover:scale-105"
+            className="object-contain transition-transform hover:scale-105"
             loading={isAboveTheFold ? "eager" : "lazy"}
             priority={isAboveTheFold}
             placeholder="blur"
