@@ -1,12 +1,11 @@
 import { MetadataRoute } from "next";
-import { getCategoriesWithTags, getPublishedPosts } from "@/services/post";
+import { getPublishedPosts } from "@/services/post";
 
 const BASE_URL = "https://chahyunwoo.dev";
 const ABOUT_LAST_MODIFIED = "2025-03-27T00:00:00.000Z";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPublishedPosts();
-  const categories = await getCategoriesWithTags();
 
   const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${BASE_URL}/blog/${post.meta.slug}`,
@@ -42,14 +41,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const categoryPages: MetadataRoute.Sitemap = categories.map(
-    ({ category }) => ({
-      url: `${BASE_URL}/?category=${category}`,
-      lastModified: new Date().toISOString(),
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    })
-  );
-
-  return [...staticPages, ...categoryPages, ...blogPosts];
+  return [...staticPages, ...blogPosts];
 }
