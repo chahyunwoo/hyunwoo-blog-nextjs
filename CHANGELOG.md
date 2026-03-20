@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.1](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/compare/v2.0.0...v2.0.1) (2026-03-20)
+
+
+### Performance Improvements
+
+* CLS 최적화 및 터치 타겟 개선 ([b5b1e39](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/b5b1e3905f3020b7c0b792f3e9d06bfea7b9d21e))
+* Lighthouse 100점 최적화 ([8c706d2](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/8c706d277783aae7c9b32ad53ef88bac74ccbcf1))
+* 성능 최적화 및 데드코드 정리 ([8d6c5dd](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/8d6c5ddd1845040720c68aa4d1f3fce7b2e7b684))
+* 성능 최적화 및 데드코드 정리 ([b2252e5](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/commit/b2252e5f04c096e08c983d52e50e134c218dac4b))
+
 ## [2.0.0](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/compare/v1.0.0...v2.0.0) (2026-03-20)
 
 
