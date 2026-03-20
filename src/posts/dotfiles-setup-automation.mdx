@@ -1,0 +1,168 @@
+---
+title: "dotfiles로 새 장비 셋팅 3분 컷"
+description: "Brewfile + 심볼릭 링크로 장비별 개발 환경 자동화하기"
+date: "2026-03-06"
+mainTag: "DevOps"
+tags: ["dotfiles", "Homebrew", "macOS", "Shell", "Automation"]
+thumbnail: /thumbnail/dotfiles-setup-automation.png
+published: true
+---
+
+장비가 늘어나면서 매번 수동으로 환경 셋팅하는 게 점점 번거로워졌습니다. 맥북프로, 맥북에어, 맥미니, 거기에 회사 윈도우 WSL까지. Homebrew 패키지 설치하고, zsh 설정 복사하고, Git 설정하고, 폰트 깔고. 한 번 하면 30분은 걸립니다.
+
+dotfiles 레포를 만들어두면 이걸 명령어 세 줄로 끝낼 수 있습니다.
+
+```bash title="새 장비 셋팅 전체 과정"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install gh && gh auth login
+git clone https://github.com/username/dotfiles.git ~/dotfiles && cd ~/dotfiles && ./install.sh mac
+```
+
+<Highlight color="fuchsia">Oh My Zsh, Powerlevel10k, 폰트, 테마, 패키지까지 전부 자동으로 설치됩니다.</Highlight>
+
+## 구조
+
+```bash title="dotfiles/"
+dotfiles/
+├── .zshrc                  # zsh 설정 + alias
+├── .gitconfig              # git 설정
+├── .p10k.zsh               # Powerlevel10k 테마
+├── .tmux.conf              # tmux 설정
+├── .zshrc.wsl              # WSL 전용 zsh 설정
+├── Brewfile.common         # 모든 장비 공통 패키지
+├── Brewfile.mac            # 맥북 전용
+├── Brewfile.mini           # 서버 전용
+├── Brewfile.air            # 에어 전용
+├── claude-settings.json    # Claude Code 설정
+├── claude-commands/        # Claude Code 커스텀 커맨드
+└── install.sh              # 장비별 분기 설치 스크립트
+```
+
+핵심은 두 가지입니다. <Highlight>장비별 Brewfile 분리</Highlight>와 <Highlight>심볼릭 링크</Highlight>.
+
+## install.sh — 장비별 분기 설치
+
+장비 종류를 인자로 받아서 필요한 것만 설치합니다.
+
+```bash title="사용법"
+./install.sh mac   # 맥북프로
+./install.sh mini  # 맥미니 서버
+./install.sh air   # 맥북에어
+./install.sh wsl   # 윈도우 WSL
+```
+
+스크립트 내부는 이런 구조입니다.
+
+```bash title="install.sh (핵심 부분)"
+#!/bin/bash
+DEVICE=${1:-mac}
+
+# Homebrew 설치 (없으면)
+if ! command -v brew &> /dev/null; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# 공통 패키지 설치
+brew bundle --file=~/dotfiles/Brewfile.common
+
+# 장비별 패키지 설치
+if [ -f ~/dotfiles/Brewfile.$DEVICE ]; then
+  brew bundle --file=~/dotfiles/Brewfile.$DEVICE
+fi
+
+# 심볼릭 링크로 설정 파일 연결
+ln -sf ~/dotfiles/.zshrc ~/.zshrc
+ln -sf ~/dotfiles/.gitconfig ~/.gitconfig
+ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
+ln -sf ~/dotfiles/.p10k.zsh ~/.p10k.zsh
+```
+
+설정 파일을 복사가 아닌 <Highlight color="blue">심볼릭 링크</Highlight>로 연결합니다. dotfiles 레포에서 수정하고 push하면 `git pull` 하나로 모든 장비에 반영됩니다.
+
+## Brewfile로 패키지 관리
+
+장비마다 필요한 패키지가 다르기 때문에 Brewfile을 분리했습니다.
+
+### 공통 패키지
+
+```ruby title="Brewfile.common"
+# CLI 도구
+brew "gh"
+brew "nvm"
+brew "tmux"
+brew "fzf"
+brew "bat"
+brew "eza"
+brew "lazygit"
+
+# zsh 플러그인
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+# 앱
+cask "iterm2"
+cask "visual-studio-code"
+```
+
+모든 장비에 공통으로 필요한 것들입니다. CLI 도구, zsh 플러그인, 에디터 등.
+
+### 맥북 전용
+
+```ruby title="Brewfile.mac"
+cask "docker"
+cask "rectangle"
+cask "karabiner-elements"
+cask "figma"
+```
+
+개발용 맥북에만 필요한 Docker, 창 관리 도구, 디자인 도구 등.
+
+### 서버 전용
+
+```ruby title="Brewfile.mini"
+brew "cloudflared"
+```
+
+맥미니 서버에는 GUI 앱이 필요 없습니다. 서버 운영에 필요한 CLI 도구만 설치합니다.
+
+<Callout type="tip">현재 설치된 패키지를 Brewfile로 내보내려면 `brew bundle dump`를 사용하면 됩니다.</Callout>
+
+## WSL 대응
+
+윈도우 WSL 환경은 Homebrew 대신 apt를 쓰고, zsh 설정도 약간 다릅니다. `.zshrc.wsl`을 별도로 만들어서 WSL에서는 이 파일을 링크합니다.
+
+```bash title="install.sh WSL 분기"
+if [ "$DEVICE" = "wsl" ]; then
+  ln -sf ~/dotfiles/.zshrc.wsl ~/.zshrc
+  sudo apt update && sudo apt install -y tmux fzf bat
+else
+  ln -sf ~/dotfiles/.zshrc ~/.zshrc
+fi
+```
+
+## Claude Code 설정도 관리
+
+최근에는 AI 코딩 도구 설정도 dotfiles에 포함시키고 있습니다. Claude Code의 `settings.json`이나 커스텀 커맨드를 레포에 넣어두면 장비를 바꿔도 동일한 AI 개발 환경을 유지할 수 있습니다.
+
+```bash title="Claude Code 설정 심볼릭 링크"
+ln -sf ~/dotfiles/claude-settings.json ~/.claude/settings.json
+ln -sf ~/dotfiles/claude-commands/ ~/.claude/commands
+```
+
+## 정리
+
+dotfiles의 장점을 정리하면 이렇습니다.
+
+- **새 장비 셋팅 3분** — 명령어 세 줄로 전체 환경 구성
+- **장비별 패키지 분리** — Brewfile.common + Brewfile.{device}로 필요한 것만 설치
+- **심볼릭 링크** — `git pull` 하나로 모든 장비에 설정 반영
+- **버전 관리** — 설정 변경 이력이 Git에 남음
+
+장비가 한 대라도 만들어두면 좋습니다. OS 재설치하거나 장비를 교체할 때 진가를 발휘합니다.
+
+## 참고 자료
+
+- [GitHub에서 dotfiles 관리하기](https://dotfiles.github.io/)
+- [Homebrew Bundle](https://github.com/Homebrew/homebrew-bundle)
+- [Oh My Zsh](https://ohmyz.sh/)
+- [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
