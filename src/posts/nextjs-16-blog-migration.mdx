@@ -12,16 +12,15 @@ published: true
 
 블로그를 마이그레이션하는 건 이번이 세 번째입니다.
 
-처음에 [Next.js 13으로 블로그를 개발](/blog/create-blog-by-nextjs)했을 때는 App Router가 아직 Beta였고, contentlayer를 사용해서 MDX를 처리했었습니다. 그리고 작년에 [Next.js 15로 마이그레이션](/blog/how-to-make-blog-with-nextjs)하면서 App Router가 안정화되었고, next-mdx-remote로 전환하면서 shadcn/ui를 도입했습니다.
+처음에 [Next.js 13으로 블로그를 개발](/blog/create-blog-by-nextjs)했을 때는 App Router가 아직 Beta였고, contentlayer를 사용해서 MDX를 처리했었습니다. 그리고 작년에 [Next.js 15로 마이그레이션](/blog/how-to-make-blog-with-nextjs)하면서 App Router가 안정화되었고, next-mdx-remote로 전환하면서 shadcn/ui도 도입했습니다. [13과 15의 차이점](/blog/migrate-from-next13-to-next15)은 이전 포스트에서 정리한 적이 있습니다.
 
-그리고 이번에는 Next.js 16이 나오면서, 단순히 프레임워크 버전만 올리는 게 아니라 블로그 전체를 새로 설계하는 수준의 작업을 진행했습니다.
-솔직히 프레임워크 업그레이드 자체보다 주변 도구들을 갈아엎는 게 더 큰 작업이었습니다.
+이번에는 Next.js 16이 나오면서, 단순히 프레임워크 버전만 올리는 게 아니라 블로그 전체를 새로 설계하는 수준의 작업을 했습니다. 솔직히 프레임워크 업그레이드 자체보다 주변 도구들을 갈아엎는 게 더 큰 작업이었습니다.
 
 ## 이번에 바꾼 것들
 
 | 항목 | Before | After |
 |:-----|:-------|:------|
-| Framework | Next.js 15.2.8 | **Next.js 16.2.0** |
+| Framework | Next.js 15 | **Next.js 16** |
 | Lint & Format | ESLint + Prettier | **Biome** |
 | Package Manager | npm | **pnpm** |
 | Testing | 없음 | **Vitest + Testing Library** |
@@ -30,7 +29,7 @@ published: true
 | Design | 기본 shadcn 테마 | **Indigo-Violet 커스텀 테마** |
 | Search | 없음 | **Cmd+K 커맨드 팔레트** |
 
-돌이켜보면 꽤 많이 바꿨는데, 각각의 전환 과정에서 겪은 이야기를 정리해보겠습니다.
+돌이켜보면 꽤 많이 바꿨는데, 각각의 전환 과정에서 겪은 것들을 정리해보겠습니다.
 
 ## Next.js 15 → 16 업그레이드
 
@@ -56,11 +55,11 @@ error TS2307: Cannot find module '../../../../public/images/chahyunwoo-profile.j
 error TS2307: Cannot find module '../../../public/logo/logo-dark.png'
 ```
 
-Next.js 16에서 `next-env.d.ts`의 구조가 바뀌면서, 빌드를 실행하기 전에는 이미지 타입 선언 파일이 생성되지 않는 문제였습니다. 로컬에서는 `.next` 디렉토리가 이미 있어서 문제가 없었는데, CI에서는 클린 상태에서 시작하니까 터진 거였습니다.
+Next.js 16에서 `next-env.d.ts` 구조가 바뀌면서, 빌드 전에는 이미지 타입 선언 파일이 생성되지 않는 문제였습니다. 로컬에서는 이전 빌드의 `.next` 디렉토리가 남아있어서 문제가 없었는데, CI에서는 클린 상태에서 시작하니까 터진 겁니다.
 
-해결은 간단했습니다. CI에서 빌드를 먼저 실행하고 타입 체크를 나중에 돌리면 됩니다.
+해결은 간단합니다. CI에서 빌드를 먼저 실행하고 타입 체크를 나중에 돌리면 됩니다.
 
-```yaml title=".github/workflows/ci.yml" {7-11}
+```yaml title=".github/workflows/ci.yml" {4-5,7-8}
 - name: Lint
   run: pnpm lint:ci
 
@@ -80,35 +79,31 @@ Next.js 16 업그레이드 자체는 정말 수월했습니다. 이미 15에서 
 
 ## ESLint + Prettier → Biome 전환
 
-사실 이 작업이 Next.js 업그레이드보다 더 컸습니다.
+사실 이 작업이 Next.js 업그레이드보다 더 큰 작업이었습니다.
 
 ### 왜 Biome를 선택했는가
 
-현업에서 이미 Biome를 사용하고 있었습니다. ESLint + Prettier 조합은 설정 파일이 여러 개 필요하고(`eslint.config.mjs`, `.prettierrc`), 가끔 서로 충돌하는 경우도 있거든요. Biome는 lint와 format을 하나의 도구로 통합하면서 설정도 `biome.json` 하나로 끝납니다.
+프리랜서로 새 프로젝트를 시작하면서 기술 스택을 조사하다가 Biome를 알게 됐습니다. ESLint + Prettier 조합은 설정 파일이 여러 개 필요하고(`eslint.config.mjs`, `.prettierrc`), 가끔 둘이 충돌하는 경우도 있어서 불편했거든요.
 
-성능도 확실히 빠릅니다. 84개 파일을 체크하는 데 걸리는 시간이 16ms였습니다.
+Biome는 lint와 format을 하나의 도구로 통합하면서 설정도 `biome.json` 하나로 끝납니다. 실제로 몇 번 써보니까 확실히 빠르고 가볍고, 무엇보다 ESLint랑 Prettier가 서로 충돌나는 일이 없어서 그 이후로 쭉 쓰고 있습니다.
 
 ### 전환 과정
 
 1. ESLint, Prettier, `@eslint/eslintrc`, `eslint-config-next` 패키지 전부 제거
 2. `@biomejs/biome` 설치
-3. 회사에서 쓰던 `biome.json` 설정을 기반으로 프로젝트에 맞게 조정
+3. 기존에 사용하던 `biome.json` 설정을 기반으로 프로젝트에 맞게 조정
 4. `biome check --write .`로 전체 코드 포맷 변환
 5. 남은 lint 에러 하나씩 수정
 
-포맷이 바뀌면서 거의 모든 파일이 변경됩니다. double quote → single quote, 세미콜론 제거, trailing comma 추가 등이 전체적으로 적용되었습니다.
+포맷이 바뀌면서 거의 모든 파일이 변경됩니다. double quote → single quote, 세미콜론 제거, trailing comma 추가 등이 전체 코드에 적용되었습니다.
 
 <Callout type="warning">
-Biome 전환 시 거의 모든 파일이 수정되기 때문에 git blame이 무의미해질 수 있습니다. 가능하면 포맷 변환 커밋을 별도로 분리하고, `.git-blame-ignore-revs`에 등록하는 것을 추천합니다.
+Biome 전환 시 포맷 변경으로 대부분의 파일이 수정됩니다. git blame이 무의미해질 수 있으니, 가능하면 포맷 변환 커밋을 별도로 분리하고 `.git-blame-ignore-revs`에 등록하는 것을 추천합니다.
 </Callout>
 
-주의할 점이 있었는데, Biome의 룰이 ESLint보다 엄격한 부분이 꽤 있었습니다. `noForEach`, `noArrayIndexKey`, `noDangerouslySetInnerHtml` 등에서 기존 코드에 대한 경고가 많이 발생했습니다.
+주의할 점이 있었는데, Biome의 룰이 ESLint보다 엄격한 부분이 꽤 있었습니다. 기존 코드에서 `noForEach`, `noArrayIndexKey`, `noDangerouslySetInnerHtml` 같은 경고가 많이 터졌습니다.
 
-- `noDangerouslySetInnerHtml` — JSON-LD 삽입에 필수적이라 off 처리
-- `noArrayIndexKey` — 스켈레톤처럼 고유 ID가 없는 정적 리스트는 warn으로
-- `noStaticElementInteractions` — button 안의 div 클릭 핸들러는 warn으로
-
-나머지는 가능한 한 코드를 수정해서 해결했습니다. Biome 설정을 건드리기보다는 코드를 고치는 게 맞다고 생각합니다.
+저의 경우에는 설정을 건드리기보다는 가능한 한 코드를 수정해서 해결하는 방향으로 갔습니다. 다만 JSON-LD 삽입에 필수적인 `dangerouslySetInnerHTML`처럼 어쩔 수 없는 것만 off 처리했고, 스켈레톤 같은 정적 리스트의 `noArrayIndexKey`는 warn으로 내렸습니다.
 
 ## npm → pnpm 전환
 
@@ -122,7 +117,7 @@ npm은 hoisting 때문에 `package.json`에 명시하지 않은 패키지도 사
 error TS2307: Cannot find module 'fast-glob' or its corresponding type declarations.
 ```
 
-코드에서 `fast-glob`을 import하고 있었는데, `package.json`에는 `glob` 패키지만 있었습니다. npm에서는 `glob`의 하위 의존성으로 설치된 `fast-glob`을 암묵적으로 사용할 수 있었지만, pnpm에서는 이를 허용하지 않습니다.
+코드에서 `fast-glob`을 import하고 있었는데, `package.json`에는 `glob` 패키지만 있었습니다. npm에서는 `glob`의 하위 의존성으로 설치된 `fast-glob`을 암묵적으로 가져다 쓸 수 있었지만, pnpm에서는 이런 걸 허용하지 않습니다.
 
 `fast-glob`을 직접 의존성으로 추가하고, 실제로 사용하지 않던 `glob` 패키지는 제거했습니다. 이렇게 숨어있는 문제를 발견하게 해준다는 점에서 pnpm 전환은 확실히 가치가 있었습니다.
 
@@ -169,8 +164,6 @@ describe('estimateReadingTime', () => {
 })
 ```
 
-734ms만에 15개 테스트가 전부 통과합니다. 빠릅니다.
-
 ## CI/CD 자동화
 
 이전에는 아무런 자동화가 없었습니다. 수동으로 빌드하고, 수동으로 푸시하고, Vercel이 알아서 배포하는 구조였습니다.
@@ -190,11 +183,11 @@ describe('estimateReadingTime', () => {
 release-please를 사용하면 `feat:` 커밋은 minor 버전, `fix:` 커밋은 patch 버전으로 자동 올라갑니다. `BREAKING CHANGE`를 포함하면 major 버전이 됩니다. 커밋 메시지만 잘 쓰면 릴리즈 관리가 자동화됩니다.
 </Callout>
 
-Dependabot이 처음 활성화되자마자 PR이 13개나 한꺼번에 올라와서 당황했습니다. 대부분은 CI 통과해서 바로 머지했는데, `recharts 2→3`과 `shiki 3→4`는 메이저 업데이트라 CI에서 실패해서 닫았습니다.
+Dependabot이 처음 활성화되자마자 PR이 한꺼번에 올라와서 당황했던 기억이 있습니다. 대부분은 CI 통과해서 바로 머지했는데, `recharts 2→3`이나 `shiki 3→4` 같은 메이저 업데이트는 CI에서 실패해서 일단 닫았습니다.
 
 ## 디자인 전면 리뉴얼
 
-기존 블로그는 기본 shadcn 테마에 가까웠는데, 이번에 Indigo-Violet 기반의 커스텀 테마로 전면 변경했습니다.
+기존 블로그는 기본 shadcn 테마에 가까워서 솔직히 좀 밋밋했습니다. 이번에 Indigo-Violet 기반의 커스텀 테마로 전면 변경했습니다.
 
 ### 컬러 테마
 
@@ -202,45 +195,49 @@ Dependabot이 처음 활성화되자마자 PR이 13개나 한꺼번에 올라와
 
 ### 사이드바 구조 변경
 
-이전에는 카테고리 아래에 서브태그가 Collapsible(아코디언) 형태로 다 펼쳐지는 구조였는데, 포스트가 늘어날수록 메뉴가 너무 길어지는 문제가 있었습니다.
+이전에는 카테고리 아래에 서브태그가 아코디언 형태로 다 펼쳐지는 구조였는데, 포스트가 늘어날수록 메뉴가 너무 길어지는 문제가 있었습니다.
 
 이번에는 사이드바를 세 섹션으로 나눴습니다.
 
 - **Categories** — 메인 카테고리만 아이콘과 함께 표시
-- **Tags** — 상위 15개 태그를 뱃지로 표시 (active 상태 하이라이트)
-- **Recent** — 최근 5개 포스트 (카테고리 뱃지 + 날짜)
+- **Tags** — 상위 태그를 뱃지로 표시하고, 선택 시 active 하이라이트
+- **Recent** — 최근 포스트를 카테고리 뱃지 + 날짜와 함께 표시
+
+사이드바는 sticky로 고정해서 스크롤해도 항상 접근할 수 있게 했습니다.
 
 ### 포스트 카드 리디자인
 
-기존 카드가 좀 밋밋했습니다. 이번에 바꾼 점은 이렇습니다.
+기존 카드를 좀 더 인터랙티브하게 바꿨습니다.
 
 - 썸네일 위에 카테고리 뱃지 오버레이
 - 호버 시 카드가 살짝 올라오면서 그림자 + 보더 변화
-- 하단에 날짜 + 읽기 시간 표시
-- 태그 3개까지 노출, 더 있으면 `+N` 뱃지에 호버하면 툴팁
+- 하단에 날짜와 예상 읽기 시간 표시
+- 태그는 3개까지 노출하고, 더 있으면 `+N` 뱃지에 호버하면 나머지가 툴팁으로 표시
 
-그리고 페이지네이션도 추가했습니다. 블로그에서는 무한스크롤보다 페이지네이션이 낫다고 판단했는데, SEO 관점에서도 그렇고 사용자가 특정 포스트 위치를 기억하기 쉽습니다.
+페이지네이션도 추가했습니다. 블로그에서는 무한스크롤보다 페이지네이션이 낫다고 판단했는데, SEO 관점에서도 그렇고 뒤로가기 했을 때 위치를 유지하기 쉽기 때문입니다.
 
 ### 검색 기능 (Cmd+K)
 
-`cmdk` 기반의 커맨드 팔레트를 구현했습니다. Zustand 스토어로 검색 상태를 관리하고, 200ms 디바운스를 적용했습니다. 검색 결과는 카테고리별로 그룹핑해서 보여줍니다.
+`cmdk` 기반의 커맨드 팔레트를 구현했습니다. Zustand 스토어로 검색 상태를 관리하고, 디바운스를 적용했습니다. 검색 결과는 카테고리별로 그룹핑해서 보여줍니다.
 
-검색어를 입력하기 전에는 빈 상태로 안내 메시지만 보여주고, 타이핑을 시작하면 결과가 나타납니다. 포스트가 많아지면 API로 서버 검색으로 전환할 계획입니다.
+검색어를 입력하기 전에는 안내 메시지만 보여주고, 타이핑을 시작하면 결과가 나타납니다. 지금은 포스트 메타데이터를 클라이언트로 내려서 필터링하는 방식인데, 나중에 포스트가 많아지면 서버 API로 전환할 생각입니다.
 
 ### 포스트 상세 페이지
 
-가장 크게 바뀐 부분입니다.
+개인적으로 가장 신경 쓴 부분입니다.
 
-- **본문 너비** — `max-w-2xl`에서 `max-w-4xl`로 확장. 코드블록이 답답하지 않게
+- **본문 너비** — 기존보다 넓혀서 코드블록이 답답하지 않게
 - **우측 sticky TOC** — 본문 오른쪽에 떠서 따라다니며, 현재 읽고 있는 섹션이 하이라이트
 - **모바일 TOC** — 우하단 플로팅 버튼, 누르면 바텀시트로 목차 표시
-- **읽기 프로그레스 바** — 헤더 아래에 primary 색상으로 진행률 표시
+- **읽기 프로그레스 바** — 헤더 아래에 얇은 바로 읽기 진행률 표시
 
-모바일 TOC는 IntersectionObserver로 현재 섹션을 추적하고, 바텀시트 안에서도 active 상태를 보여줍니다.
+기존에는 목차가 포스트 상단에 있어서 스크롤하면 사라지는 구조였는데, 이게 사실 쓸모가 없었거든요. 읽다가 다른 섹션으로 이동하고 싶을 때 매번 맨 위로 올라가야 했으니까요. sticky TOC로 바꾸니까 확실히 편해졌습니다.
+
+프로그레스 바는 `requestAnimationFrame`으로 매끄럽게 동작하도록 했고, `useRef`로 직접 DOM을 제어해서 불필요한 리렌더를 방지했습니다.
 
 ### About 페이지 리뉴얼
 
-경력을 타임라인 형태로 바꾸고, 개인 프로젝트 섹션을 카드 형태로 추가했습니다. 스킬도 레이더 차트에서 카테고리별 뱃지로 변경했는데, 레이더 차트보다 직관적이라고 생각합니다.
+경력을 타임라인 형태로 바꾸고, 개인 프로젝트 섹션을 카드 형태로 분리했습니다. 스킬은 레이더 차트에서 카테고리별 뱃지로 변경했는데, 레이더 차트는 보기에는 예쁘지만 실제로 정보를 전달하기엔 뱃지가 더 직관적이라고 생각합니다.
 
 ## 성능 최적화
 
@@ -248,23 +245,21 @@ Dependabot이 처음 활성화되자마자 PR이 13개나 한꺼번에 올라와
 
 ### 데드코드 정리
 
-사용하지 않는 컴포넌트와 패키지를 전부 정리했습니다.
+리뉴얼하면서 더 이상 사용하지 않는 컴포넌트와 패키지가 꽤 생겼습니다. 레이더 차트를 없애면서 `recharts`가 통째로 불필요해졌고, 아코디언 사이드바를 없애면서 `collapsible`도 필요 없어졌습니다. 이런 것들을 전부 찾아서 정리했습니다.
 
-- 삭제한 컴포넌트: `chart.tsx`, `collapsible.tsx`, `education-card.tsx`, `popover.tsx`, `scroll-area.tsx`
-- 삭제한 패키지: `recharts`, `tailwindcss-animate`
-- 삭제한 함수: `delay()`
-
-총 -812줄. 코드가 줄어드니까 번들도 줄어들고, 빌드도 빨라집니다.
+코드가 줄어드니까 번들도 줄어들고, 빌드도 빨라집니다. 안 쓰는 코드는 바로바로 지우는 게 맞습니다.
 
 ### 이미지 최적화
 
 - `next.config.mjs`에서 `images.formats: ['image/avif', 'image/webp']` 설정
-- 첫 번째 포스트 카드 이미지에 `fetchPriority="high"` 명시
-- MdxImage에 responsive `sizes`와 `loading="lazy"` 추가
+- LCP 이미지에 `fetchPriority="high"` 명시
+- MDX 이미지에 responsive `sizes`와 `loading="lazy"` 추가
 
 ### 폰트 CLS 제거
 
-Pretendard 웹폰트가 로드되기 전에 시스템 폰트로 텍스트가 렌더링되면서 레이아웃 시프트(CLS)가 발생했습니다. 이걸 해결하기 위해 fallback 폰트의 metrics를 Pretendard에 맞춰서 정의했습니다.
+이게 꽤 까다로웠습니다. Pretendard 웹폰트가 로드되기 전에 시스템 폰트로 텍스트가 먼저 렌더링되면서 레이아웃 시프트(CLS)가 발생했습니다. 폰트가 바뀌면서 텍스트 크기가 달라지니까 아래 콘텐츠가 밀리는 거죠.
+
+이걸 해결하기 위해 fallback 폰트의 metrics를 Pretendard에 최대한 맞춰서 정의했습니다.
 
 ```css title="src/styles/globals.css"
 @font-face {
@@ -277,13 +272,13 @@ Pretendard 웹폰트가 로드되기 전에 시스템 폰트로 텍스트가 렌
 }
 ```
 
-이렇게 하면 폰트가 바뀌어도 텍스트가 차지하는 공간이 거의 동일해서 레이아웃이 밀리지 않습니다.
+이렇게 하면 시스템 폰트가 Pretendard와 거의 같은 공간을 차지하게 되어서, 폰트가 교체되어도 레이아웃이 밀리지 않습니다.
 
 ### 접근성 개선
 
 - 모든 아이콘 버튼에 `aria-label` 추가
 - 터치 타겟 최소 44x44px 보장
-- 색상 대비 개선 (`text-primary/70` → `text-primary`)
+- 색상 대비 개선
 
 ### 결과
 
@@ -301,30 +296,41 @@ Pretendard 웹폰트가 로드되기 전에 시스템 폰트로 텍스트가 렌
 | SEO | **100** |
 
 <Callout type="info">
-로컬 Lighthouse와 실제 배포 환경(Vercel)의 점수 차이가 꽤 큽니다. 로컬에서 Performance가 79점이었는데, Vercel 배포 후에는 99점이 나왔습니다. Vercel CDN의 성능 영향이 크기 때문에, 성능 측정은 반드시 배포 환경에서 해야 합니다.
+로컬 Lighthouse와 실제 배포 환경(Vercel)의 점수 차이가 큽니다. 로컬에서 Performance가 79점이었는데, Vercel 배포 후에는 99점이 나왔습니다. CDN의 성능 영향이 크기 때문에, 성능 측정은 반드시 배포 환경에서 하는 것이 정확합니다.
 </Callout>
 
 ## 정리
 
 ### 좋았던 점
 
-- **Biome** — ESLint + Prettier 설정이 `biome.json` 하나로 통합. 체크 속도도 84개 파일 16ms
-- **pnpm** — 숨어있던 의존성 문제(fast-glob)를 발견할 수 있었음
-- **CI/CD 자동화** — 머지 전에 lint, type-check, test, build가 자동 실행되니까 마음이 편함
-- **release-please** — 커밋만 잘 쓰면 CHANGELOG와 릴리즈가 자동 관리
-- **Lighthouse 99/95/100/100** — 성능 최적화 결과에 만족
+- **Biome** — lint와 format 설정이 하나로 통합되어 관리 포인트가 줄어듦. 충돌도 없고 빠름
+- **pnpm** — 숨어있던 의존성 문제를 발견할 수 있었음
+- **CI/CD 자동화** — PR을 올리면 lint, type-check, test, build가 자동으로 돌아가니까 마음이 편함
+- **release-please** — 커밋 메시지만 잘 쓰면 CHANGELOG와 릴리즈가 알아서 관리됨
+- **Lighthouse 99/95/100/100** — 처음 측정했을 때 69점이었던 Performance를 여기까지 올린 게 뿌듯함
 
 ### 아쉬웠던 점
 
-- Biome 전환 시 거의 모든 파일이 변경되어 git blame이 무의미해짐
-- Vercel의 dynamic 페이지에 `Cache-Control: no-store`가 자동 설정되어 bfcache 불가
-- unused JS 경고는 Next.js 프레임워크 자체 번들이라 코드 레벨에서 제거 불가
+- Biome 전환 시 포맷 변경으로 대부분의 파일이 수정되어 git blame 이력이 깨짐
+- Vercel의 dynamic 페이지에 `Cache-Control: no-store`가 자동 설정되는데, 이건 제어할 방법이 없음
+- unused JS 경고가 Lighthouse에 남아있는데, Next.js 프레임워크 자체 번들이라 코드로 제거 불가
 
 ### 앞으로 할 것
 
-- 맥미니 홈서버 + PostgreSQL로 MDX 관리 전환
-- 포스트가 많아지면 검색을 서버 API로 전환
-- Lighthouse Accessibility 100점 도전
+가장 큰 계획은 **콘텐츠 관리 방식의 전환**입니다.
+
+지금은 MDX 파일이 블로그 레포지토리 안에 전부 들어가 있습니다. 포스트를 쓸 때마다 소스코드와 콘텐츠가 같은 레포에 섞이게 되는데, 시간이 지날수록 레포가 지저분해지는 게 느껴집니다.
+
+최근에 맥미니로 홈서버를 구축했는데, 이걸 활용해서 PostgreSQL에 포스트 데이터를 따로 저장하고, 블로그에서는 API로 불러오는 구조로 바꿀 계획입니다.
+
+이렇게 분리하면 몇 가지 장점이 있습니다.
+
+- **레포지토리의 성격이 명확해짐** — 블로그 레포는 순수하게 프론트엔드 코드만, 콘텐츠는 DB에서 관리
+- **포스트 관리가 유연해짐** — CMS 없이도 DB에서 직접 CRUD 가능하고, 나중에 관리 페이지를 만들 수도 있음
+- **빌드 시간 단축** — MDX 파일이 빠지면 빌드가 가벼워짐
+- **검색 고도화** — DB에서 Full-text search로 검색하면 클라이언트에서 전체 데이터를 들고 있을 필요가 없음
+
+그 외에도 Lighthouse Accessibility 100점 도전이나, 포스트가 더 쌓이면 검색을 서버 API로 전환하는 것도 계획하고 있습니다.
 
 ## 관련 포스트
 
