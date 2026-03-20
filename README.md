@@ -146,9 +146,12 @@ published: true
 
 | 컴포넌트 | 용도 |
 |:---------|:-----|
-| `<Callout>` | 팁, 정보, 경고 박스 |
-| `<Highlight>` | 텍스트 강조 |
-| `<MdxImage>` | 캡션이 있는 이미지 |
+| `<Callout>` | 팁, 정보, 경고 박스 (`tip`, `info`, `warning`) |
+| `<Highlight>` | 텍스트 강조 (색상 커스텀 지원) |
+| `<MdxImage>` | 캡션이 있는 최적화 이미지 |
+| `<MdxLink>` | 외부 링크 (새 탭 자동 처리) |
+| `<Icon>` | 인라인 아이콘 렌더링 |
+| Code Block | 파일명 표시, 라인 하이라이팅 지원 |
 
 <br />
 
@@ -190,4 +193,4 @@ published: true
 
 ## 📄 라이선스
 
-[MIT License](./LICENSE) &copy; 2024-present [Hyunwoo Cha](https://github.com/chahyunwoo)
+[MIT License](./LICENSE) &copy; 2025-present [Hyunwoo Cha](https://github.com/chahyunwoo)
