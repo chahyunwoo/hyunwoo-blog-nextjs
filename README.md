@@ -86,16 +86,16 @@
 
 ```bash
 # 의존성 설치
-npm install
+pnpm install
 
 # 개발 서버 실행 (Turbopack)
-npm run dev
+pnpm dev
 
 # 프로덕션 빌드
-npm run build
+pnpm build
 
 # 린트
-npm run lint
+pnpm lint
 ```
 
 > 개발 서버는 기본적으로 `http://localhost:3000`에서 실행됩니다.
