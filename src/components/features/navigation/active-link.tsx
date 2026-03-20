@@ -47,7 +47,7 @@ export default memo(function ActiveLink({
         className={cn(
           'relative p-0 cursor-pointer w-full justify-between text-sm text-muted-foreground hover:text-foreground transition-colors rounded-none',
           isActive && 'text-primary',
-          isActive && Icon && 'bg-primary/5',
+          isActive && Icon && 'bg-primary/10',
           className,
         )}
       >
@@ -65,7 +65,7 @@ export default memo(function ActiveLink({
         </div>
         {count && (
           <div className="flex items-center gap-1 shrink-0">
-            <span className={cn('text-xs tabular-nums', isActive ? 'text-primary/70' : 'text-muted-foreground')}>
+            <span className={cn('text-xs tabular-nums', isActive ? 'text-primary' : 'text-muted-foreground')}>
               {count}
             </span>
           </div>

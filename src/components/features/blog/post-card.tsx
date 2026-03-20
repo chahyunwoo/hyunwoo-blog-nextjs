@@ -11,6 +11,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, index }: PostCardProps) {
+  const isLCP = index === 0
   const isAboveTheFold = index < 6
   const readTime = estimateReadingTime(post.content)
 
@@ -26,6 +27,7 @@ export function PostCard({ post, index }: PostCardProps) {
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             loading={isAboveTheFold ? 'eager' : 'lazy'}
             priority={isAboveTheFold}
+            fetchPriority={isLCP ? 'high' : undefined}
             placeholder="blur"
             blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='%23f1f5f9'/%3E%3C/svg%3E"
           />

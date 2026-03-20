@@ -60,7 +60,7 @@ function IconButton({
     href?: string
   }) {
   return (
-    <Button variant={variant} size={size} className={className} {...props}>
+    <Button variant={variant} size={size} className={cn('min-w-[44px] min-h-[44px]', className)} {...props}>
       {href ? (
         <Link href={href} target="_blank" aria-label={props['aria-label']}>
           <Icon />
