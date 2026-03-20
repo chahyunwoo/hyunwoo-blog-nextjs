@@ -28,6 +28,10 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "a11y": {
+        "noStaticElementInteractions": "warn",
+        "useKeyWithClickEvents": "warn"
+      },
       "complexity": {
         "noForEach": "warn"
       },

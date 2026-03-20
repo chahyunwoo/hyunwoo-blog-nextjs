@@ -77,14 +77,9 @@ export default memo(function ActiveLink({
           <div className="flex items-center gap-1">
             <span className="text-xs text-muted-foreground">{count}</span>
             {isDropdown && onToggleDropdown && (
-              <button
-                type="button"
-                onClick={handleToggleClick}
-                className="focus:outline-none cursor-pointer ml-2"
-                aria-label="toggle dropdown"
-              >
+              <div onClick={handleToggleClick} className="focus:outline-none cursor-pointer ml-2">
                 {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </button>
+              </div>
             )}
           </div>
         )}
