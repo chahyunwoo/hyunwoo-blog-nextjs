@@ -2,6 +2,7 @@
   "name": "hyunwoo-blog-nextjs",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.28.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -37,6 +38,12 @@
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.4.0",
     "zustand": "^5.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ]
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
