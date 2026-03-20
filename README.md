@@ -152,6 +152,22 @@ published: true
 
 <br />
 
+## 🏆 Lighthouse
+
+> 성능 최적화 진행 중입니다. 목표: 전 항목 95+ 달성
+
+<!-- 성능 개선 완료 후 아래 주석을 캡쳐 이미지로 교체 -->
+<!-- <img src="public/images/lighthouse-score.png" alt="Lighthouse Score" width="600" /> -->
+
+| Category | Score |
+|:---------|:------|
+| 🟢 Performance | 측정 중 |
+| 🟢 Accessibility | 측정 중 |
+| 🟢 Best Practices | 측정 중 |
+| 🟢 SEO | 측정 중 |
+
+<br />
+
 ## 🤝 기여하기
 
 버그를 발견하셨거나 새로운 기능을 제안하고 싶으시다면 언제든 환영합니다!
@@ -159,6 +175,16 @@ published: true
 1. [Issues](https://github.com/chahyunwoo/hyunwoo-blog-nextjs/issues)에서 버그 리포트 또는 기능 요청
 2. Fork 후 `feature/*` 브랜치에서 작업
 3. PR 제출 시 CI 자동 실행 (lint, type-check, build, Lighthouse)
+
+<br />
+
+## ⭐ Star
+
+이 프로젝트의 소스코드는 MIT 라이선스로 공개되어 있습니다.
+
+코드를 참고하셨다면 **Star**를 눌러주시면 큰 힘이 됩니다! 감사합니다. 🙏
+
+[![Star this repo](https://img.shields.io/github/stars/chahyunwoo/hyunwoo-blog-nextjs?style=social)](https://github.com/chahyunwoo/hyunwoo-blog-nextjs)
 
 <br />
 
