@@ -47,7 +47,7 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",
-    "shiki": "^3.2.1",
+    "shiki": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
