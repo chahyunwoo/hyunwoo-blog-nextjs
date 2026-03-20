@@ -25,7 +25,7 @@ export async function BlogSidebar() {
   const { tags: topTags, totalCount: totalTagCount } = getAllTags(categories)
 
   return (
-    <aside className="w-full max-w-[200px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col gap-6 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <aside className="w-full max-w-[240px] border-r pt-6 pb-12 hidden md:flex md:flex-col gap-6 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
       <BlogCategoryNavigator categories={categories} variant="sidebar" />
 
       <hr className="border-border mx-3" />

@@ -37,6 +37,7 @@ export function PostList({ posts }: PostListProps) {
             size="icon"
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
+            aria-label="이전 페이지"
             className="h-8 w-8 cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -48,6 +49,7 @@ export function PostList({ posts }: PostListProps) {
               variant={p === page ? 'default' : 'ghost'}
               size="icon"
               onClick={() => setPage(p)}
+              aria-label={`${p} 페이지`}
               className="h-8 w-8 text-sm cursor-pointer"
             >
               {p}
@@ -59,6 +61,7 @@ export function PostList({ posts }: PostListProps) {
             size="icon"
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
+            aria-label="다음 페이지"
             className="h-8 w-8 cursor-pointer"
           >
             <ChevronRight className="h-4 w-4" />

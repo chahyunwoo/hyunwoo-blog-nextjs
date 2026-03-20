@@ -45,7 +45,7 @@ export default function MobileMenu({ menuItems, categories = [] }: MobileMenuPro
               if (isBlogMenu) {
                 return (
                   <Suspense key={name} fallback={<BlogMenuSkeleton />}>
-                    <BlogCategoryNavigator categories={categories} variant="menu" menuName={name} closeMenu={onClose} />
+                    <BlogCategoryNavigator categories={categories} variant="menu" closeMenu={onClose} />
                   </Suspense>
                 )
               }

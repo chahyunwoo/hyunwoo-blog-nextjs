@@ -95,6 +95,7 @@ export function SearchCommand({ posts }: SearchCommandProps) {
       <button
         type="button"
         onClick={openSearch}
+        aria-label="검색"
         className="flex items-center gap-2 px-2.5 py-1 text-sm text-muted-foreground rounded-md sm:border sm:border-input bg-transparent sm:bg-background hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
       >
         <Search className="h-3.5 w-3.5" />

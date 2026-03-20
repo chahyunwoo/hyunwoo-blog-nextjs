@@ -31,7 +31,7 @@ export async function Header() {
             icon={Github}
             variant="ghost"
             size="icon"
-            className="cursor-pointer"
+            className="cursor-pointer min-w-[44px] min-h-[44px]"
             href="https://github.com/chahyunwoo"
             aria-label="GitHub"
           />
