@@ -25,7 +25,6 @@ import {
   IconServer,
   IconUsers,
 } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
 import {
   useAdminLogs,
   useDashboard,
@@ -35,12 +34,9 @@ import {
   useSystemInfo,
   useVisitors,
 } from '@/entities/analytics'
+import { StatCard } from '@/shared/ui/stat-card'
 
-export const Route = createFileRoute('/')({
-  component: DashboardPage,
-})
-
-function DashboardPage() {
+export function DashboardPage() {
   const { data: dashboard, isLoading: dashLoading } = useDashboard()
   const { data: visitors } = useVisitors(30, 'blog')
   const { data: todayVisitors } = useVisitors(1, 'blog')
@@ -380,35 +376,5 @@ function DashboardPage() {
         )}
       </Card>
     </Stack>
-  )
-}
-
-function StatCard({
-  icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: number
-  color: string
-}) {
-  return (
-    <Card shadow="xs" padding="lg" radius="md" withBorder>
-      <Group justify="space-between" align="flex-start">
-        <div>
-          <Text size="xs" c="dimmed" tt="uppercase" fw={600} mb={4}>
-            {label}
-          </Text>
-          <Text size="xl" fw={700}>
-            {value.toLocaleString()}
-          </Text>
-        </div>
-        <ThemeIcon variant="light" color={color} size="lg" radius="md">
-          {icon}
-        </ThemeIcon>
-      </Group>
-    </Card>
   )
 }

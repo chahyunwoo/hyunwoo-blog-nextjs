@@ -18,4 +18,14 @@ export const queryKeys = {
     education: (locale: string) => ['portfolio', 'education', locale] as const,
     locales: ['portfolio', 'locales'] as const,
   },
+  analytics: {
+    dashboard: ['analytics', 'dashboard'] as const,
+    visitors: (days: number, app: string) => ['analytics', 'visitors', days, app] as const,
+    popularPosts: (limit: number) => ['analytics', 'popular-posts', limit] as const,
+    referrers: (days: number, app: string) => ['analytics', 'referrers', days, app] as const,
+    popularPages: (days: number, app: string, limit: number) =>
+      ['analytics', 'popular-pages', days, app, limit] as const,
+    system: ['analytics', 'system'] as const,
+    adminLogs: (limit: number) => ['analytics', 'admin-logs', limit] as const,
+  },
 } as const
