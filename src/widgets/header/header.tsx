@@ -1,6 +1,6 @@
 import { Github } from 'lucide-react'
 import Link from 'next/link'
-import { getCategoriesWithTags } from '@/entities/post/api/post-api'
+import { getCategoriesWithTags } from '@/entities/post/api/post.api'
 import DesktopMenu from '@/features/navigation/desktop-menu'
 import MobileMenu from '@/features/navigation/mobile-menu'
 import { SearchCommand } from '@/features/search/search-command'

@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { apiClientFetch } from '@/shared/api/client'
+import { apiClientFetch } from '@/shared/api/api.client'
+import { ENDPOINTS } from '@/shared/api/endpoints'
 import type { Post } from '@/shared/types'
 
 interface ApiSearchPost {
@@ -57,7 +58,7 @@ export function useSearch() {
       setLoading(true)
       try {
         const data = await apiClientFetch<{ posts: ApiSearchPost[]; grouped: Record<string, ApiSearchPost[]> }>(
-          `/api/blog/posts/search?q=${encodeURIComponent(debouncedQuery)}`,
+          `${ENDPOINTS.blog.search}?q=${encodeURIComponent(debouncedQuery)}`,
           controller.signal,
         )
 

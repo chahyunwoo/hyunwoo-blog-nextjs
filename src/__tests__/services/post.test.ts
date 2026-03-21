@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getPostBySlug, getPublishedPosts } from '@/entities/post/api/post-api'
+import { getPostBySlug, getPublishedPosts } from '@/entities/post/api/post.api'
 
 const mockPost = {
   id: 1,

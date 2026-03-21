@@ -1,5 +1,6 @@
 import { cache } from 'react'
-import { apiFetch } from '@/shared/api/client'
+import { apiFetch } from '@/shared/api/api.client'
+import { ENDPOINTS } from '@/shared/api/endpoints'
 import type { CategoryData, Post, PostMeta } from '@/shared/types'
 
 interface ApiPost {
@@ -31,21 +32,9 @@ interface ApiCategory {
   tags: { name: string; slug: string; count: number }[]
 }
 
-interface ApiTag {
-  name: string
-  slug: string
-  count: number
-}
-
 interface ApiTagsResponse {
-  tags: ApiTag[]
+  tags: { name: string; slug: string; count: number }[]
   total: number
-}
-
-interface ApiSearchResponse {
-  posts: ApiPost[]
-  total: number
-  grouped: Record<string, ApiPost[]>
 }
 
 interface ApiRelatedResponse {
@@ -87,7 +76,7 @@ export const getPaginatedPosts = async (params?: {
   if (params?.category) searchParams.set('category', params.category)
   if (params?.tag) searchParams.set('tag', params.tag)
 
-  const data = await apiFetch<ApiPostsResponse>(`/api/blog/posts?${searchParams}`)
+  const data = await apiFetch<ApiPostsResponse>(`${ENDPOINTS.blog.posts}?${searchParams}`)
 
   if (!data) return { posts: [], total: 0, page: 1, totalPages: 0 }
 
@@ -105,33 +94,19 @@ export const getPublishedPosts = async (): Promise<Post[]> => {
 }
 
 export const getRecentPosts = async (limit = 5): Promise<Post[]> => {
-  const data = await apiFetch<ApiPost[]>(`/api/blog/posts/recent?limit=${limit}`)
+  const data = await apiFetch<ApiPost[]>(`${ENDPOINTS.blog.recentPosts}?limit=${limit}`)
   if (!data) return []
   return data.map(toPost)
 }
 
 export const getPostBySlug = async (slug: string): Promise<Post | null> => {
-  const data = await apiFetch<ApiPost>(`/api/blog/posts/${slug}`)
+  const data = await apiFetch<ApiPost>(ENDPOINTS.blog.postBySlug(slug))
   if (!data) return null
   return toPost(data)
 }
 
-export const searchPosts = async (q: string): Promise<{ posts: Post[]; grouped: Record<string, Post[]> }> => {
-  const data = await apiFetch<ApiSearchResponse>(`/api/blog/posts/search?q=${encodeURIComponent(q)}`, { revalidate: 0 })
-
-  if (!data) return { posts: [], grouped: {} }
-
-  const posts = data.posts.map(toPost)
-  const grouped: Record<string, Post[]> = {}
-  for (const [category, apiPosts] of Object.entries(data.grouped)) {
-    grouped[category] = apiPosts.map(toPost)
-  }
-
-  return { posts, grouped }
-}
-
 export const getRelatedPosts = async (slug: string): Promise<{ related: Post[]; recommended: Post[] }> => {
-  const data = await apiFetch<ApiRelatedResponse>(`/api/blog/posts/${slug}/related`)
+  const data = await apiFetch<ApiRelatedResponse>(ENDPOINTS.blog.relatedPosts(slug))
 
   if (!data) return { related: [], recommended: [] }
 
@@ -142,7 +117,7 @@ export const getRelatedPosts = async (slug: string): Promise<{ related: Post[]; 
 }
 
 export const getCategoriesWithTags = cache(async (): Promise<CategoryData[]> => {
-  const data = await apiFetch<ApiCategory[]>('/api/blog/categories')
+  const data = await apiFetch<ApiCategory[]>(ENDPOINTS.blog.categories)
 
   if (!data) return []
 
@@ -155,7 +130,7 @@ export const getCategoriesWithTags = cache(async (): Promise<CategoryData[]> => 
 })
 
 export const getTagCloud = async (limit = 15): Promise<{ tags: { name: string; count: number }[]; total: number }> => {
-  const data = await apiFetch<ApiTagsResponse>(`/api/blog/tags?limit=${limit}`)
+  const data = await apiFetch<ApiTagsResponse>(`${ENDPOINTS.blog.tags}?limit=${limit}`)
 
   if (!data) return { tags: [], total: 0 }
 

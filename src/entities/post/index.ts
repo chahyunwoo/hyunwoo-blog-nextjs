@@ -1,10 +1,10 @@
-export type { PaginatedPosts } from './api/post-api'
+export type { PaginatedPosts } from './api/post.api'
 export {
+  getCategoriesWithTags,
   getPaginatedPosts,
   getPostBySlug,
   getPublishedPosts,
   getRecentPosts,
   getRelatedPosts,
   getTagCloud,
-  searchPosts,
-} from './api/post-api'
+} from './api/post.api'

@@ -6,8 +6,8 @@ import { useCallback, useEffect } from 'react'
 import { formatDate } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/shared/ui/command'
-import { useSearchStore } from '@/stores/search-store'
-import { useSearch } from './use-search'
+import { useSearchStore } from '@/stores/search.store'
+import { useSearch } from './use-search.hook'
 
 export function SearchCommand() {
   const { isOpen, open: openSearch, close: closeSearch, toggle: toggleSearch } = useSearchStore()

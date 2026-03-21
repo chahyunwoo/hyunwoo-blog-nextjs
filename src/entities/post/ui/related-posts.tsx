@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { getRelatedPosts } from '@/entities/post/api/post-api'
+import { getRelatedPosts } from '@/entities/post/api/post.api'
 import { formatDate } from '@/shared/lib/utils'
 import type { Post } from '@/shared/types'
 import { Badge } from '@/shared/ui/badge'

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
-import { useSearchStore } from '@/stores/search-store'
+import { useSearchStore } from '@/stores/search.store'
 
 interface SidebarTagCloudProps {
   tags: [string, number][]
