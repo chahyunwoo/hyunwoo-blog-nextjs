@@ -72,7 +72,7 @@ export default async function Home({ searchParams }: { searchParams: BlogParams 
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <BlogLayout>
-        <Suspense fallback={<PostSkeleton count={6} />}>
+        <Suspense fallback={<PostSkeleton />}>
           <PostListContainer
             category={category}
             tag={tag}

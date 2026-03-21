@@ -15,15 +15,19 @@ export async function Header() {
 
   return (
     <header className="fixed w-full z-10 border-b backdrop-blur-xl bg-background/80">
-      <InnerContainer className="h-14 flex items-center justify-between">
-        <Link href="/" className="hidden md:block">
-          <Logo />
-        </Link>
+      <InnerContainer className="h-14 grid grid-cols-3 items-center">
+        <div className="flex items-center">
+          <MobileMenu menuItems={MENU_ITEMS} categories={categories} />
+          <Link href="/" className="hidden md:block">
+            <Logo />
+          </Link>
+        </div>
 
-        <MobileMenu menuItems={MENU_ITEMS} categories={categories} />
-        <DesktopMenu items={MENU_ITEMS} />
+        <div className="flex justify-center">
+          <DesktopMenu items={MENU_ITEMS} />
+        </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-end gap-1">
           <SearchCommand />
           <IconButton
             icon={Github}

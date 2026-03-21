@@ -1,49 +1,48 @@
 'use client'
 
-import { Skeleton } from '../ui/skeleton'
+import { Skeleton } from './skeleton'
 
-interface BlogSidebarSkeletonProps {
-  count?: number
-}
-
-export function BlogSidebarSkeleton({ count = 6 }: BlogSidebarSkeletonProps) {
+export function BlogSidebarSkeleton() {
   return (
-    <aside className="w-full max-w-[200px] border-r pt-6 pb-12 px-2 pr-2 hidden md:block">
-      <nav className="space-y-6">
-        <div className="space-y-1">
-          <div className="flex justify-between items-center px-2 py-1.5 rounded-md w-full">
-            <Skeleton className="h-5 w-10" />
-            <Skeleton className="h-4 w-6" />
+    <aside className="w-full max-w-[240px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col gap-6">
+      <div className="space-y-2 px-3">
+        <Skeleton className="h-3 w-20 mb-3" />
+        {Array.from({ length: 5 }, (_, i) => `cat-skeleton-${i}`).map(id => (
+          <div key={id} className="flex justify-between items-center py-1.5">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-3.5 w-3.5 rounded" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+            <Skeleton className="h-3 w-6" />
           </div>
+        ))}
+      </div>
 
-          {Array.from({ length: count }, (_, i) => ({ id: `sidebar-skeleton-${i}`, isEven: i % 2 === 0 })).map(
-            ({ id, isEven }) => (
-              <div key={id} className="space-y-1">
-                <div className="flex justify-between items-center px-2 py-1.5 rounded-md w-full">
-                  <Skeleton className="h-5 w-24" />
-                  <div className="flex items-center gap-1">
-                    <Skeleton className="h-4 w-6" />
-                    <Skeleton className="h-4 w-4 ml-2" />
-                  </div>
-                </div>
+      <hr className="border-border mx-3" />
 
-                {isEven && (
-                  <div className="pl-4 pt-1 space-y-1">
-                    {Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, j) => `${id}-sub-${j}`).map(
-                      subId => (
-                        <div key={subId} className="flex justify-between items-center px-2 py-1 rounded-md w-full">
-                          <Skeleton className="h-4 w-16" />
-                          <Skeleton className="h-3 w-4" />
-                        </div>
-                      ),
-                    )}
-                  </div>
-                )}
-              </div>
-            ),
-          )}
+      <div className="px-3">
+        <Skeleton className="h-3 w-12 mb-3" />
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 8 }, (_, i) => `tag-skeleton-${i}`).map(id => (
+            <Skeleton key={id} className="h-5 w-14 rounded-full" />
+          ))}
         </div>
-      </nav>
+      </div>
+
+      <hr className="border-border mx-3" />
+
+      <div className="px-3">
+        <Skeleton className="h-3 w-14 mb-3" />
+        {Array.from({ length: 5 }, (_, i) => `recent-skeleton-${i}`).map(id => (
+          <div key={id} className="py-2 space-y-1.5">
+            <Skeleton className="h-4 w-full" />
+            <div className="flex items-center gap-1.5">
+              <Skeleton className="h-4 w-16 rounded-full" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
     </aside>
   )
 }

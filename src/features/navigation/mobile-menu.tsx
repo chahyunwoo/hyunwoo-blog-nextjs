@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu } from 'lucide-react'
+import { AlertCircle, Menu } from 'lucide-react'
 import { Suspense, useCallback, useState } from 'react'
 import ActiveLink from '@/entities/category/ui/active-link'
 import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
@@ -43,6 +43,14 @@ export default function MobileMenu({ menuItems, categories = [] }: MobileMenuPro
               const isBlogMenu = name.toLowerCase().includes('blog')
 
               if (isBlogMenu) {
+                if (categories.length === 0) {
+                  return (
+                    <div key={name} className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
+                      <AlertCircle className="h-4 w-4 opacity-40" />
+                      카테고리를 불러올 수 없습니다
+                    </div>
+                  )
+                }
                 return (
                   <Suspense key={name} fallback={<BlogMenuSkeleton />}>
                     <BlogCategoryNavigator categories={categories} variant="menu" closeMenu={onClose} />

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getRelatedPosts } from '@/entities/post/api/post.api'
+import { BLUR_DATA_URL } from '@/shared/config/constants'
 import { formatDate } from '@/shared/lib/utils'
 import type { Post } from '@/shared/types'
 import { Badge } from '@/shared/ui/badge'
@@ -24,6 +25,8 @@ function RelatedPostCard({ post }: { post: Post }) {
             sizes="33vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
           />
         </div>
       ) : (

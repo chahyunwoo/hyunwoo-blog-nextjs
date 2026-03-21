@@ -1,5 +1,6 @@
 import { Calendar, Clock } from 'lucide-react'
 import Image from 'next/image'
+import { BLUR_DATA_URL } from '@/shared/config/constants'
 import { estimateReadingTime, formatDate } from '@/shared/lib/utils'
 import type { Post } from '@/shared/types'
 import { Badge } from '@/shared/ui/badge'
@@ -18,7 +19,7 @@ export function PostCard({ post, index }: PostCardProps) {
   return (
     <article className="group h-full flex flex-col overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/20">
       {post.meta.thumbnail && (
-        <div className="relative w-full aspect-video overflow-hidden">
+        <div className="relative w-full aspect-video overflow-hidden bg-muted">
           <Image
             src={post.meta.thumbnail}
             alt={post.meta.title}
@@ -29,7 +30,7 @@ export function PostCard({ post, index }: PostCardProps) {
             priority={isAboveTheFold}
             fetchPriority={isLCP ? 'high' : undefined}
             placeholder="blur"
-            blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='%23f1f5f9'/%3E%3C/svg%3E"
+            blurDataURL={BLUR_DATA_URL}
           />
           <Badge className="absolute top-2 left-2 text-[10px] bg-background/80 text-foreground backdrop-blur-sm border-none">
             {post.meta.mainTag}
@@ -37,10 +38,10 @@ export function PostCard({ post, index }: PostCardProps) {
         </div>
       )}
       <div className="flex flex-col grow p-4 gap-2.5">
-        <h3 className="text-base font-semibold tracking-tight line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="text-base font-semibold tracking-tight line-clamp-2 group-hover:text-primary transition-colors min-h-12">
           {post.meta.title}
         </h3>
-        <p className="text-sm text-muted-foreground line-clamp-2 grow">{post.meta.description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">{post.meta.description}</p>
         <div className="flex gap-1.5 items-center">
           {post.meta.tags.slice(0, 3).map(tag => (
             <Badge key={tag} variant="outline" className="text-[10px] font-normal shrink-0">
