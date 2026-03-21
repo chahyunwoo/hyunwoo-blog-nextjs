@@ -4,7 +4,7 @@ import { IconClock, IconLogout } from '@tabler/icons-react'
 import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { logout, refreshSession, useAuth, useSessionTimer } from '@/entities/auth'
+import { logout, refreshSession, setAuthenticated, useAuth, useSessionTimer } from '@/entities/auth'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
@@ -16,10 +16,13 @@ function RootLayout() {
   const { initialized } = useAuth()
 
   useEffect(() => {
-    if (!initialized) {
+    if (initialized) return
+    if (isLoginPage) {
+      setAuthenticated(false)
+    } else {
       refreshSession()
     }
-  }, [initialized])
+  }, [initialized, isLoginPage])
 
   if (!initialized) {
     return (
