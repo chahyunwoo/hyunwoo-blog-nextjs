@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import NextTopLoader from 'nextjs-toploader'
 import '@/styles/globals.css'
 import { ThemeProvider } from '@/providers/theme-provider'
 import Footer from '@/widgets/header/footer'
@@ -101,6 +102,7 @@ export default function RootLayout({
       </head>
       <body className={`font-pretendard antialiased min-h-screen flex flex-col`}>
         <ThemeProvider>
+          <NextTopLoader color="#3b82f6" height={2} showSpinner={false} shadow={false} />
           <Header />
           <main className="flex-1 flex mt-14">{children}</main>
           <Footer />
