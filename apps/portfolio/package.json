@@ -1,0 +1,27 @@
+{
+  "name": "@hyunwoo/portfolio",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --turbopack --port 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check --write .",
+    "lint:ci": "biome check ."
+  },
+  "dependencies": {
+    "@hyunwoo/shared": "workspace:*",
+    "next": "^16.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^25",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
