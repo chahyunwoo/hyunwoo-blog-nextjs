@@ -8,6 +8,7 @@ export const postSchema = z.object({
   tags: z.array(z.string()),
   thumbnailUrl: z.string().url('유효한 URL을 입력하세요').optional().or(z.literal('')),
   published: z.boolean(),
+  publishedAt: z.string().optional().or(z.literal('')),
 })
 
 export type PostFormValues = z.infer<typeof postSchema>

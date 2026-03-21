@@ -7,6 +7,7 @@ export interface Post {
   category: string
   thumbnailUrl: string | null
   published: boolean
+  publishedAt: string | null
   createdAt: string
   updatedAt: string
   tags: { id: number; name: string }[]
@@ -28,13 +29,13 @@ export interface PostListParams {
 
 export interface CreatePostBody {
   title: string
-  slug?: string
   description?: string
   content: string
   category?: string
   tags?: string[]
   thumbnailUrl?: string
   published: boolean
+  publishedAt?: string
 }
 
 export interface UpdatePostBody extends Partial<CreatePostBody> {}

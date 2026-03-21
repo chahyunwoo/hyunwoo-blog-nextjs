@@ -12,6 +12,7 @@ export function PostNewPage() {
       {
         ...values,
         thumbnailUrl: values.thumbnailUrl || undefined,
+        publishedAt: values.publishedAt || undefined,
       },
       {
         onSuccess: () => navigate({ to: '/posts' }),

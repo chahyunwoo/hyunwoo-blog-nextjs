@@ -17,6 +17,7 @@ export function PostEditPage({ slug }: PostEditPageProps) {
       {
         ...values,
         thumbnailUrl: values.thumbnailUrl || undefined,
+        publishedAt: values.publishedAt || undefined,
       },
       {
         onSuccess: () => navigate({ to: '/posts' }),
@@ -35,6 +36,7 @@ export function PostEditPage({ slug }: PostEditPageProps) {
         tags: post.tags.map(t => t.name),
         thumbnailUrl: post.thumbnailUrl ?? '',
         published: post.published,
+        publishedAt: post.publishedAt ? post.publishedAt.split('T')[0] : '',
       }}
       slug={slug}
       onSubmit={handleSubmit}
