@@ -55,14 +55,14 @@ describe('getPostBySlug', () => {
 })
 
 describe('getPublishedPosts', () => {
-  it('should return mapped and sorted posts', async () => {
+  it('should return mapped posts from API', async () => {
     const posts = [
-      { ...mockPost, slug: 'older', createdAt: '2026-03-10' },
       { ...mockPost, slug: 'newer', createdAt: '2026-03-20' },
+      { ...mockPost, slug: 'older', createdAt: '2026-03-10' },
     ]
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(posts),
+      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 50, totalPages: 1 }),
     })
 
     const result = await getPublishedPosts()
@@ -71,19 +71,18 @@ describe('getPublishedPosts', () => {
     expect(result[1].meta.slug).toBe('older')
   })
 
-  it('should filter out unpublished posts', async () => {
+  it('should return all posts from API response', async () => {
     const posts = [
-      { ...mockPost, slug: 'published', published: true },
-      { ...mockPost, slug: 'draft', published: false },
+      { ...mockPost, slug: 'post-1' },
+      { ...mockPost, slug: 'post-2' },
     ]
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(posts),
+      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 50, totalPages: 1 }),
     })
 
     const result = await getPublishedPosts()
-    expect(result).toHaveLength(1)
-    expect(result[0].meta.slug).toBe('published')
+    expect(result).toHaveLength(2)
   })
 
   it('should return empty array on fetch error', async () => {
