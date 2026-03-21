@@ -2,35 +2,23 @@ import Link from 'next/link'
 import { BlogCategoryNavigator } from '@/components/features/navigation/blog-category-navigator'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
-import { getCategoriesWithTags, getPublishedPosts } from '@/services/post'
+import { getCategoriesWithTags, getRecentPosts, getTagCloud } from '@/services/post'
 import { SidebarTagCloud } from './sidebar-tag-cloud'
 
-const RECENT_POST_COUNT = 5
-
-function getAllTags(categories: Awaited<ReturnType<typeof getCategoriesWithTags>>) {
-  const tagMap = new Map<string, number>()
-  for (const cat of categories) {
-    for (const sub of cat.subCategory) {
-      tagMap.set(sub.name, (tagMap.get(sub.name) || 0) + sub.count)
-    }
-  }
-  const sorted = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1])
-  return { tags: sorted.slice(0, 15), totalCount: sorted.length }
-}
-
 export async function BlogSidebar() {
-  const [categories, posts] = await Promise.all([getCategoriesWithTags(), getPublishedPosts()])
-
-  const recentPosts = posts.slice(0, RECENT_POST_COUNT)
-  const { tags: topTags, totalCount: totalTagCount } = getAllTags(categories)
+  const [categories, recentPosts, tagData] = await Promise.all([
+    getCategoriesWithTags(),
+    getRecentPosts(5),
+    getTagCloud(15),
+  ])
 
   return (
-    <aside className="w-full max-w-[240px] border-r pt-6 pb-12 hidden md:flex md:flex-col gap-6 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <aside className="w-full max-w-[240px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col gap-6 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
       <BlogCategoryNavigator categories={categories} variant="sidebar" />
 
       <hr className="border-border mx-3" />
 
-      <SidebarTagCloud tags={topTags} totalCount={totalTagCount} />
+      <SidebarTagCloud tags={tagData.tags.map(t => [t.name, t.count] as [string, number])} totalCount={tagData.total} />
 
       <hr className="border-border mx-3" />
 

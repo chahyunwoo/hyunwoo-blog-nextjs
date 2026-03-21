@@ -1,26 +1,23 @@
-import { getPublishedPosts } from '@/services/post'
+import { getPaginatedPosts } from '@/services/post'
 import { PostList } from './post-list'
 
 export async function PostListContainer({
   category,
   tag,
   parentCategory,
+  page,
 }: {
   category?: string
   tag?: string
   parentCategory?: string
+  page?: number
 }) {
-  const allPosts = await getPublishedPosts()
+  const result = await getPaginatedPosts({
+    page: page || 1,
+    limit: 9,
+    category: category || parentCategory,
+    tag,
+  })
 
-  let filteredPosts = allPosts
-
-  if (category) {
-    filteredPosts = allPosts.filter(post => post.meta.mainTag === category)
-  } else if (tag && parentCategory) {
-    filteredPosts = allPosts.filter(post => post.meta.tags.includes(tag) && post.meta.mainTag === parentCategory)
-  } else if (tag) {
-    filteredPosts = allPosts.filter(post => post.meta.tags.includes(tag))
-  }
-
-  return <PostList posts={filteredPosts} />
+  return <PostList posts={result.posts} total={result.total} page={result.page} totalPages={result.totalPages} />
 }

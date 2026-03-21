@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { Laptop, Moon, Sun } from 'lucide-react'
 import type { Locale, MenuItem } from '@/types'
 
@@ -13,10 +12,6 @@ export const THEME_TYPES = [
   { name: 'dark', icon: Moon },
   { name: 'system', icon: Laptop },
 ]
-
-// POSTS
-export const POSTS_PATH = path.join(process.cwd(), 'src', 'posts')
-export const RECENT_DAYS = 5
 
 // ABOUT
 export const LANGUAGE_MAP: Record<Locale, string> = {

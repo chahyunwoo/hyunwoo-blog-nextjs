@@ -45,4 +45,5 @@ export type BlogParams = Promise<{
   category?: string
   tag?: string
   parentCategory?: string
+  page?: string
 }>

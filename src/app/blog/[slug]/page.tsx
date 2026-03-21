@@ -1,4 +1,6 @@
+import { ChevronLeft } from 'lucide-react'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MobileTOC } from '@/components/features/blog/mobile-toc'
 import { PostBody } from '@/components/features/blog/post-body'
@@ -21,7 +23,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Params<{ slug: string }>): Promise<Metadata> {
   const slug = (await params).slug
-  const post = getPostBySlug(slug)
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     return {
@@ -70,7 +72,7 @@ export async function generateMetadata({ params }: Params<{ slug: string }>): Pr
 
 export default async function Page({ params }: Params<{ slug: string }>) {
   const slug = (await params).slug
-  const post = getPostBySlug(slug)
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     notFound()
@@ -130,13 +132,20 @@ export default async function Page({ params }: Params<{ slug: string }>) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ReadingProgress />
-      <InnerContainer className="py-8">
+      <InnerContainer className="py-4 md:py-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 md:hidden not-prose"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          목록으로
+        </Link>
         <div className="flex justify-center gap-10">
           <article className="prose dark:prose-invert tracking-wide leading-relaxed max-w-4xl w-full min-w-0">
             <PostHead post={post} />
             <MobileTOC />
             <PostBody post={post} />
-            <PostFooter post={post} />
+            <PostFooter post={post} slug={slug} />
           </article>
           <aside className="hidden xl:block w-48 shrink-0">
             <div className="sticky top-20">
