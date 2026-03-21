@@ -11,5 +11,5 @@ export const MdxComponents = {
   Icon,
   a: MdxLink,
   Highlight,
-  pre: (props: any) => <CodeBlock {...props} />,
+  pre: (props: React.ComponentProps<'pre'>) => <CodeBlock {...props} />,
 }

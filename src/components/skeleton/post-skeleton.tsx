@@ -8,8 +8,8 @@ interface PostSkeletonProps {
 export function PostSkeleton({ count = 6 }: PostSkeletonProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: count }).map((_, index) => (
-        <Card key={index} className="h-full flex flex-col overflow-hidden border-none py-0 pb-4 rounded-sm gap-2">
+      {Array.from({ length: count }, (_, i) => `post-skeleton-${i}`).map(id => (
+        <Card key={id} className="h-full flex flex-col overflow-hidden border-none py-0 pb-4 rounded-sm gap-2">
           <div className="relative w-full aspect-video md:aspect-[4/3] overflow-hidden">
             <Skeleton className="absolute inset-0 w-full h-full rounded-t-lg" />
           </div>

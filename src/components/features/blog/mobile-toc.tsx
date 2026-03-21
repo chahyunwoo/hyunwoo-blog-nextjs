@@ -78,11 +78,19 @@ export function MobileTOC({ skipFirstHeading = true }: { skipFirstHeading?: bool
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50" onClick={() => setIsOpen(false)}>
+        <dialog
+          className="fixed inset-0 z-50 bg-transparent m-0 w-full h-full"
+          open
+          onClick={() => setIsOpen(false)}
+          onKeyDown={e => e.key === 'Escape' && setIsOpen(false)}
+        >
           <div className="absolute inset-0 bg-black/40" />
           <div
+            role="dialog"
+            aria-label="목차"
             className="absolute bottom-0 left-0 right-0 bg-background rounded-t-2xl max-h-[70vh] flex flex-col animate-in slide-in-from-bottom duration-200"
             onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.key === 'Escape' && setIsOpen(false)}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b">
               <p className="text-sm font-semibold">목차</p>
@@ -119,7 +127,7 @@ export function MobileTOC({ skipFirstHeading = true }: { skipFirstHeading?: bool
               })}
             </nav>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   )

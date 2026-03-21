@@ -8,7 +8,7 @@ import { LANGUAGE_MAP } from '@/lib/constants'
 import type { Locale } from '@/types'
 
 export default memo(function LanguageSwitch() {
-  const pathname = usePathname()!
+  const pathname = usePathname() ?? '/about/ko'
   const router = useRouter()
   const currentLocale = pathname.split('/')[2] || 'ko'
 

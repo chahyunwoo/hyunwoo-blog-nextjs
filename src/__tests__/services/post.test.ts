@@ -34,8 +34,8 @@ describe('getPublishedPosts', () => {
 
   it('should only return published posts', async () => {
     const posts = await getPublishedPosts()
-    posts.forEach(post => {
+    for (const post of posts) {
       expect(post.meta.published).toBe(true)
-    })
+    }
   })
 })
