@@ -12,6 +12,7 @@ import {
   Tooltip,
   UnstyledButton,
 } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
 import type { LucideIcon } from 'lucide-react'
 import * as icons from 'lucide-react'
@@ -66,21 +67,38 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
 
   const handleUpdate = () => {
     if (!editTarget || !name.trim()) return
+    const nameChanged = editTarget.category !== name.trim()
+    if (nameChanged && editTarget.count > 0) {
+      if (
+        !window.confirm(
+          `"${editTarget.category}" → "${name.trim()}" 변경 시 ${editTarget.count}개 포스트의 카테고리도 함께 변경됩니다. 계속하시겠습니까?`,
+        )
+      )
+        return
+    }
     updateCategory.mutate(
-      { id: editTarget.id, name: name.trim(), icon: selectedIcon },
+      { category: editTarget.category, name: name.trim(), icon: selectedIcon },
       { onSuccess: () => resetForm() },
     )
   }
 
   const handleDelete = (cat: Category) => {
-    if (!window.confirm(`"${cat.name}" 카테고리를 삭제하시겠습니까?`)) return
-    deleteCategory.mutate(cat.id)
+    if (cat.count > 0) {
+      notifications.show({
+        title: '삭제 불가',
+        message: `"${cat.category}" 카테고리에 ${cat.count}개의 포스트가 있습니다. 포스트를 먼저 다른 카테고리로 이동하세요.`,
+        color: 'red',
+      })
+      return
+    }
+    if (!window.confirm(`"${cat.category}" 카테고리를 삭제하시겠습니까?`)) return
+    deleteCategory.mutate(cat.category)
   }
 
   const startEdit = (cat: Category) => {
     setMode('edit')
     setEditTarget(cat)
-    setName(cat.name)
+    setName(cat.category)
     setSelectedIcon(cat.icon)
   }
 
@@ -100,7 +118,7 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
             const Icon = getIcon(cat.icon)
             return (
               <Group
-                key={cat.id}
+                key={cat.category}
                 justify="space-between"
                 p="xs"
                 style={{
@@ -110,10 +128,10 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
               >
                 <Group
                   gap="sm"
-                  style={{ cursor: onSelect ? 'pointer' : 'default' }}
+                  style={{ cursor: onSelect ? 'pointer' : 'default', flex: 1 }}
                   onClick={() => {
                     if (onSelect) {
-                      onSelect(cat.name)
+                      onSelect(cat.category)
                       onClose()
                       resetForm()
                     }
@@ -121,7 +139,7 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
                 >
                   <Icon size={18} />
                   <Text size="sm" fw={500}>
-                    {cat.name}
+                    {cat.category}
                   </Text>
                   <Text size="xs" c="dimmed">
                     {cat.count}개
@@ -133,8 +151,14 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
                       <IconEdit size={14} />
                     </ActionIcon>
                   </Tooltip>
-                  <Tooltip label="삭제">
-                    <ActionIcon variant="subtle" color="red" size="sm" onClick={() => handleDelete(cat)}>
+                  <Tooltip label={cat.count > 0 ? `${cat.count}개 포스트 사용 중` : '삭제'}>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      size="sm"
+                      disabled={cat.count > 0}
+                      onClick={() => handleDelete(cat)}
+                    >
                       <IconTrash size={14} />
                     </ActionIcon>
                   </Tooltip>
