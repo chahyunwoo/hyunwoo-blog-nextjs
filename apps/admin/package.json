@@ -24,6 +24,7 @@
     "@tanstack/react-table": "^8",
     "dayjs": "^1.11.20",
     "ky": "^1",
+    "lucide-react": "^0.482.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7",

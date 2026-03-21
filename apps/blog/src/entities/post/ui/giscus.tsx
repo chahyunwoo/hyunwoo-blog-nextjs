@@ -15,7 +15,7 @@ export function Giscus() {
     const $script = document.createElement('script')
     $script.src = 'https://giscus.app/client.js'
     $script.async = true
-    $script.setAttribute('data-repo', 'chahyunwoo/hyunwoo-blog-nextjs')
+    $script.setAttribute('data-repo', 'chahyunwoo/hyunwoo-dev')
     $script.setAttribute('data-repo-id', 'R_kgDOOKi_qg')
     $script.setAttribute('data-category', 'Announcements')
     $script.setAttribute('data-category-id', 'DIC_kwDOOKi_qs4Coeoz')

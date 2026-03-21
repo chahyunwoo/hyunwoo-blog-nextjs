@@ -22,17 +22,17 @@ export function MdxImage({
   ...props
 }: MdxImageProps) {
   return (
-    <figure className="my-2 relative">
-      <div className={cn('overflow-hidden')}>
+    <figure className="my-6 relative max-w-2xl mx-auto">
+      <div className={cn('overflow-hidden rounded-md')}>
         <Image
           src={src}
           alt={alt}
-          width={width || 1200}
-          height={height || 630}
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 896px"
+          width={width || 800}
+          height={height || 450}
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 672px"
           loading={priority ? 'eager' : 'lazy'}
           priority={priority}
-          className={cn('w-full h-full object-cover mt-0 my-0', className)}
+          className={cn('w-full h-auto object-cover mt-0 my-0', className)}
           {...props}
         />
       </div>

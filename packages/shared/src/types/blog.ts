@@ -33,6 +33,7 @@ export interface SubCategoryInfo {
 
 export interface CategoryData {
   category: string
+  icon?: string
   subCategory: {
     name: string
     count: number
