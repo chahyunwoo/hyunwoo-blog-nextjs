@@ -22,6 +22,7 @@ export interface ApiPostsResponse {
 
 export interface ApiCategory {
   category: string
+  icon?: string
   count: number
   recent: boolean
   tags: { name: string; slug: string; count: number }[]

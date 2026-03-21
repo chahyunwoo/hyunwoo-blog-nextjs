@@ -95,6 +95,7 @@ export const getCategoriesWithTags = cache(async (): Promise<CategoryData[]> => 
 
   return data.map(cat => ({
     category: cat.category,
+    icon: cat.icon,
     subCategory: cat.tags.map(t => ({ name: t.name, count: t.count })),
     postCount: cat.count,
     recent: cat.recent,

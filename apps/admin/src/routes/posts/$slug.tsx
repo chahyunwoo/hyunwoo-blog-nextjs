@@ -1,6 +1,7 @@
 import { Center, Loader } from '@mantine/core'
 import { createFileRoute } from '@tanstack/react-router'
 import { postDetailOptions } from '@/entities/post'
+import { PostEditPage } from '@/pages/posts'
 
 export const Route = createFileRoute('/posts/$slug')({
   loader: ({ context: { queryClient }, params: { slug } }) => queryClient.ensureQueryData(postDetailOptions(slug)),
@@ -9,5 +10,10 @@ export const Route = createFileRoute('/posts/$slug')({
       <Loader />
     </Center>
   ),
-  component: () => <div>Post Edit (WIP)</div>,
+  component: PostEditRouteComponent,
 })
+
+function PostEditRouteComponent() {
+  const { slug } = Route.useParams()
+  return <PostEditPage slug={slug} />
+}
