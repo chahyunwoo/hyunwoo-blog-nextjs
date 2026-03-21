@@ -19,6 +19,7 @@
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
+    "@types/node": "^25",
     "@types/react": "^19.2.14",
     "typescript": "^5"
   }
