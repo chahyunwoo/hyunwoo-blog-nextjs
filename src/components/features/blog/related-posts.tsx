@@ -13,10 +13,10 @@ function RelatedPostCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.meta.slug}`}
-      className="group flex flex-col overflow-hidden rounded-lg border hover:border-primary/30 hover:shadow-md transition-all h-auto sm:h-[220px]"
+      className="group flex flex-col overflow-hidden rounded-lg border hover:border-primary/30 hover:shadow-md transition-all h-auto sm:h-[260px]"
     >
       {post.meta.thumbnail ? (
-        <div className="relative w-full h-[100px] shrink-0 overflow-hidden bg-muted hidden sm:block">
+        <div className="relative w-full h-[130px] shrink-0 overflow-hidden bg-muted hidden sm:block">
           <Image
             src={post.meta.thumbnail}
             alt={post.meta.title}
@@ -27,7 +27,7 @@ function RelatedPostCard({ post }: { post: Post }) {
           />
         </div>
       ) : (
-        <div className="w-full h-[100px] shrink-0 bg-muted hidden sm:block" />
+        <div className="w-full h-[130px] shrink-0 bg-muted hidden sm:block" />
       )}
       <div className="flex flex-col grow p-3 gap-2">
         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors leading-snug">
@@ -55,7 +55,7 @@ export async function RelatedPosts({ slug }: RelatedPostsProps) {
   const isMixed = related.length > 0 && recommended.length > 0 && !hasOnlyRelated && !hasOnlyRecommended
 
   return (
-    <div className="mt-12 pt-8 border-t border-border not-prose">
+    <div className="mt-4 pt-8 border-t border-border not-prose">
       {!isMixed && (
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
           <span className="w-1 h-4 bg-primary rounded-full" />

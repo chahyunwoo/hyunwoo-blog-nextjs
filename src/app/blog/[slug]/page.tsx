@@ -8,7 +8,6 @@ import { PostFooter } from '@/components/features/blog/post-footer'
 import { PostHead } from '@/components/features/blog/post-head'
 import { PostTOC } from '@/components/features/blog/post-toc'
 import { ReadingProgress } from '@/components/features/blog/reading-progress'
-import { RelatedPosts } from '@/components/features/blog/related-posts'
 import { InnerContainer } from '@/components/layout/inner-container'
 import { getPostBySlug, getPublishedPosts } from '@/services/post'
 import type { Params } from '@/types'
@@ -146,8 +145,7 @@ export default async function Page({ params }: Params<{ slug: string }>) {
             <PostHead post={post} />
             <MobileTOC />
             <PostBody post={post} />
-            <RelatedPosts slug={slug} />
-            <PostFooter post={post} />
+            <PostFooter post={post} slug={slug} />
           </article>
           <aside className="hidden xl:block w-48 shrink-0">
             <div className="sticky top-20">

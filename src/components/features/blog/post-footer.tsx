@@ -3,16 +3,18 @@ import CopyButton from '@/components/common/copy-button'
 import { Badge } from '@/components/ui/badge'
 import type { Post } from '@/types'
 import { Giscus } from './giscus'
+import { RelatedPosts } from './related-posts'
 
 interface PostFooterProps {
   post: Post
+  slug: string
 }
 
-export function PostFooter({ post }: PostFooterProps) {
+export function PostFooter({ post, slug }: PostFooterProps) {
   return (
     <div className="space-y-8 mb-20">
       <div>
-        <div className="flex justify-between mb-10">
+        <div className="flex justify-between mb-4">
           <div className="pt-8 flex-1">
             <div className="flex items-start gap-2">
               <div className="flex items-center gap-2 shrink-0">
@@ -32,7 +34,10 @@ export function PostFooter({ post }: PostFooterProps) {
             <CopyButton description="링크가 복사되었습니다." icon="Share2" useCurrentUrl />
           </div>
         </div>
-        <Giscus />
+        <RelatedPosts slug={slug} />
+        <div className="mt-12">
+          <Giscus />
+        </div>
       </div>
     </div>
   )
