@@ -53,7 +53,12 @@ export function LoginPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack>
-            <TextInput label="아이디" placeholder="username" error={errors.username?.message} {...register('username')} />
+            <TextInput
+              label="아이디"
+              placeholder="username"
+              error={errors.username?.message}
+              {...register('username')}
+            />
             <PasswordInput
               label="비밀번호"
               placeholder="password"

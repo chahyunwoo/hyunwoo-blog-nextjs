@@ -1,4 +1,4 @@
-export type { CreatePostBody, Post, PostListParams, PostListResponse, UpdatePostBody } from './post.queries'
+export type { CreatePostBody, Post, PostListParams, PostListResponse, UpdatePostBody } from './model'
 export {
   useCreatePost,
   useDeletePost,
