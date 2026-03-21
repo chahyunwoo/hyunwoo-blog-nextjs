@@ -41,7 +41,11 @@ export function useCreateCategory() {
     mutationFn: (body: CreateCategoryBody) => adminApi.post('api/blog/categories', { json: body }).json<Category>(),
     onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
-      notifications.show({ title: '카테고리 생성', message: `"${data.name}" 카테고리가 생성되었습니다.`, color: 'teal' })
+      notifications.show({
+        title: '카테고리 생성',
+        message: `"${data.name}" 카테고리가 생성되었습니다.`,
+        color: 'teal',
+      })
     },
     onError: async e => {
       notifications.show({ title: '생성 실패', message: await getErrorMessage(e), color: 'red' })
@@ -57,7 +61,11 @@ export function useUpdateCategory() {
       adminApi.put(`api/blog/categories/${id}`, { json: body }).json<Category>(),
     onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
-      notifications.show({ title: '카테고리 수정', message: `"${data.name}" 카테고리가 수정되었습니다.`, color: 'teal' })
+      notifications.show({
+        title: '카테고리 수정',
+        message: `"${data.name}" 카테고리가 수정되었습니다.`,
+        color: 'teal',
+      })
     },
     onError: async e => {
       notifications.show({ title: '수정 실패', message: await getErrorMessage(e), color: 'red' })

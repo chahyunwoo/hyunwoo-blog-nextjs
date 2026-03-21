@@ -55,12 +55,23 @@ export function PostListPage() {
                 </Group>
                 <Group gap={4} wrap="nowrap">
                   <Tooltip label="수정">
-                    <ActionIcon component={Link} to="/posts/$slug" params={{ slug: post.slug }} variant="subtle" color="gray">
+                    <ActionIcon
+                      component={Link}
+                      to="/posts/$slug"
+                      params={{ slug: post.slug }}
+                      variant="subtle"
+                      color="gray"
+                    >
                       <IconEdit size={16} />
                     </ActionIcon>
                   </Tooltip>
                   <Tooltip label="삭제">
-                    <ActionIcon variant="subtle" color="red" loading={deletePost.isPending} onClick={() => handleDelete(post.slug, post.title)}>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      loading={deletePost.isPending}
+                      onClick={() => handleDelete(post.slug, post.title)}
+                    >
                       <IconTrash size={16} />
                     </ActionIcon>
                   </Tooltip>

@@ -147,7 +147,13 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                   {errors.content.message}
                 </Text>
               )}
-              <Box style={{ borderRadius: 'var(--mantine-radius-md)', overflow: 'hidden', border: '1px solid var(--mantine-color-default-border)' }}>
+              <Box
+                style={{
+                  borderRadius: 'var(--mantine-radius-md)',
+                  overflow: 'hidden',
+                  border: '1px solid var(--mantine-color-default-border)',
+                }}
+              >
                 <Controller
                   name="content"
                   control={control}
@@ -173,7 +179,12 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                           const insertText = `\n<MdxImage src="${url}" alt="" caption="" />\n`
                           editor.executeEdits('', [
                             {
-                              range: { startLineNumber: position.lineNumber, startColumn: position.column, endLineNumber: position.lineNumber, endColumn: position.column },
+                              range: {
+                                startLineNumber: position.lineNumber,
+                                startColumn: position.column,
+                                endLineNumber: position.lineNumber,
+                                endColumn: position.column,
+                              },
                               text: insertText,
                             },
                           ])
@@ -191,15 +202,26 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                           ce.stopPropagation()
                           insertImage(file)
                         })
-                        dom.addEventListener('dragover', (e: Event) => { e.preventDefault(); e.stopPropagation() }, true)
-                        dom.addEventListener('drop', async (e: Event) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          const de = e as DragEvent
-                          const file = de.dataTransfer?.files[0]
-                          if (!file?.type.startsWith('image/')) return
-                          insertImage(file)
-                        }, true)
+                        dom.addEventListener(
+                          'dragover',
+                          (e: Event) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                          },
+                          true,
+                        )
+                        dom.addEventListener(
+                          'drop',
+                          async (e: Event) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            const de = e as DragEvent
+                            const file = de.dataTransfer?.files[0]
+                            if (!file?.type.startsWith('image/')) return
+                            insertImage(file)
+                          },
+                          true,
+                        )
                       }}
                       options={{
                         minimap: { enabled: false },
@@ -248,8 +270,15 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
               <Stack gap="lg">
                 <div>
                   <Group justify="space-between" mb={8}>
-                    <Text size="sm" fw={500}>카테고리</Text>
-                    <Button variant="subtle" size="compact-xs" leftSection={<IconPlus size={12} />} onClick={() => setCategoryModalOpened(true)}>
+                    <Text size="sm" fw={500}>
+                      카테고리
+                    </Text>
+                    <Button
+                      variant="subtle"
+                      size="compact-xs"
+                      leftSection={<IconPlus size={12} />}
+                      onClick={() => setCategoryModalOpened(true)}
+                    >
                       관리
                     </Button>
                   </Group>
@@ -329,7 +358,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     leftSection={thumbnailUploading ? <IconUpload size={16} /> : <IconPhoto size={16} />}
                     disabled={thumbnailUploading}
-                    onChange={async (file) => {
+                    onChange={async file => {
                       if (!file) return
                       setThumbnailUploading(true)
                       const url = await handleImageUpload(file)
@@ -353,11 +382,19 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
               </Text>
               <Accordion variant="separated" radius="md">
                 <Accordion.Item value="callout">
-                  <Accordion.Control icon={<ThemeIcon variant="light" color="blue" size="sm"><IconInfoCircle size={14} /></ThemeIcon>}>
+                  <Accordion.Control
+                    icon={
+                      <ThemeIcon variant="light" color="blue" size="sm">
+                        <IconInfoCircle size={14} />
+                      </ThemeIcon>
+                    }
+                  >
                     <Text size="sm">Callout</Text>
                   </Accordion.Control>
                   <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>type: tip | info | warning | error | success | default</Text>
+                    <Text size="xs" c="dimmed" mb={8}>
+                      type: tip | info | warning | error | success | default
+                    </Text>
                     <Stack gap={6}>
                       <Code block>{`<Callout type="tip">팁 내용</Callout>`}</Code>
                       <Code block>{`<Callout type="info">정보</Callout>`}</Code>
@@ -369,11 +406,19 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                 </Accordion.Item>
 
                 <Accordion.Item value="highlight">
-                  <Accordion.Control icon={<ThemeIcon variant="light" color="pink" size="sm"><IconHighlight size={14} /></ThemeIcon>}>
+                  <Accordion.Control
+                    icon={
+                      <ThemeIcon variant="light" color="pink" size="sm">
+                        <IconHighlight size={14} />
+                      </ThemeIcon>
+                    }
+                  >
                     <Text size="sm">Highlight</Text>
                   </Accordion.Control>
                   <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>color: fuchsia (기본) | blue | green | yellow | red</Text>
+                    <Text size="xs" c="dimmed" mb={8}>
+                      color: fuchsia (기본) | blue | green | yellow | red
+                    </Text>
                     <Stack gap={6}>
                       <Code block>{`<Highlight>기본 강조 (fuchsia)</Highlight>`}</Code>
                       <Code block>{`<Highlight color="blue">파란색</Highlight>`}</Code>
@@ -385,59 +430,103 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                 </Accordion.Item>
 
                 <Accordion.Item value="image">
-                  <Accordion.Control icon={<ThemeIcon variant="light" color="green" size="sm"><IconPhoto size={14} /></ThemeIcon>}>
+                  <Accordion.Control
+                    icon={
+                      <ThemeIcon variant="light" color="green" size="sm">
+                        <IconPhoto size={14} />
+                      </ThemeIcon>
+                    }
+                  >
                     <Text size="sm">MdxImage</Text>
                   </Accordion.Control>
                   <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>src (필수), alt, caption, width, height, priority</Text>
+                    <Text size="xs" c="dimmed" mb={8}>
+                      src (필수), alt, caption, width, height, priority
+                    </Text>
                     <Stack gap={6}>
                       <Code block>{`<MdxImage src="https://..." alt="설명" />`}</Code>
                       <Code block>{`<MdxImage\n  src="https://..."\n  alt="설명"\n  caption="이미지 캡션"\n/>`}</Code>
-                      <Code block>{`<MdxImage\n  src="https://..."\n  alt="설명"\n  width={800}\n  height={400}\n  priority\n/>`}</Code>
+                      <Code
+                        block
+                      >{`<MdxImage\n  src="https://..."\n  alt="설명"\n  width={800}\n  height={400}\n  priority\n/>`}</Code>
                     </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>에디터에 이미지를 드래그/붙여넣기하면 자동 업로드됩니다.</Text>
+                    <Text size="xs" c="dimmed" mt={8}>
+                      에디터에 이미지를 드래그/붙여넣기하면 자동 업로드됩니다.
+                    </Text>
                   </Accordion.Panel>
                 </Accordion.Item>
 
                 <Accordion.Item value="link">
-                  <Accordion.Control icon={<ThemeIcon variant="light" color="cyan" size="sm"><IconExternalLink size={14} /></ThemeIcon>}>
+                  <Accordion.Control
+                    icon={
+                      <ThemeIcon variant="light" color="cyan" size="sm">
+                        <IconExternalLink size={14} />
+                      </ThemeIcon>
+                    }
+                  >
                     <Text size="sm">MdxLink</Text>
                   </Accordion.Control>
                   <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>외부 링크 자동 감지 (새 탭 + 아이콘)</Text>
+                    <Text size="xs" c="dimmed" mb={8}>
+                      외부 링크 자동 감지 (새 탭 + 아이콘)
+                    </Text>
                     <Stack gap={6}>
                       <Code block>{`[링크 텍스트](https://example.com)`}</Code>
                       <Code block>{`[내부 링크](/blog/post-slug)`}</Code>
                     </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>마크다운 링크 문법 그대로 사용. 외부 URL은 자동으로 새 탭 + 아이콘 표시.</Text>
+                    <Text size="xs" c="dimmed" mt={8}>
+                      마크다운 링크 문법 그대로 사용. 외부 URL은 자동으로 새 탭 + 아이콘 표시.
+                    </Text>
                   </Accordion.Panel>
                 </Accordion.Item>
 
                 <Accordion.Item value="code">
-                  <Accordion.Control icon={<ThemeIcon variant="light" color="violet" size="sm"><IconCode size={14} /></ThemeIcon>}>
+                  <Accordion.Control
+                    icon={
+                      <ThemeIcon variant="light" color="violet" size="sm">
+                        <IconCode size={14} />
+                      </ThemeIcon>
+                    }
+                  >
                     <Text size="sm">코드 블록</Text>
                   </Accordion.Control>
                   <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>title: 파일명 표시, 라인 하이라이팅 지원</Text>
+                    <Text size="xs" c="dimmed" mb={8}>
+                      title: 파일명 표시, 라인 하이라이팅 지원
+                    </Text>
                     <Stack gap={6}>
                       <Code block>{`\`\`\`ts title="파일명.ts"\nconst x = 1;\n\`\`\``}</Code>
-                      <Code block>{`\`\`\`tsx title="Component.tsx" {3-5}\nimport { useState } from 'react'\n\nfunction App() {\n  const [count, setCount] = useState(0)\n  return <div>{count}</div>\n}\n\`\`\``}</Code>
+                      <Code
+                        block
+                      >{`\`\`\`tsx title="Component.tsx" {3-5}\nimport { useState } from 'react'\n\nfunction App() {\n  const [count, setCount] = useState(0)\n  return <div>{count}</div>\n}\n\`\`\``}</Code>
                     </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>지원 언어: ts, tsx, js, jsx, css, html, json, bash, yaml, python, go, rust, sql 등</Text>
+                    <Text size="xs" c="dimmed" mt={8}>
+                      지원 언어: ts, tsx, js, jsx, css, html, json, bash, yaml, python, go, rust, sql 등
+                    </Text>
                   </Accordion.Panel>
                 </Accordion.Item>
 
                 <Accordion.Item value="icon">
-                  <Accordion.Control icon={<ThemeIcon variant="light" color="orange" size="sm"><IconAlertCircle size={14} /></ThemeIcon>}>
+                  <Accordion.Control
+                    icon={
+                      <ThemeIcon variant="light" color="orange" size="sm">
+                        <IconAlertCircle size={14} />
+                      </ThemeIcon>
+                    }
+                  >
                     <Text size="sm">Icon</Text>
                   </Accordion.Control>
                   <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>name (필수), size (기본 24), color, className</Text>
+                    <Text size="xs" c="dimmed" mb={8}>
+                      name (필수), size (기본 24), color, className
+                    </Text>
                     <Stack gap={6}>
                       <Code block>{`<Icon name="AlertCircle" />`}</Code>
                       <Code block>{`<Icon name="AlertCircle" size={16} color="red" />`}</Code>
                     </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>lucide-react 아이콘 이름 사용</Text>
+                    <Text size="xs" c="dimmed" mt={8}>
+                      lucide-react 아이콘 이름 사용
+                    </Text>
                   </Accordion.Panel>
                 </Accordion.Item>
               </Accordion>
@@ -450,7 +539,12 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
 
       <Group justify="flex-end" gap="sm">
         {mode === 'edit' && slug && (
-          <Button variant="light" leftSection={<IconExternalLink size={14} />} onClick={openPreview} disabled={!previewToken}>
+          <Button
+            variant="light"
+            leftSection={<IconExternalLink size={14} />}
+            onClick={openPreview}
+            disabled={!previewToken}
+          >
             프리뷰
           </Button>
         )}

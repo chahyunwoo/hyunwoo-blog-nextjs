@@ -13,8 +13,8 @@ import {
   UnstyledButton,
 } from '@mantine/core'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
-import * as icons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import * as icons from 'lucide-react'
 import { useState } from 'react'
 import {
   type Category,
@@ -61,10 +61,7 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
 
   const handleCreate = () => {
     if (!name.trim()) return
-    createCategory.mutate(
-      { name: name.trim(), icon: selectedIcon },
-      { onSuccess: () => resetForm() },
-    )
+    createCategory.mutate({ name: name.trim(), icon: selectedIcon }, { onSuccess: () => resetForm() })
   }
 
   const handleUpdate = () => {
@@ -88,13 +85,29 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
   }
 
   return (
-    <Modal opened={opened} onClose={() => { onClose(); resetForm() }} title="카테고리 관리" size="md">
+    <Modal
+      opened={opened}
+      onClose={() => {
+        onClose()
+        resetForm()
+      }}
+      title="카테고리 관리"
+      size="md"
+    >
       {mode === 'list' ? (
         <Stack gap="sm">
           {categories?.map(cat => {
             const Icon = getIcon(cat.icon)
             return (
-              <Group key={cat.id} justify="space-between" p="xs" style={{ borderRadius: 'var(--mantine-radius-md)', border: '1px solid var(--mantine-color-default-border)' }}>
+              <Group
+                key={cat.id}
+                justify="space-between"
+                p="xs"
+                style={{
+                  borderRadius: 'var(--mantine-radius-md)',
+                  border: '1px solid var(--mantine-color-default-border)',
+                }}
+              >
                 <Group
                   gap="sm"
                   style={{ cursor: onSelect ? 'pointer' : 'default' }}
@@ -107,8 +120,12 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
                   }}
                 >
                   <Icon size={18} />
-                  <Text size="sm" fw={500}>{cat.name}</Text>
-                  <Text size="xs" c="dimmed">{cat.count}개</Text>
+                  <Text size="sm" fw={500}>
+                    {cat.name}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    {cat.count}개
+                  </Text>
                 </Group>
                 <Group gap={4}>
                   <Tooltip label="수정">
@@ -126,7 +143,13 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
             )
           })}
 
-          <Button variant="light" leftSection={<IconPlus size={16} />} onClick={() => setMode('create')} fullWidth mt="xs">
+          <Button
+            variant="light"
+            leftSection={<IconPlus size={16} />}
+            onClick={() => setMode('create')}
+            fullWidth
+            mt="xs"
+          >
             새 카테고리
           </Button>
         </Stack>
@@ -150,7 +173,15 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
               value={iconSearch}
               onChange={e => setIconSearch(e.currentTarget.value)}
             />
-            <Box style={{ maxHeight: 200, overflow: 'auto', border: '1px solid var(--mantine-color-default-border)', borderRadius: 'var(--mantine-radius-md)', padding: 8 }}>
+            <Box
+              style={{
+                maxHeight: 200,
+                overflow: 'auto',
+                border: '1px solid var(--mantine-color-default-border)',
+                borderRadius: 'var(--mantine-radius-md)',
+                padding: 8,
+              }}
+            >
               <SimpleGrid cols={8} spacing={4}>
                 {filteredIcons.map(iconName => {
                   const Icon = getIcon(iconName)
