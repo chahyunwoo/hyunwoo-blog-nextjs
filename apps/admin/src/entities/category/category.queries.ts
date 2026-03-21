@@ -5,11 +5,10 @@ import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
 
 interface Category {
-  id: number
-  name: string
+  category: string
   icon: string
-  sortOrder: number
   count: number
+  recent: boolean
 }
 
 interface CreateCategoryBody {
@@ -43,7 +42,7 @@ export function useCreateCategory() {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
       notifications.show({
         title: '카테고리 생성',
-        message: `"${data.name}" 카테고리가 생성되었습니다.`,
+        message: `"${data.category}" 카테고리가 생성되었습니다.`,
         color: 'teal',
       })
     },
@@ -57,13 +56,13 @@ export function useUpdateCategory() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number } & Partial<CreateCategoryBody>) =>
-      adminApi.put(`api/blog/categories/${id}`, { json: body }).json<Category>(),
+    mutationFn: ({ category, ...body }: { category: string } & Partial<CreateCategoryBody>) =>
+      adminApi.put(`api/blog/categories/${encodeURIComponent(category)}`, { json: body }).json<Category>(),
     onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
       notifications.show({
         title: '카테고리 수정',
-        message: `"${data.name}" 카테고리가 수정되었습니다.`,
+        message: `"${data.category}" 카테고리가 수정되었습니다.`,
         color: 'teal',
       })
     },
@@ -77,7 +76,7 @@ export function useDeleteCategory() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: number) => adminApi.delete(`api/blog/categories/${id}`),
+    mutationFn: (category: string) => adminApi.delete(`api/blog/categories/${encodeURIComponent(category)}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
       notifications.show({ title: '카테고리 삭제', message: '카테고리가 삭제되었습니다.', color: 'teal' })
