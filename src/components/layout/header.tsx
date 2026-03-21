@@ -8,12 +8,10 @@ import { InnerContainer } from '@/components/layout/inner-container'
 import { IconButton } from '@/components/ui/button'
 import Logo from '@/components/ui/logo'
 import { MENU_ITEMS } from '@/lib/constants'
-import { getCategoriesWithTags, getPublishedPosts } from '@/services/post'
+import { getCategoriesWithTags } from '@/services/post'
 
 export async function Header() {
-  const [categories, posts] = await Promise.all([getCategoriesWithTags(), getPublishedPosts()])
-
-  const postMetas = posts.map(p => p.meta)
+  const categories = await getCategoriesWithTags()
 
   return (
     <header className="fixed w-full z-10 border-b backdrop-blur-xl bg-background/80">
@@ -26,7 +24,7 @@ export async function Header() {
         <DesktopMenu items={MENU_ITEMS} />
 
         <div className="flex items-center gap-1">
-          <SearchCommand posts={postMetas} />
+          <SearchCommand />
           <IconButton
             icon={Github}
             variant="ghost"

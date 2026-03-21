@@ -66,14 +66,19 @@ const jsonLd = {
 }
 
 export default async function Home({ searchParams }: { searchParams: BlogParams }) {
-  const { category, tag, parentCategory } = await searchParams
+  const { category, tag, parentCategory, page } = await searchParams
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <BlogLayout>
         <Suspense fallback={<PostSkeleton count={6} />}>
-          <PostListContainer category={category} tag={tag} parentCategory={parentCategory} />
+          <PostListContainer
+            category={category}
+            tag={tag}
+            parentCategory={parentCategory}
+            page={page ? Number(page) : 1}
+          />
         </Suspense>
       </BlogLayout>
     </>

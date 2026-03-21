@@ -14,6 +14,7 @@ export function formatDate(dateString: string) {
 }
 
 export function estimateReadingTime(content: string) {
+  if (!content) return 1
   let text = ''
   let inTag = false
   for (const char of content) {

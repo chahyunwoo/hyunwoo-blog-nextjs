@@ -17,7 +17,7 @@ const prettyCodeOptions: Options = {
 
 export function PostBody({ post }: { post: Post }) {
   return (
-    <div className="py-12">
+    <div className="pt-4 md:pt-8 pb-12">
       <MDXRemote
         source={post.content}
         options={{
