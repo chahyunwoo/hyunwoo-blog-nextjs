@@ -21,7 +21,7 @@ export async function extendSession() {
   try {
     await adminApi.post('api/auth/session/extend')
   } catch {
-    // 세션 연장 실패는 무시 — 다음 API 호출 시 refresh가 처리
+    // 세션 연장 실패는 무시
   }
 }
 
@@ -33,5 +33,14 @@ export async function logout() {
   } finally {
     setAuthenticated(false)
     window.location.href = '/login'
+  }
+}
+
+export async function getPreviewToken(): Promise<string | null> {
+  try {
+    const data = await adminApi.post('api/auth/preview-token').json<{ token: string }>()
+    return data.token
+  } catch {
+    return null
   }
 }
