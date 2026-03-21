@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "npm start",
+      "startServerCommand": "pnpm --filter @hyunwoo/blog start",
       "startServerReadyPattern": "Ready",
       "url": ["http://localhost:3000", "http://localhost:3000/about/ko"],
       "numberOfRuns": 1
