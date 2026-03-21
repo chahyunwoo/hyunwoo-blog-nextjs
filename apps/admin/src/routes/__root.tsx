@@ -1,13 +1,50 @@
-import { AppShell, Burger, Group, NavLink, Text } from '@mantine/core'
+import { ActionIcon, AppShell, Burger, Center, Group, Loader, NavLink, Text, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { IconClock, IconLogout } from '@tabler/icons-react'
+import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { logout, refreshSession, useAuth, useSessionTimer } from '@/entities/auth'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
 })
 
 function RootLayout() {
+  const matchRoute = useMatchRoute()
+  const isLoginPage = matchRoute({ to: '/login' })
+  const { initialized } = useAuth()
+
+  useEffect(() => {
+    if (!initialized) {
+      refreshSession()
+    }
+  }, [initialized])
+
+  if (!initialized) {
+    return (
+      <Center mih="100vh">
+        <Loader />
+      </Center>
+    )
+  }
+
+  if (isLoginPage) {
+    return <Outlet />
+  }
+
+  return <AuthenticatedLayout />
+}
+
+function AuthenticatedLayout() {
   const [opened, { toggle }] = useDisclosure()
+  const { isAuthenticated } = useAuth()
+  const { display, showWarning, extend } = useSessionTimer()
+
+  if (!isAuthenticated) {
+    window.location.href = '/login'
+    return null
+  }
 
   return (
     <AppShell
@@ -16,11 +53,31 @@ function RootLayout() {
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Text fw={700} size="lg">
-            hyunwoo.dev Admin
-          </Text>
+        <Group h="100%" px="md" justify="space-between">
+          <Group>
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Text fw={700} size="lg">
+              hyunwoo.dev
+            </Text>
+          </Group>
+          <Group gap="sm">
+            <Tooltip label="세션 연장" position="bottom">
+              <Group gap={6} style={{ cursor: 'pointer' }} onClick={extend}>
+                <IconClock
+                  size={16}
+                  color={showWarning ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-blue-4)'}
+                />
+                <Text size="xs" ff="monospace" c={showWarning ? 'red' : 'blue.4'} fw={showWarning ? 700 : 500}>
+                  {display}
+                </Text>
+              </Group>
+            </Tooltip>
+            <Tooltip label="로그아웃" position="bottom">
+              <ActionIcon variant="subtle" color="gray" onClick={logout}>
+                <IconLogout size={18} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         </Group>
       </AppShell.Header>
 
