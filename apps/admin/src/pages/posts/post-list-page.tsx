@@ -1,25 +1,17 @@
 import { formatDate } from '@hyunwoo/shared/lib'
-import { Badge, Button, Group, Loader, Stack, Table, Text, Title } from '@mantine/core'
+import { Badge, Button, Group, Table, Text, Title } from '@mantine/core'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useDeletePost, usePostList } from '@/entities/post'
 
 export function PostListPage() {
   const [page, setPage] = useState(1)
-  const { data, isLoading } = usePostList({ page, limit: 20 })
+  const { data } = usePostList({ page, limit: 20 })
   const deletePost = useDeletePost()
 
   const handleDelete = (slug: string, title: string) => {
     if (!window.confirm(`"${title}" 포스트를 삭제하시겠습니까?`)) return
     deletePost.mutate(slug)
-  }
-
-  if (isLoading) {
-    return (
-      <Stack align="center" justify="center" mih={400}>
-        <Loader />
-      </Stack>
-    )
   }
 
   return (

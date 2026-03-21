@@ -1,6 +1,13 @@
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
+import {
+  dashboardOptions,
+  popularPostsOptions,
+  referrersOptions,
+  systemOptions,
+  visitorsOptions,
+} from './analytics.options'
 
 interface DashboardData {
   postStats: { total: number; published: number; draft: number }
@@ -28,11 +35,6 @@ interface Referrer {
   count: number
 }
 
-interface PopularPage {
-  path: string
-  count: number
-}
-
 interface SystemInfo {
   uptime: number
   uptimeFormatted: string
@@ -52,54 +54,30 @@ interface AdminLog {
 }
 
 export function useDashboard() {
-  return useQuery({
-    queryKey: queryKeys.analytics.dashboard,
-    queryFn: () => adminApi.get('api/analytics/dashboard').json<DashboardData>(),
-  })
+  return useSuspenseQuery(dashboardOptions())
 }
 
-export function useVisitors(days = 30, app = 'blog') {
-  return useQuery({
-    queryKey: queryKeys.analytics.visitors(days, app),
-    queryFn: () => adminApi.get(`api/analytics/visitors?days=${days}&app=${app}`).json<VisitorData>(),
-  })
+export function useVisitors(days?: number, app = 'blog') {
+  return useSuspenseQuery(visitorsOptions(days, app))
 }
 
 export function usePopularPosts(limit = 10) {
-  return useQuery({
-    queryKey: queryKeys.analytics.popularPosts(limit),
-    queryFn: () => adminApi.get(`api/analytics/popular-posts?limit=${limit}`).json<PopularPost[]>(),
-  })
+  return useSuspenseQuery(popularPostsOptions(limit))
 }
 
 export function useReferrers(days = 30, app = 'blog') {
-  return useQuery({
-    queryKey: queryKeys.analytics.referrers(days, app),
-    queryFn: () => adminApi.get(`api/analytics/referrers?days=${days}&app=${app}`).json<Referrer[]>(),
-  })
-}
-
-export function usePopularPages(days = 30, app = 'blog', limit = 20) {
-  return useQuery({
-    queryKey: queryKeys.analytics.popularPages(days, app, limit),
-    queryFn: () =>
-      adminApi.get(`api/analytics/popular-pages?days=${days}&app=${app}&limit=${limit}`).json<PopularPage[]>(),
-  })
+  return useSuspenseQuery(referrersOptions(days, app))
 }
 
 export function useSystemInfo() {
-  return useQuery({
-    queryKey: queryKeys.analytics.system,
-    queryFn: () => adminApi.get('api/analytics/system').json<SystemInfo>(),
-    refetchInterval: 30_000,
-  })
+  return useSuspenseQuery(systemOptions())
 }
 
 export function useAdminLogs(limit = 20) {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: queryKeys.analytics.adminLogs(limit),
     queryFn: () => adminApi.get(`api/analytics/admin-logs?limit=${limit}`).json<AdminLog[]>(),
   })
 }
 
-export type { AdminLog, DashboardData, PopularPage, PopularPost, Referrer, SystemInfo, VisitorData }
+export type { AdminLog, DashboardData, PopularPost, Referrer, SystemInfo, VisitorData }

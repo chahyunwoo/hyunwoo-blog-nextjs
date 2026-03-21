@@ -1,10 +1,11 @@
 import { ENDPOINTS } from '@hyunwoo/shared/api'
 import { notifications } from '@mantine/notifications'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { HTTPError } from 'ky'
 import { adminApi, uploadFile } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-import type { CreatePostBody, Post, PostListParams, PostListResponse, UpdatePostBody } from './model'
+import type { CreatePostBody, Post, PostListParams, UpdatePostBody } from './model'
+import { postDetailOptions, postListOptions } from './post.options'
 
 function stripLeadingSlash(path: string) {
   return path.startsWith('/') ? path.slice(1) : path
@@ -20,23 +21,11 @@ async function getErrorMessage(e: unknown): Promise<string> {
 }
 
 export function usePostList(params?: PostListParams) {
-  const searchParams = new URLSearchParams()
-  if (params?.page) searchParams.set('page', String(params.page))
-  if (params?.limit) searchParams.set('limit', String(params.limit))
-  if (params?.category) searchParams.set('category', params.category)
-
-  return useQuery({
-    queryKey: queryKeys.posts.list(params),
-    queryFn: () => adminApi.get(`${stripLeadingSlash(ENDPOINTS.blog.posts)}?${searchParams}`).json<PostListResponse>(),
-  })
+  return useSuspenseQuery(postListOptions(params))
 }
 
 export function usePostDetail(slug: string) {
-  return useQuery({
-    queryKey: queryKeys.posts.detail(slug),
-    queryFn: () => adminApi.get(stripLeadingSlash(ENDPOINTS.blog.postBySlug(slug))).json<Post>(),
-    enabled: !!slug,
-  })
+  return useSuspenseQuery(postDetailOptions(slug))
 }
 
 export function useCreatePost() {

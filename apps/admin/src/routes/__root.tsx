@@ -1,11 +1,12 @@
 import { ActionIcon, AppShell, Burger, Center, Group, Loader, NavLink, Text, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconClock, IconLogout } from '@tabler/icons-react'
-import { createRootRoute, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { logout, refreshSession, useAuth, useSessionTimer } from '@/entities/auth'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
 })
 

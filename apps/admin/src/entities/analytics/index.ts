@@ -1,7 +1,13 @@
+export {
+  dashboardOptions,
+  popularPostsOptions,
+  referrersOptions,
+  systemOptions,
+  visitorsOptions,
+} from './analytics.options'
 export type {
   AdminLog,
   DashboardData,
-  PopularPage,
   PopularPost,
   Referrer,
   SystemInfo,
@@ -10,7 +16,6 @@ export type {
 export {
   useAdminLogs,
   useDashboard,
-  usePopularPages,
   usePopularPosts,
   useReferrers,
   useSystemInfo,

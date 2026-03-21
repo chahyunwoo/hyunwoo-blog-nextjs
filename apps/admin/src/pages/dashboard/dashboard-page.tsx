@@ -4,7 +4,6 @@ import {
   Card,
   Grid,
   Group,
-  Loader,
   Progress,
   RingProgress,
   SimpleGrid,
@@ -28,7 +27,6 @@ import {
 import {
   useAdminLogs,
   useDashboard,
-  usePopularPages,
   usePopularPosts,
   useReferrers,
   useSystemInfo,
@@ -37,44 +35,37 @@ import {
 import { StatCard } from '@/shared/ui/stat-card'
 
 export function DashboardPage() {
-  const { data: dashboard, isLoading: dashLoading } = useDashboard()
+  const { data: dashboard } = useDashboard()
   const { data: visitors } = useVisitors(30, 'blog')
   const { data: todayVisitors } = useVisitors(1, 'blog')
+  const { data: totalVisitors } = useVisitors(undefined, 'blog')
   const { data: popularPosts } = usePopularPosts(5)
   const { data: referrers } = useReferrers(30, 'blog')
-  const { data: popularPages } = usePopularPages(30, 'blog', 10)
   const { data: adminLogs } = useAdminLogs(5)
   const { data: system } = useSystemInfo()
 
-  if (dashLoading) {
-    return (
-      <Stack align="center" justify="center" mih={400}>
-        <Loader />
-      </Stack>
-    )
-  }
-
-  const stats = dashboard?.postStats ?? { total: 0, published: 0, draft: 0 }
+  const stats = dashboard.postStats
   const memoryPercent = system ? Math.round((system.memory.heapUsed / system.memory.heapTotal) * 100) : 0
 
   return (
     <Stack gap="xl">
       <Title order={2}>Dashboard</Title>
 
-      <SimpleGrid cols={{ base: 2, lg: 4 }}>
+      <SimpleGrid cols={{ base: 2, lg: 5 }}>
         <StatCard icon={<IconFileText size={22} />} label="전체 포스트" value={stats.total} color="blue" />
         <StatCard icon={<IconArticle size={22} />} label="발행됨" value={stats.published} color="teal" />
         <StatCard
           icon={<IconEye size={22} />}
           label="오늘 방문자"
-          value={todayVisitors?.uniqueVisitors ?? 0}
+          value={todayVisitors.uniqueVisitors}
           color="violet"
         />
+        <StatCard icon={<IconUsers size={22} />} label="30일 방문자" value={visitors.uniqueVisitors} color="indigo" />
         <StatCard
           icon={<IconUsers size={22} />}
-          label="30일 순 방문자"
-          value={visitors?.uniqueVisitors ?? 0}
-          color="indigo"
+          label="누적 방문자"
+          value={totalVisitors.uniqueVisitors}
+          color="cyan"
         />
       </SimpleGrid>
 
@@ -334,47 +325,6 @@ export function DashboardPage() {
           </Card>
         </Grid.Col>
       </Grid>
-
-      <Card shadow="xs" padding="xl" radius="md" withBorder>
-        <Group mb="lg">
-          <ThemeIcon variant="light" color="pink" size="md" radius="md">
-            <IconEye size={16} />
-          </ThemeIcon>
-          <Title order={5}>인기 페이지 (30일)</Title>
-        </Group>
-        {!popularPages?.length ? (
-          <Text c="dimmed" size="sm" ta="center" py="lg">
-            데이터 없음
-          </Text>
-        ) : (
-          <Table verticalSpacing="sm">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>페이지</Table.Th>
-                <Table.Th w={80} ta="right">
-                  조회수
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {popularPages.map(page => (
-                <Table.Tr key={page.path}>
-                  <Table.Td>
-                    <Text size="sm" ff="monospace">
-                      {page.path}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td ta="right">
-                    <Text size="xs" c="dimmed" ff="monospace">
-                      {page.count.toLocaleString()}
-                    </Text>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        )}
-      </Card>
     </Stack>
   )
 }
