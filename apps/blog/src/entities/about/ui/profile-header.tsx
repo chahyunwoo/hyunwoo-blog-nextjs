@@ -1,9 +1,9 @@
+import type { Profile } from '@hyunwoo/shared/types'
 import { Github, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import type { ApiLocale } from '@/entities/about/model'
 import LanguageSwitch from '@/features/navigation/language-switch'
 import { SOCIAL_ICON_MAP } from '@/shared/config/constants'
-import type { Profile } from '@hyunwoo/shared/types'
 import { IconButton } from '@/shared/ui/button'
 import CopyButton from '@/shared/ui/copy-button'
 

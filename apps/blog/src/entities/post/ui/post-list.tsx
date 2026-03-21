@@ -1,9 +1,9 @@
 'use client'
 
+import type { Post } from '@hyunwoo/shared/types'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import type { Post } from '@hyunwoo/shared/types'
 import { Button } from '@/shared/ui/button'
 import { PostCard } from './post-card'
 

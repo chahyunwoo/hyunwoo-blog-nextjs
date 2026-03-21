@@ -1,3 +1,5 @@
+import { BASE_URL } from '@hyunwoo/shared/config'
+import type { Params } from '@hyunwoo/shared/types'
 import { ChevronLeft } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -9,8 +11,6 @@ import { PostFooter } from '@/entities/post/ui/post-footer'
 import { PostHead } from '@/entities/post/ui/post-head'
 import { PostTOC } from '@/entities/post/ui/post-toc'
 import { ReadingProgress } from '@/entities/post/ui/reading-progress'
-import { BASE_URL } from '@hyunwoo/shared/config'
-import type { Params } from '@hyunwoo/shared/types'
 import { InnerContainer } from '@/shared/ui/inner-container'
 
 export async function generateStaticParams() {

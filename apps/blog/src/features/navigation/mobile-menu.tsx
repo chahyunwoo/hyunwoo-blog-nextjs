@@ -1,10 +1,10 @@
 'use client'
 
+import type { CategoryData, MenuItem } from '@hyunwoo/shared/types'
 import { AlertCircle, Menu } from 'lucide-react'
 import { Suspense, useCallback, useState } from 'react'
 import ActiveLink from '@/entities/category/ui/active-link'
 import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
-import type { CategoryData, MenuItem } from '@hyunwoo/shared/types'
 import { Button } from '@/shared/ui/button'
 import Logo from '@/shared/ui/logo'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/ui/sheet'

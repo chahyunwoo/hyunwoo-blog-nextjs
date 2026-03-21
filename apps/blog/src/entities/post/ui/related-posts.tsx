@@ -1,9 +1,9 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { getRelatedPosts } from '@/entities/post/api/post.api'
 import { BLUR_DATA_URL } from '@hyunwoo/shared/config'
 import { formatDate } from '@hyunwoo/shared/lib'
 import type { Post } from '@hyunwoo/shared/types'
+import Image from 'next/image'
+import Link from 'next/link'
+import { getRelatedPosts } from '@/entities/post/api/post.api'
 import { Badge } from '@/shared/ui/badge'
 
 interface RelatedPostsProps {

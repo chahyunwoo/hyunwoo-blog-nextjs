@@ -1,3 +1,4 @@
+import type { Post } from '@hyunwoo/shared/types'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode, { type Options } from 'rehype-pretty-code'
@@ -5,7 +6,6 @@ import rehypeSlug from 'rehype-slug'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import { MdxComponents } from '@/shared/mdx'
-import type { Post } from '@hyunwoo/shared/types'
 
 const prettyCodeOptions: Options = {
   keepBackground: true,

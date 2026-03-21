@@ -1,7 +1,7 @@
 'use client'
 
-import { type DetailedHTMLProps, type HTMLAttributes, useCallback, useRef } from 'react'
 import { cn } from '@hyunwoo/shared/lib'
+import { type DetailedHTMLProps, type HTMLAttributes, useCallback, useRef } from 'react'
 import CopyButton from '@/shared/ui/copy-button'
 export function CodeBlock({
   children,

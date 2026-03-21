@@ -1,3 +1,5 @@
+import { BASE_URL } from '@hyunwoo/shared/config'
+import type { Locale, Params, Profile } from '@hyunwoo/shared/types'
 import { notFound } from 'next/navigation'
 import { getLocales, getProfile } from '@/entities/about'
 import BriefIntroduction from '@/entities/about/ui/brief-introduction'
@@ -6,8 +8,6 @@ import PersonalProjects from '@/entities/about/ui/personal-projects'
 import ProfileHeader from '@/entities/about/ui/profile-header'
 import RecentExperience from '@/entities/about/ui/recent-experience'
 import Skills from '@/entities/about/ui/skills'
-import { BASE_URL } from '@hyunwoo/shared/config'
-import type { Locale, Params, Profile } from '@hyunwoo/shared/types'
 import { InnerContainer } from '@/shared/ui/inner-container'
 
 export async function generateStaticParams() {

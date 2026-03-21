@@ -1,9 +1,9 @@
 'use client'
 
+import { cn } from '@hyunwoo/shared/lib'
 import { List, X } from 'lucide-react'
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { cn } from '@hyunwoo/shared/lib'
 
 interface Heading {
   id: string

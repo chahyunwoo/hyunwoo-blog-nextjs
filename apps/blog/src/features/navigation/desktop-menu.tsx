@@ -1,5 +1,5 @@
-import ActiveLink from '@/entities/category/ui/active-link'
 import type { MenuItem } from '@hyunwoo/shared/types'
+import ActiveLink from '@/entities/category/ui/active-link'
 
 interface DesktopMenuProps {
   items: MenuItem[]

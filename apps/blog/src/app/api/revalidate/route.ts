@@ -1,6 +1,6 @@
+import { ABOUT_PATHS, CACHE_TAGS, REVALIDATE_TYPES } from '@hyunwoo/shared/config'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
-import { ABOUT_PATHS, CACHE_TAGS, REVALIDATE_TYPES } from '@hyunwoo/shared/config'
 
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET
 

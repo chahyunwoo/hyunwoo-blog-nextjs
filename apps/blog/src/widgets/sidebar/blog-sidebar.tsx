@@ -1,9 +1,9 @@
+import { formatDate } from '@hyunwoo/shared/lib'
 import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
 import { SidebarTagCloud } from '@/entities/category/ui/sidebar-tag-cloud'
 import { getCategoriesWithTags, getRecentPosts, getTagCloud } from '@/entities/post/api/post.api'
-import { formatDate } from '@hyunwoo/shared/lib'
 import { Badge } from '@/shared/ui/badge'
 import { SidebarError } from '@/shared/ui/error'
 

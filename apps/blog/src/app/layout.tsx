@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
 import '@/styles/globals.css'
-import { ThemeProvider } from '@/providers/theme-provider'
 import { BASE_URL } from '@hyunwoo/shared/config'
+import { ThemeProvider } from '@/providers/theme-provider'
 import Footer from '@/widgets/header/footer'
 import { Header } from '@/widgets/header/header'
 

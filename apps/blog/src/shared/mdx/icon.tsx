@@ -1,6 +1,6 @@
+import { cn } from '@hyunwoo/shared/lib'
 import type { LucideProps } from 'lucide-react'
 import { icons } from 'lucide-react'
-import { cn } from '@hyunwoo/shared/lib'
 
 interface IconProps {
   name: keyof typeof icons

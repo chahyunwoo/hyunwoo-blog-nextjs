@@ -1,9 +1,9 @@
 'use client'
 
+import { cn } from '@hyunwoo/shared/lib'
 import { XIcon } from 'lucide-react'
 import { Dialog as DialogPrimitive } from 'radix-ui'
 import type * as React from 'react'
-import { cn } from '@hyunwoo/shared/lib'
 import { Button } from '@/shared/ui/button'
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {

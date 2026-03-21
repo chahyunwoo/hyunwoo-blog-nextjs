@@ -1,9 +1,9 @@
 'use client'
 
+import { formatDate } from '@hyunwoo/shared/lib'
 import { ArrowRight, FileText, Loader2, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
-import { formatDate } from '@hyunwoo/shared/lib'
 import { Badge } from '@/shared/ui/badge'
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/shared/ui/command'
 import { useSearchStore } from '@/stores/search.store'

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { cn, estimateReadingTime, formatDate, getParamFromHref } from '@hyunwoo/shared/lib'
+import { describe, expect, it } from 'vitest'
 
 describe('cn', () => {
   it('should merge class names', () => {

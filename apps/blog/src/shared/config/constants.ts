@@ -1,5 +1,5 @@
-import { Github, Instagram, Laptop, Linkedin, Moon, Sun } from 'lucide-react'
 import type { MenuItem } from '@hyunwoo/shared/types'
+import { Github, Instagram, Laptop, Linkedin, Moon, Sun } from 'lucide-react'
 
 export const MENU_ITEMS: MenuItem[] = [
   { name: 'Blog', href: '/' },

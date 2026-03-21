@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import { cn } from '@hyunwoo/shared/lib'
+import Image from 'next/image'
 
 interface MdxImageProps {
   src: string

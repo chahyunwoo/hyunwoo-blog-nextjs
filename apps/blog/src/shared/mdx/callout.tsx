@@ -1,6 +1,6 @@
+import { cn } from '@hyunwoo/shared/lib'
 import { AlertCircle, AlertTriangle, CheckCircle, Info, Lightbulb, type LucideIcon, XCircle } from 'lucide-react'
 import type React from 'react'
-import { cn } from '@hyunwoo/shared/lib'
 
 type CalloutType = 'info' | 'success' | 'warning' | 'error' | 'tip' | 'default'
 

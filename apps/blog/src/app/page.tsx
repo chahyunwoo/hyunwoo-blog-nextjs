@@ -1,8 +1,8 @@
+import { BASE_URL } from '@hyunwoo/shared/config'
+import type { BlogParams } from '@hyunwoo/shared/types'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { PostListContainer } from '@/entities/post/ui/post-list-container'
-import { BASE_URL } from '@hyunwoo/shared/config'
-import type { BlogParams } from '@hyunwoo/shared/types'
 import { PostSkeleton } from '@/shared/ui/skeletons'
 import { BlogLayout } from '@/widgets/sidebar/blog-layout'
 

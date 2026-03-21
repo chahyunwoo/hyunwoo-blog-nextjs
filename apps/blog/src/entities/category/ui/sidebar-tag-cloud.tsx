@@ -1,8 +1,8 @@
 'use client'
 
+import { cn } from '@hyunwoo/shared/lib'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { cn } from '@hyunwoo/shared/lib'
 import { Badge } from '@/shared/ui/badge'
 import { useSearchStore } from '@/stores/search.store'
 

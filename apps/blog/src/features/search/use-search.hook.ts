@@ -1,9 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { apiClientFetch } from '@hyunwoo/shared/api'
-import { ENDPOINTS } from '@hyunwoo/shared/api'
+import { apiClientFetch, ENDPOINTS } from '@hyunwoo/shared/api'
 import type { Post } from '@hyunwoo/shared/types'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface ApiSearchPost {
   slug: string

@@ -1,5 +1,5 @@
-import { ExternalLink } from 'lucide-react'
 import type { Profile } from '@hyunwoo/shared/types'
+import { ExternalLink } from 'lucide-react'
 import AboutContainer from '@/shared/ui/about-container'
 import { Badge } from '@/shared/ui/badge'
 import { SectionError } from '@/shared/ui/error'
