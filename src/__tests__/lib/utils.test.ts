@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cn, estimateReadingTime, formatDate, getParamFromHref } from '@/lib/utils'
+import { cn, estimateReadingTime, formatDate, getParamFromHref } from '@/shared/lib/utils'
 
 describe('cn', () => {
   it('should merge class names', () => {

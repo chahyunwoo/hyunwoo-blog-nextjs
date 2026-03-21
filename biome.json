@@ -80,6 +80,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/error.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noShadowRestrictedNames": "off"
+          }
+        }
+      }
     }
   ]
 }
