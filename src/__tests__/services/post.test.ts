@@ -1,41 +1,93 @@
-import { describe, expect, it } from 'vitest'
-import { getPostBySlug, getPublishedPosts } from '@/services/post'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { getPostBySlug, getPublishedPosts } from '@/entities/post/api/post.api'
+
+const mockPost = {
+  id: 1,
+  slug: 'test-post',
+  title: 'Test Post',
+  description: 'Test description',
+  content: '# Hello',
+  category: 'Frontend',
+  thumbnailUrl: '/thumbnail/test.png',
+  published: true,
+  createdAt: '2026-03-20',
+  updatedAt: '2026-03-20',
+  tags: [{ id: 1, name: 'React' }],
+}
+
+const mockFetch = vi.fn()
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', mockFetch)
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('getPostBySlug', () => {
-  it('should return null for non-existent slug', () => {
-    const result = getPostBySlug('non-existent-post-slug-12345')
+  it('should return null for non-existent slug', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: false })
+    const result = await getPostBySlug('non-existent')
     expect(result).toBeNull()
   })
 
-  it('should return post with valid meta for existing slug', () => {
-    const result = getPostBySlug('create-blog-by-nextjs')
+  it('should return mapped post for existing slug', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockPost),
+    })
+    const result = await getPostBySlug('test-post')
     expect(result).not.toBeNull()
-    expect(result?.meta.title).toBeTruthy()
-    expect(result?.meta.slug).toBe('create-blog-by-nextjs')
-    expect(result?.content).toBeTruthy()
+    expect(result?.meta.title).toBe('Test Post')
+    expect(result?.meta.slug).toBe('test-post')
+    expect(result?.meta.mainTag).toBe('Frontend')
+    expect(result?.meta.tags).toEqual(['React'])
+    expect(result?.meta.date).toBe('2026-03-20')
+    expect(result?.content).toBe('# Hello')
+  })
+
+  it('should return null on fetch error', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network error'))
+    const result = await getPostBySlug('test-post')
+    expect(result).toBeNull()
   })
 })
 
 describe('getPublishedPosts', () => {
-  it('should return array of published posts', async () => {
-    const posts = await getPublishedPosts()
-    expect(Array.isArray(posts)).toBe(true)
-    expect(posts.length).toBeGreaterThan(0)
+  it('should return mapped posts from API', async () => {
+    const posts = [
+      { ...mockPost, slug: 'newer', createdAt: '2026-03-20' },
+      { ...mockPost, slug: 'older', createdAt: '2026-03-10' },
+    ]
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 50, totalPages: 1 }),
+    })
+
+    const result = await getPublishedPosts()
+    expect(result).toHaveLength(2)
+    expect(result[0].meta.slug).toBe('newer')
+    expect(result[1].meta.slug).toBe('older')
   })
 
-  it('should return posts sorted by date descending', async () => {
-    const posts = await getPublishedPosts()
-    for (let i = 1; i < posts.length; i++) {
-      const prev = new Date(posts[i - 1].meta.date).getTime()
-      const curr = new Date(posts[i].meta.date).getTime()
-      expect(prev).toBeGreaterThanOrEqual(curr)
-    }
+  it('should return all posts from API response', async () => {
+    const posts = [
+      { ...mockPost, slug: 'post-1' },
+      { ...mockPost, slug: 'post-2' },
+    ]
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 50, totalPages: 1 }),
+    })
+
+    const result = await getPublishedPosts()
+    expect(result).toHaveLength(2)
   })
 
-  it('should only return published posts', async () => {
-    const posts = await getPublishedPosts()
-    for (const post of posts) {
-      expect(post.meta.published).toBe(true)
-    }
+  it('should return empty array on fetch error', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network error'))
+    const result = await getPublishedPosts()
+    expect(result).toEqual([])
   })
 })

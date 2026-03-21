@@ -1,16 +1,17 @@
+import { ChevronLeft } from 'lucide-react'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MobileTOC } from '@/components/features/blog/mobile-toc'
-import { PostBody } from '@/components/features/blog/post-body'
-import { PostFooter } from '@/components/features/blog/post-footer'
-import { PostHead } from '@/components/features/blog/post-head'
-import { PostTOC } from '@/components/features/blog/post-toc'
-import { ReadingProgress } from '@/components/features/blog/reading-progress'
-import { InnerContainer } from '@/components/layout/inner-container'
-import { getPostBySlug, getPublishedPosts } from '@/services/post'
-import type { Params } from '@/types'
-
-const BASE_URL = 'https://chahyunwoo.dev'
+import { getPostBySlug, getPublishedPosts } from '@/entities/post/api/post.api'
+import { MobileTOC } from '@/entities/post/ui/mobile-toc'
+import { PostBody } from '@/entities/post/ui/post-body'
+import { PostFooter } from '@/entities/post/ui/post-footer'
+import { PostHead } from '@/entities/post/ui/post-head'
+import { PostTOC } from '@/entities/post/ui/post-toc'
+import { ReadingProgress } from '@/entities/post/ui/reading-progress'
+import { BASE_URL } from '@/shared/config/constants'
+import type { Params } from '@/shared/types'
+import { InnerContainer } from '@/shared/ui/inner-container'
 
 export async function generateStaticParams() {
   const posts = await getPublishedPosts()
@@ -21,7 +22,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Params<{ slug: string }>): Promise<Metadata> {
   const slug = (await params).slug
-  const post = getPostBySlug(slug)
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     return {
@@ -70,7 +71,7 @@ export async function generateMetadata({ params }: Params<{ slug: string }>): Pr
 
 export default async function Page({ params }: Params<{ slug: string }>) {
   const slug = (await params).slug
-  const post = getPostBySlug(slug)
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     notFound()
@@ -130,13 +131,20 @@ export default async function Page({ params }: Params<{ slug: string }>) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ReadingProgress />
-      <InnerContainer className="py-8">
+      <InnerContainer className="py-4 md:py-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 md:hidden not-prose"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          목록으로
+        </Link>
         <div className="flex justify-center gap-10">
           <article className="prose dark:prose-invert tracking-wide leading-relaxed max-w-4xl w-full min-w-0">
             <PostHead post={post} />
             <MobileTOC />
             <PostBody post={post} />
-            <PostFooter post={post} />
+            <PostFooter post={post} slug={slug} />
           </article>
           <aside className="hidden xl:block w-48 shrink-0">
             <div className="sticky top-20">

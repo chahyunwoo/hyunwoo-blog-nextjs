@@ -7,6 +7,12 @@ const nextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.chahyunwoo.dev',
+      },
+    ],
   },
   experimental: {
     optimizeCss: true,

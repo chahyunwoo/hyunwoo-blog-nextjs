@@ -1,24 +1,29 @@
-import BriefIntroduction from '@/components/features/about/brief-introduction'
-import Education from '@/components/features/about/education'
-import PersonalProjects from '@/components/features/about/personal-projects'
-import ProfileHeader from '@/components/features/about/profile-header'
-import RecentExperience from '@/components/features/about/recent-experience'
-import Skills from '@/components/features/about/skills'
-import { InnerContainer } from '@/components/layout/inner-container'
-import { PROFILE_DATA } from '@/data/i18n'
-import type { Locale, Params } from '@/types'
+import { notFound } from 'next/navigation'
+import { getLocales, getProfile } from '@/entities/about'
+import BriefIntroduction from '@/entities/about/ui/brief-introduction'
+import Education from '@/entities/about/ui/education'
+import PersonalProjects from '@/entities/about/ui/personal-projects'
+import ProfileHeader from '@/entities/about/ui/profile-header'
+import RecentExperience from '@/entities/about/ui/recent-experience'
+import Skills from '@/entities/about/ui/skills'
+import { BASE_URL } from '@/shared/config/constants'
+import type { Locale, Params, Profile } from '@/shared/types'
+import { InnerContainer } from '@/shared/ui/inner-container'
 
-export function generateStaticParams() {
-  return Object.keys(PROFILE_DATA).map(locale => ({
-    locale,
-  }))
+export async function generateStaticParams() {
+  const locales = await getLocales()
+  return locales.map(l => ({ locale: l.code }))
 }
-
-const BASE_URL = 'https://chahyunwoo.dev'
 
 export async function generateMetadata({ params }: Params<{ locale: Locale }>) {
   const { locale } = await params
-  const profile = PROFILE_DATA[locale]
+  const locales = await getLocales()
+
+  if (!locales.some(l => l.code === locale)) return {}
+
+  const profile = await getProfile(locale)
+
+  if (!profile) return {}
 
   return {
     title: `${profile.name} | ${profile.job}`,
@@ -46,7 +51,7 @@ export async function generateMetadata({ params }: Params<{ locale: Locale }>) {
   }
 }
 
-function getPersonJsonLd(profile: (typeof PROFILE_DATA)['ko']) {
+function getPersonJsonLd(profile: Pick<Profile, 'name' | 'job' | 'location' | 'link'>) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -63,7 +68,13 @@ function getPersonJsonLd(profile: (typeof PROFILE_DATA)['ko']) {
 
 export default async function Page({ params }: Params<{ locale: Locale }>) {
   const { locale } = await params
-  const profile = PROFILE_DATA[locale]
+  const locales = await getLocales()
+
+  if (!locales.some(l => l.code === locale)) notFound()
+
+  const profile = await getProfile(locale)
+
+  if (!profile) notFound()
 
   return (
     <InnerContainer className="py-12" data-locale={locale}>
@@ -74,7 +85,7 @@ export default async function Page({ params }: Params<{ locale: Locale }>) {
         }}
       />
       <div className="max-w-3xl mx-auto">
-        <ProfileHeader profile={profile} />
+        <ProfileHeader profile={profile} locales={locales} />
         <BriefIntroduction profile={profile} />
         <Skills profile={profile} />
         <Education profile={profile} />

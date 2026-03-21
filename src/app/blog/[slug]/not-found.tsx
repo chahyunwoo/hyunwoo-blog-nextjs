@@ -1,15 +1,11 @@
-import Link from 'next/link'
-import { InnerContainer } from '@/components/layout/inner-container'
-import { Button } from '@/components/ui/button'
+import { NotFoundFallback } from '@/shared/ui/error'
 
 export default function PostNotFound() {
   return (
-    <InnerContainer className="flex flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">Not Found</h1>
-      <p className="text-muted-foreground">The post you requested may not exist or have been deleted.</p>
-      <Button variant="outline" asChild>
-        <Link href="/">Go back to home</Link>
-      </Button>
-    </InnerContainer>
+    <NotFoundFallback
+      description="요청하신 포스트가 존재하지 않거나 삭제되었습니다."
+      backLabel="목록으로"
+      backHref="/"
+    />
   )
 }

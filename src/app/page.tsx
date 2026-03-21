@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { PostListContainer } from '@/components/features/blog/post-list-container'
-import { BlogLayout } from '@/components/layout/blog-layout'
-import { PostSkeleton } from '@/components/skeleton/post-skeleton'
-import type { BlogParams } from '@/types'
-
-const BASE_URL = 'https://chahyunwoo.dev'
+import { PostListContainer } from '@/entities/post/ui/post-list-container'
+import { BASE_URL } from '@/shared/config/constants'
+import type { BlogParams } from '@/shared/types'
+import { PostSkeleton } from '@/shared/ui/skeletons'
+import { BlogLayout } from '@/widgets/sidebar/blog-layout'
 
 export async function generateMetadata({ searchParams }: { searchParams: BlogParams }): Promise<Metadata> {
   const { category, tag, parentCategory } = await searchParams
@@ -66,14 +65,19 @@ const jsonLd = {
 }
 
 export default async function Home({ searchParams }: { searchParams: BlogParams }) {
-  const { category, tag, parentCategory } = await searchParams
+  const { category, tag, parentCategory, page } = await searchParams
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <BlogLayout>
-        <Suspense fallback={<PostSkeleton count={6} />}>
-          <PostListContainer category={category} tag={tag} parentCategory={parentCategory} />
+        <Suspense fallback={<PostSkeleton />}>
+          <PostListContainer
+            category={category}
+            tag={tag}
+            parentCategory={parentCategory}
+            page={page ? Number(page) : 1}
+          />
         </Suspense>
       </BlogLayout>
     </>
