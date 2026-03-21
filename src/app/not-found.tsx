@@ -1,14 +1,11 @@
-import Link from 'next/link'
-import { Button } from '@/shared/ui/button'
-import { InnerContainer } from '@/shared/ui/inner-container'
+import { NotFoundFallback } from '@/shared/ui/error'
+
 export default function NotFound() {
   return (
-    <InnerContainer className="flex flex-col items-center justify-center gap-4">
-      <h1 className="text-4xl font-bold">Not Found</h1>
-      <p className="text-muted-foreground">The page you are looking for does not exist.</p>
-      <Button variant="outline" asChild>
-        <Link href="/">Go back to home</Link>
-      </Button>
-    </InnerContainer>
+    <NotFoundFallback
+      description="The page you are looking for does not exist."
+      backLabel="Go back to home"
+      backHref="/"
+    />
   )
 }

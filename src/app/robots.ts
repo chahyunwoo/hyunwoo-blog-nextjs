@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { BASE_URL } from '@/shared/config/constants'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/_next/', '/api/'],
     },
-    sitemap: 'https://chahyunwoo.dev/sitemap.xml',
-    host: 'https://chahyunwoo.dev',
+    sitemap: `${BASE_URL}/sitemap.xml`,
+    host: BASE_URL,
   }
 }

@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
 import '@/styles/globals.css'
 import { ThemeProvider } from '@/providers/theme-provider'
+import { BASE_URL } from '@/shared/config/constants'
 import Footer from '@/widgets/header/footer'
 import { Header } from '@/widgets/header/header'
-
-const BASE_URL = 'https://chahyunwoo.dev'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

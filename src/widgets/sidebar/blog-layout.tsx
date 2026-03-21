@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { BlogSidebarSkeleton } from '@/shared/ui/blog-sidebar-skeleton'
 import { InnerContainer } from '@/shared/ui/inner-container'
+import { BlogSidebarSkeleton } from '@/shared/ui/skeletons'
 import { BlogSidebar } from '@/widgets/sidebar/blog-sidebar'
 
 interface BlogLayoutProps {

@@ -5,10 +5,10 @@ import { Suspense, useCallback, useState } from 'react'
 import ActiveLink from '@/entities/category/ui/active-link'
 import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
 import type { CategoryData, MenuItem } from '@/shared/types'
-import { BlogMenuSkeleton } from '@/shared/ui/blog-menu-skeleton'
 import { Button } from '@/shared/ui/button'
 import Logo from '@/shared/ui/logo'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/ui/sheet'
+import { BlogMenuSkeleton } from '@/shared/ui/skeletons'
 
 interface MobileMenuProps {
   menuItems: MenuItem[]

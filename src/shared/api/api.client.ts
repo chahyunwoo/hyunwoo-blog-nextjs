@@ -8,13 +8,17 @@ const headers = {
 
 interface FetchOptions {
   revalidate?: number
+  tags?: string[]
 }
 
 export async function apiFetch<T>(path: string, options?: FetchOptions): Promise<T | null> {
   try {
     const res = await fetch(`${API_URL}${path}`, {
       headers,
-      next: { revalidate: options?.revalidate ?? 60 },
+      next: {
+        revalidate: options?.revalidate ?? 60,
+        tags: options?.tags,
+      },
     })
 
     if (!res.ok) return null

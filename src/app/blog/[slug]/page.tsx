@@ -9,10 +9,9 @@ import { PostFooter } from '@/entities/post/ui/post-footer'
 import { PostHead } from '@/entities/post/ui/post-head'
 import { PostTOC } from '@/entities/post/ui/post-toc'
 import { ReadingProgress } from '@/entities/post/ui/reading-progress'
+import { BASE_URL } from '@/shared/config/constants'
 import type { Params } from '@/shared/types'
 import { InnerContainer } from '@/shared/ui/inner-container'
-
-const BASE_URL = 'https://chahyunwoo.dev'
 
 export async function generateStaticParams() {
   const posts = await getPublishedPosts()

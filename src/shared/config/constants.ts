@@ -1,5 +1,8 @@
-import { Laptop, Moon, Sun } from 'lucide-react'
-import type { Locale, MenuItem } from '@/shared/types'
+import { Github, Instagram, Laptop, Linkedin, Moon, Sun } from 'lucide-react'
+import type { MenuItem } from '@/shared/types'
+
+// SITE
+export const BASE_URL = 'https://chahyunwoo.dev'
 
 // HEADER
 export const MENU_ITEMS: MenuItem[] = [
@@ -13,11 +16,11 @@ export const THEME_TYPES = [
   { name: 'system', icon: Laptop },
 ]
 
-// ABOUT
-export const LANGUAGE_MAP: Record<Locale, string> = {
-  ko: '한국어',
-  en: 'English',
-  jp: '日本語',
+// SOCIAL ICON
+export const SOCIAL_ICON_MAP: Record<string, React.ElementType> = {
+  Github,
+  Instagram,
+  Linkedin,
 }
 
 // IMAGE
@@ -31,3 +34,24 @@ export const LINK_TYPES = {
   TAG: 'tag',
   DEFAULT: 'default',
 } as const
+
+// REVALIDATION
+export const REVALIDATE_TYPES = {
+  BLOG: 'blog',
+  PORTFOLIO: 'portfolio',
+} as const
+
+export const CACHE_TAGS = {
+  BLOG_POSTS: 'blog-posts',
+  BLOG_POST: (slug: string) => `blog-post-${slug}`,
+  BLOG_CATEGORIES: 'blog-categories',
+  BLOG_TAGS: 'blog-tags',
+  PORTFOLIO_PROFILE: 'portfolio-profile',
+  PORTFOLIO_EXPERIENCES: 'portfolio-experiences',
+  PORTFOLIO_PROJECTS: 'portfolio-projects',
+  PORTFOLIO_SKILLS: 'portfolio-skills',
+  PORTFOLIO_EDUCATION: 'portfolio-education',
+  PORTFOLIO_LOCALES: 'portfolio-locales',
+} as const
+
+export const ABOUT_PATHS = ['/about/ko', '/about/en', '/about/jp'] as const
