@@ -11,7 +11,7 @@ import { InnerContainer } from '@/shared/ui/inner-container'
 import Logo from '@/shared/ui/logo'
 
 export async function Header() {
-  const categories = await getCategoriesWithTags()
+  const categories = await getCategoriesWithTags().catch(() => [])
 
   return (
     <header className="fixed w-full z-10 border-b backdrop-blur-xl bg-background/80">

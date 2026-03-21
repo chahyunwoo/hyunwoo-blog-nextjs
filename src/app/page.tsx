@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { PostListContainer } from '@/entities/post/ui/post-list-container'
+import { BASE_URL } from '@/shared/config/constants'
 import type { BlogParams } from '@/shared/types'
-import { PostSkeleton } from '@/shared/ui/post-skeleton'
+import { PostSkeleton } from '@/shared/ui/skeletons'
 import { BlogLayout } from '@/widgets/sidebar/blog-layout'
-
-const BASE_URL = 'https://chahyunwoo.dev'
 
 export async function generateMetadata({ searchParams }: { searchParams: BlogParams }): Promise<Metadata> {
   const { category, tag, parentCategory } = await searchParams

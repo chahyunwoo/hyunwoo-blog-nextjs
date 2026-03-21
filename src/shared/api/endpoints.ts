@@ -8,4 +8,12 @@ export const ENDPOINTS = {
     categories: '/api/blog/categories',
     tags: '/api/blog/tags',
   },
+  portfolio: {
+    profile: '/api/portfolio/profile',
+    experiences: '/api/portfolio/experiences',
+    projects: '/api/portfolio/projects',
+    skills: '/api/portfolio/skills',
+    education: '/api/portfolio/education',
+    locales: '/api/portfolio/locales',
+  },
 } as const

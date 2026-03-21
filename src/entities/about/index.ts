@@ -1,4 +1,12 @@
-export { PROFILE_DATA } from './data/i18n'
+export { getLocales, getProfile } from './api/about.api'
+export type {
+  ApiEducation,
+  ApiExperience,
+  ApiProfileResponse,
+  ApiProject,
+  ApiSkillGroup,
+  ApiSocialLink,
+} from './model'
 export { default as BriefIntroduction } from './ui/brief-introduction'
 export { default as Education } from './ui/education'
 export { default as PersonalProjects } from './ui/personal-projects'

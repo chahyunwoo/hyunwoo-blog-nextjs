@@ -8,3 +8,10 @@ export {
   getRelatedPosts,
   getTagCloud,
 } from './api/post.api'
+export type {
+  ApiCategory,
+  ApiPost,
+  ApiPostsResponse,
+  ApiRelatedResponse,
+  ApiTagsResponse,
+} from './model'

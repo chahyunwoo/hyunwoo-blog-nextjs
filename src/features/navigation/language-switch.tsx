@@ -3,14 +3,22 @@
 import { Globe } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { memo, useCallback } from 'react'
-import { LANGUAGE_MAP } from '@/shared/config/constants'
-import type { Locale } from '@/shared/types'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
-export default memo(function LanguageSwitch() {
+interface LocaleItem {
+  code: string
+  label: string
+}
+
+interface LanguageSwitchProps {
+  locales: LocaleItem[]
+}
+
+export default memo(function LanguageSwitch({ locales }: LanguageSwitchProps) {
   const pathname = usePathname() ?? '/about/ko'
   const router = useRouter()
   const currentLocale = pathname.split('/')[2] || 'ko'
+  const currentLabel = locales.find(l => l.code === currentLocale)?.label ?? currentLocale
 
   const handleChange = useCallback(
     (value: string) => {
@@ -24,12 +32,12 @@ export default memo(function LanguageSwitch() {
       <Select onValueChange={handleChange}>
         <SelectTrigger>
           <Globe />
-          <SelectValue placeholder={LANGUAGE_MAP[currentLocale as Locale]} />
+          <SelectValue placeholder={currentLabel} />
         </SelectTrigger>
         <SelectContent>
-          {Object.entries(LANGUAGE_MAP).map(([locale, language]) => (
-            <SelectItem key={locale} value={locale}>
-              {language}
+          {locales.map(locale => (
+            <SelectItem key={locale.code} value={locale.code}>
+              {locale.label}
             </SelectItem>
           ))}
         </SelectContent>

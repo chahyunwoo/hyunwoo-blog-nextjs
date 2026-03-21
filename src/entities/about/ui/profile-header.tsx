@@ -1,16 +1,21 @@
 import { MapPin } from 'lucide-react'
 import Image from 'next/image'
-import profileImage from '@/../public/images/chahyunwoo-profile.jpg'
+import type { ApiLocale } from '@/entities/about/model'
 import LanguageSwitch from '@/features/navigation/language-switch'
 import type { Profile } from '@/shared/types'
 import { IconButton } from '@/shared/ui/button'
 import CopyButton from '@/shared/ui/copy-button'
 
-export default function ProfileHeader({ profile }: { profile: Profile }) {
+interface ProfileHeaderProps {
+  profile: Profile
+  locales: ApiLocale[]
+}
+
+export default function ProfileHeader({ profile, locales }: ProfileHeaderProps) {
   return (
     <div className="flex gap-8 items-center justify-between flex-col-reverse md:flex-row pb-8 border-b border-border">
       <div className="flex flex-col items-center md:items-start">
-        <LanguageSwitch />
+        <LanguageSwitch locales={locales} />
         <h1 className="font-black text-3xl mb-2 tracking-tight">{profile.name}</h1>
         <p className="text-primary font-medium mb-3">{profile.job}</p>
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -28,17 +33,12 @@ export default function ProfileHeader({ profile }: { profile: Profile }) {
               aria-label={link.name}
             />
           ))}
-          <CopyButton
-            variant="outline"
-            icon="Mail"
-            description="이메일이 복사되었습니다."
-            target="chahyunwoobi@gmail.com"
-          />
+          <CopyButton variant="outline" icon="Mail" description="Email copied!" target="chahyunwoobi@gmail.com" />
         </div>
       </div>
       <div>
         <Image
-          src={profileImage}
+          src={profile.imageUrl}
           alt={`${profile.name}, ${profile.job}`}
           className="rounded-full ring-2 ring-border"
           width={180}
