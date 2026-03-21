@@ -42,8 +42,6 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
   }, [])
 
   useEffect(() => {
-    document.documentElement.style.scrollBehavior = 'smooth'
-
     const style = document.createElement('style')
     style.innerHTML = `
       h1, h2, h3, h4, h5, h6 {
@@ -77,7 +75,6 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
     }
 
     return () => {
-      document.documentElement.style.scrollBehavior = ''
       document.head.removeChild(style)
 
       for (const heading of elementsToObserve) {
