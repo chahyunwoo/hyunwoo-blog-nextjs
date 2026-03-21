@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { PostListContainer } from '@/components/features/blog/post-list-container'
-import { BlogLayout } from '@/components/layout/blog-layout'
-import { PostSkeleton } from '@/components/skeleton/post-skeleton'
-import type { BlogParams } from '@/types'
+import { PostListContainer } from '@/entities/post/ui/post-list-container'
+import type { BlogParams } from '@/shared/types'
+import { PostSkeleton } from '@/shared/ui/post-skeleton'
+import { BlogLayout } from '@/widgets/sidebar/blog-layout'
 
 const BASE_URL = 'https://chahyunwoo.dev'
 

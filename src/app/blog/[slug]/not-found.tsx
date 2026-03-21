@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { InnerContainer } from '@/components/layout/inner-container'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/shared/ui/button'
+import { InnerContainer } from '@/shared/ui/inner-container'
 
 export default function PostNotFound() {
   return (

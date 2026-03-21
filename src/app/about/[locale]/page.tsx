@@ -1,12 +1,12 @@
-import BriefIntroduction from '@/components/features/about/brief-introduction'
-import Education from '@/components/features/about/education'
-import PersonalProjects from '@/components/features/about/personal-projects'
-import ProfileHeader from '@/components/features/about/profile-header'
-import RecentExperience from '@/components/features/about/recent-experience'
-import Skills from '@/components/features/about/skills'
-import { InnerContainer } from '@/components/layout/inner-container'
-import { PROFILE_DATA } from '@/data/i18n'
-import type { Locale, Params } from '@/types'
+import { PROFILE_DATA } from '@/entities/about/data/i18n'
+import BriefIntroduction from '@/entities/about/ui/brief-introduction'
+import Education from '@/entities/about/ui/education'
+import PersonalProjects from '@/entities/about/ui/personal-projects'
+import ProfileHeader from '@/entities/about/ui/profile-header'
+import RecentExperience from '@/entities/about/ui/recent-experience'
+import Skills from '@/entities/about/ui/skills'
+import type { Locale, Params } from '@/shared/types'
+import { InnerContainer } from '@/shared/ui/inner-container'
 
 export function generateStaticParams() {
   return Object.keys(PROFILE_DATA).map(locale => ({

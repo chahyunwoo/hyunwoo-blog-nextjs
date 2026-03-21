@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
-import Footer from '@/components/layout/footer'
-import { Header } from '@/components/layout/header'
 import { ThemeProvider } from '@/providers/theme-provider'
+import Footer from '@/widgets/header/footer'
+import { Header } from '@/widgets/header/header'
 
 const BASE_URL = 'https://chahyunwoo.dev'
 
