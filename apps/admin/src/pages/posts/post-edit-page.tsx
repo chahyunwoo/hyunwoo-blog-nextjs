@@ -29,7 +29,6 @@ export function PostEditPage({ slug }: PostEditPageProps) {
       mode="edit"
       defaultValues={{
         title: post.title,
-        slug: post.slug,
         description: post.description,
         content: post.content ?? '',
         category: post.category,

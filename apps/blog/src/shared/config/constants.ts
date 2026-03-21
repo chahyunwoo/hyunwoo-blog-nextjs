@@ -17,3 +17,5 @@ export const SOCIAL_ICON_MAP: Record<string, React.ElementType> = {
   Instagram,
   Linkedin,
 }
+
+export const PREVIEW_ALLOWED_ORIGINS = ['http://localhost:3100', 'https://admin.chahyunwoo.dev']

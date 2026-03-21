@@ -28,11 +28,11 @@ export interface PostListParams {
 
 export interface CreatePostBody {
   title: string
-  slug: string
-  description: string
+  slug?: string
+  description?: string
   content: string
-  category: string
-  tags: string[]
+  category?: string
+  tags?: string[]
   thumbnailUrl?: string
   published: boolean
 }

@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Autocomplete,
   Button,
+  Card,
   FileInput,
   Grid,
   Group,
@@ -15,9 +16,10 @@ import {
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import Editor from '@monaco-editor/react'
+import { IconExternalLink } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { adminApi, uploadFile } from '@/shared/api'
 import { BLOG_URL } from '@/shared/config'
@@ -31,21 +33,10 @@ interface PostFormProps {
   slug?: string
 }
 
-function toSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[가-힣]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
 export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: PostFormProps) {
   const navigate = useNavigate()
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [previewToken, setPreviewToken] = useState<string | null>(null)
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [previewToken, setPreviewToken] = useState<string | null>(null)
 
   useEffect(() => {
     import('@/entities/auth').then(({ getPreviewToken }) => {
@@ -55,7 +46,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories-list'],
-    queryFn: () => adminApi.get(`api/blog/categories`).json<{ category: string; count: number }[]>(),
+    queryFn: () => adminApi.get('api/blog/categories').json<{ category: string; count: number }[]>(),
   })
 
   const { data: tagsData } = useQuery({
@@ -77,7 +68,6 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
     resolver: zodResolver(postSchema),
     defaultValues: {
       title: '',
-      slug: '',
       description: '',
       content: '',
       category: '',
@@ -88,35 +78,27 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
     },
   })
 
-  const title = watch('title')
-
-  useEffect(() => {
-    if (mode === 'create' && title) {
-      setValue('slug', toSlug(title))
-    }
-  }, [title, mode, setValue])
-
-  const sendPreview = useCallback((value: string) => {
-    iframeRef.current?.contentWindow?.postMessage({ type: 'mdx-preview', content: value }, BLOG_URL)
-  }, [])
-
-  const handleThumbnailUpload = async () => {
-    if (!thumbnailFile || !slug) return
+  const handleImageUpload = async (file: File): Promise<string | null> => {
     try {
       const formData = new FormData()
-      formData.append('thumbnail', thumbnailFile)
-      const result = await uploadFile<{ thumbnailUrl: string }>(`api/blog/posts/${slug}/thumbnail`, formData)
-      setValue('thumbnailUrl', result.thumbnailUrl)
-      setThumbnailFile(null)
-      notifications.show({ title: '썸네일 업로드', message: '업로드 완료', color: 'teal' })
+      formData.append('image', file)
+      const result = await uploadFile<{ url: string }>('api/blog/images', formData)
+      notifications.show({ title: '이미지 업로드', message: '업로드 완료', color: 'teal' })
+      return result.url
     } catch {
-      notifications.show({ title: '업로드 실패', message: '썸네일 업로드에 실패했습니다.', color: 'red' })
+      notifications.show({ title: '이미지 업로드 실패', message: '10MB 이하 이미지만 가능합니다.', color: 'red' })
+      return null
     }
+  }
+
+  const openPreview = () => {
+    if (!slug || !previewToken) return
+    window.open(`${BLOG_URL}/preview/${slug}?token=${previewToken}`, '_blank')
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Group justify="space-between" mb="lg">
+      <Group justify="space-between" mb="xl">
         <Title order={2}>{mode === 'create' ? '새 포스트' : '포스트 수정'}</Title>
         <Group>
           <Controller
@@ -128,9 +110,20 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                 checked={field.value}
                 onChange={field.onChange}
                 color="teal"
+                size="md"
               />
             )}
           />
+          {mode === 'edit' && slug && (
+            <Button
+              variant="light"
+              leftSection={<IconExternalLink size={16} />}
+              onClick={openPreview}
+              disabled={!previewToken}
+            >
+              프리뷰
+            </Button>
+          )}
           <Button variant="subtle" onClick={() => navigate({ to: '/posts' })}>
             취소
           </Button>
@@ -140,155 +133,215 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
         </Group>
       </Group>
 
-      <Grid gutter="xl">
-        <Grid.Col span={{ base: 12, lg: 7 }}>
-          <Stack gap="md">
-            <TextInput label="제목" placeholder="포스트 제목" error={errors.title?.message} {...register('title')} />
-
-            <TextInput
-              label="Slug"
-              placeholder="auto-generated-from-title"
-              description={mode === 'create' ? '제목에서 자동 생성됩니다' : 'URL 경로 (수정 불가)'}
-              error={errors.slug?.message}
-              disabled={mode === 'edit'}
-              {...register('slug')}
-            />
-
-            <Textarea
-              label="설명"
-              placeholder="포스트 설명 (25-50자)"
-              autosize
-              minRows={2}
-              error={errors.description?.message}
-              {...register('description')}
-            />
-
-            <div>
-              <Text size="sm" fw={500} mb={4}>
-                내용 (MDX)
-              </Text>
-              {errors.content && (
-                <Text size="xs" c="red" mb={4}>
-                  {errors.content.message}
-                </Text>
-              )}
+      <Stack gap="xl">
+        <Card shadow="xs" padding="xl" radius="md" withBorder>
+          <Title order={5} mb="md">
+            기본 정보
+          </Title>
+          <Grid gutter="md">
+            <Grid.Col span={12}>
+              <TextInput
+                label="제목"
+                placeholder="포스트 제목"
+                size="md"
+                error={errors.title?.message}
+                {...register('title')}
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <Textarea
+                label="설명"
+                placeholder="포스트 설명 (목록/OG 카드에 표시)"
+                autosize
+                minRows={2}
+                error={errors.description?.message}
+                {...register('description')}
+              />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 4 }}>
               <Controller
-                name="content"
+                name="category"
                 control={control}
                 render={({ field }) => (
-                  <Editor
-                    height="500px"
-                    defaultLanguage="mdx"
+                  <Autocomplete
+                    label="카테고리"
+                    placeholder="선택 또는 입력"
+                    data={categoryOptions}
+                    error={errors.category?.message}
                     value={field.value}
-                    onChange={value => {
-                      field.onChange(value ?? '')
-                      sendPreview(value ?? '')
-                    }}
-                    theme="vs-dark"
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      lineNumbers: 'on',
-                      wordWrap: 'on',
-                      scrollBeyondLastLine: false,
-                      padding: { top: 16, bottom: 16 },
-                      renderLineHighlight: 'all',
-                      bracketPairColorization: { enabled: true },
-                      cursorBlinking: 'smooth',
-                      smoothScrolling: true,
-                    }}
+                    onChange={field.onChange}
                   />
                 )}
               />
-            </div>
-          </Stack>
-        </Grid.Col>
-
-        <Grid.Col span={{ base: 12, lg: 5 }}>
-          <Stack gap="md">
-            <Controller
-              name="category"
-              control={control}
-              render={({ field }) => (
-                <Autocomplete
-                  label="카테고리"
-                  placeholder="카테고리 입력 또는 선택"
-                  description="기존 카테고리 선택 또는 자유 입력"
-                  data={categoryOptions}
-                  error={errors.category?.message}
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-
-            <Controller
-              name="tags"
-              control={control}
-              render={({ field }) => (
-                <TagsInput
-                  label="태그"
-                  placeholder="Enter로 태그 추가"
-                  description="기존 태그 자동완성 + 새 태그 자유 입력"
-                  data={tagOptions}
-                  error={errors.tags?.message}
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-
-            {mode === 'edit' && slug && (
-              <div>
-                <Text size="sm" fw={500} mb={4}>
-                  썸네일
-                </Text>
-                <Group>
-                  <FileInput
-                    placeholder="이미지 파일 선택"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    value={thumbnailFile}
-                    onChange={setThumbnailFile}
-                    style={{ flex: 1 }}
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 8 }}>
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <TagsInput
+                    label="태그"
+                    placeholder="Enter로 추가"
+                    data={tagOptions}
+                    error={errors.tags?.message}
+                    value={field.value}
+                    onChange={field.onChange}
                   />
-                  <Button variant="light" disabled={!thumbnailFile} onClick={handleThumbnailUpload}>
-                    업로드
-                  </Button>
-                </Group>
-                <Text size="xs" c="dimmed" mt={4}>
-                  1200x630 권장, 5MB 제한
-                </Text>
-              </div>
-            )}
+                )}
+              />
+            </Grid.Col>
+          </Grid>
+        </Card>
 
-            <TextInput
-              label="썸네일 URL"
-              placeholder="파일 업로드 시 자동 입력됩니다"
-              description="직접 URL 입력도 가능합니다"
-              error={errors.thumbnailUrl?.message}
-              {...register('thumbnailUrl')}
+        <Card shadow="xs" padding="xl" radius="md" withBorder>
+          <Group justify="space-between" mb="md">
+            <Title order={5}>썸네일</Title>
+            <Text size="xs" c="dimmed">
+              1200x630 권장, 5MB 제한
+            </Text>
+          </Group>
+          <Group>
+            <FileInput
+              placeholder="썸네일 이미지 선택 (1200x630)"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              value={thumbnailFile}
+              onChange={setThumbnailFile}
+              style={{ flex: 1 }}
             />
-
-            <div>
-              <Text size="sm" fw={500} mb={4}>
-                프리뷰
+            <Button
+              variant="light"
+              disabled={!thumbnailFile}
+              onClick={async () => {
+                if (!thumbnailFile) return
+                const url = await handleImageUpload(thumbnailFile)
+                if (url) {
+                  setValue('thumbnailUrl', url)
+                  setThumbnailFile(null)
+                }
+              }}
+            >
+              업로드
+            </Button>
+          </Group>
+          {watch('thumbnailUrl') && (
+            <Group mt="xs" gap="xs">
+              <Text size="xs" c="dimmed" style={{ wordBreak: 'break-all' }}>
+                {watch('thumbnailUrl')}
               </Text>
-              <iframe
-                ref={iframeRef}
-                src={previewToken ? `${BLOG_URL}/preview?token=${previewToken}` : undefined}
-                title="MDX Preview"
-                style={{
-                  width: '100%',
-                  height: '500px',
-                  border: '1px solid var(--mantine-color-default-border)',
-                  borderRadius: 'var(--mantine-radius-md)',
-                  backgroundColor: 'var(--mantine-color-body)',
+            </Group>
+          )}
+        </Card>
+
+        <Card shadow="xs" padding="xl" radius="md" withBorder>
+          <Group justify="space-between" mb="md">
+            <Title order={5}>내용 (MDX)</Title>
+            <Text size="xs" c="dimmed">
+              이미지: 에디터에 파일을 드래그하거나 붙여넣기하면 자동 업로드됩니다
+            </Text>
+          </Group>
+          {errors.content && (
+            <Text size="xs" c="red" mb="xs">
+              {errors.content.message}
+            </Text>
+          )}
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => (
+              <Editor
+                height="600px"
+                defaultLanguage="markdown"
+                value={field.value}
+                onChange={value => field.onChange(value ?? '')}
+                theme="vs-dark"
+                onMount={editor => {
+                  const dom = editor.getDomNode()
+                  if (!dom) return
+
+                  const insertImage = async (file: File) => {
+                    const url = await handleImageUpload(file)
+                    if (!url) return
+                    const position = editor.getPosition()
+                    if (!position) return
+                    editor.executeEdits('', [
+                      {
+                        range: {
+                          startLineNumber: position.lineNumber,
+                          startColumn: position.column,
+                          endLineNumber: position.lineNumber,
+                          endColumn: position.column,
+                        },
+                        text: `\n<MdxImage src="${url}" alt="" caption="" />\n`,
+                      },
+                    ])
+                  }
+
+                  dom.addEventListener('paste', async (e: Event) => {
+                    const ce = e as ClipboardEvent
+                    const file = ce.clipboardData?.files[0]
+                    if (!file?.type.startsWith('image/')) return
+                    ce.preventDefault()
+                    ce.stopPropagation()
+                    insertImage(file)
+                  })
+
+                  dom.addEventListener(
+                    'dragover',
+                    (e: Event) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    },
+                    true,
+                  )
+
+                  dom.addEventListener(
+                    'drop',
+                    async (e: Event) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      const de = e as DragEvent
+                      const file = de.dataTransfer?.files[0]
+                      if (!file?.type.startsWith('image/')) return
+                      insertImage(file)
+                    },
+                    true,
+                  )
+                }}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineNumbers: 'on',
+                  wordWrap: 'on',
+                  scrollBeyondLastLine: false,
+                  padding: { top: 16, bottom: 16 },
+                  renderLineHighlight: 'all',
+                  bracketPairColorization: { enabled: true },
+                  cursorBlinking: 'smooth',
+                  smoothScrolling: true,
+                  roundedSelection: true,
+                  cursorSmoothCaretAnimation: 'on',
+                  dropIntoEditor: { enabled: false },
                 }}
               />
-            </div>
-          </Stack>
-        </Grid.Col>
-      </Grid>
+            )}
+          />
+          <Card mt="md" padding="md" radius="md" bg="var(--mantine-color-dark-7)">
+            <Text size="xs" c="dimmed" fw={600} mb={4}>
+              사용 가이드
+            </Text>
+            <Group gap="xl">
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed" ff="monospace">{`<Callout type="tip">내용</Callout>`}</Text>
+                <Text size="xs" c="dimmed" ff="monospace">{`<Highlight color="fuchsia">강조</Highlight>`}</Text>
+              </Stack>
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed" ff="monospace">{`<MdxImage src="url" alt="" caption="" />`}</Text>
+                <Text size="xs" c="dimmed" ff="monospace">{`\`\`\`ts title="파일명.ts"\n코드\n\`\`\``}</Text>
+              </Stack>
+            </Group>
+          </Card>
+        </Card>
+      </Stack>
     </form>
   )
 }
