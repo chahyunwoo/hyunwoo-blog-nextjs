@@ -1,8 +1,8 @@
 import { apiFetch } from '@hyunwoo/shared/api'
 import type { Params } from '@hyunwoo/shared/types'
 import { notFound } from 'next/navigation'
-import { PostBody } from '@/entities/post/ui/post-body'
-import { InnerContainer } from '@/shared/ui/inner-container'
+import { PostBody } from '@/entities/post'
+import { InnerContainer } from '@/shared/ui'
 
 interface PreviewPost {
   slug: string

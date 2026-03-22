@@ -2,8 +2,7 @@
 
 import { Globe } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
-import { memo, useCallback } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui'
 
 interface LocaleItem {
   code: string
@@ -14,18 +13,15 @@ interface LanguageSwitchProps {
   locales: LocaleItem[]
 }
 
-export default memo(function LanguageSwitch({ locales }: LanguageSwitchProps) {
+export function LanguageSwitch({ locales }: LanguageSwitchProps) {
   const pathname = usePathname() ?? '/about/ko'
   const router = useRouter()
   const currentLocale = pathname.split('/')[2] || 'ko'
   const currentLabel = locales.find(l => l.code === currentLocale)?.label ?? currentLocale
 
-  const handleChange = useCallback(
-    (value: string) => {
-      router.push(`/about/${value}`)
-    },
-    [router],
-  )
+  const handleChange = (value: string) => {
+    router.push(`/about/${value}`)
+  }
 
   return (
     <div className="flex items-center gap-2 mb-2">
@@ -44,4 +40,4 @@ export default memo(function LanguageSwitch({ locales }: LanguageSwitchProps) {
       </Select>
     </div>
   )
-})
+}

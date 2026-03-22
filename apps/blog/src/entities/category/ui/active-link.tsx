@@ -4,9 +4,7 @@ import { cn } from '@hyunwoo/shared/lib'
 import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { memo } from 'react'
-import { Badge } from '@/shared/ui/badge'
-import { Button } from '@/shared/ui/button'
+import { Badge, Button } from '@/shared/ui'
 
 interface ActiveLinkProps {
   href: string
@@ -20,7 +18,7 @@ interface ActiveLinkProps {
   prefetch?: boolean
 }
 
-export default memo(function ActiveLink({
+export function ActiveLink({
   href,
   title,
   className,
@@ -73,4 +71,4 @@ export default memo(function ActiveLink({
       </Button>
     </Link>
   )
-})
+}

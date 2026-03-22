@@ -2,7 +2,7 @@
 
 import { cn } from '@hyunwoo/shared/lib'
 import type React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface Heading {
   id: string
@@ -14,7 +14,26 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>('')
 
-  const collectHeadings = useCallback(() => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+    const element = document.getElementById(id)
+    if (element) {
+      window.scrollTo({
+        top: element.offsetTop - 100,
+        behavior: 'smooth',
+      })
+    }
+  }
+
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.innerHTML = `
+      h1, h2, h3, h4, h5, h6 {
+        scroll-margin-top: 100px;
+      }
+    `
+    document.head.appendChild(style)
+
     const headingElements = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'))
 
     const headingData = headingElements
@@ -27,30 +46,6 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
       .filter(heading => heading.id && heading.text)
 
     setHeadings(headingData)
-    return headingElements
-  }, [skipFirstHeading])
-
-  const handleLinkClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault()
-    const element = document.getElementById(id)
-    if (element) {
-      window.scrollTo({
-        top: element.offsetTop - 100,
-        behavior: 'smooth',
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    const style = document.createElement('style')
-    style.innerHTML = `
-      h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 100px;
-      }
-    `
-    document.head.appendChild(style)
-
-    const headingElements = collectHeadings()
 
     const observer = new IntersectionObserver(
       entries => {
@@ -83,9 +78,9 @@ export function PostTOC({ skipFirstHeading = true }: { skipFirstHeading?: boolea
         }
       }
     }
-  }, [collectHeadings, skipFirstHeading])
+  }, [skipFirstHeading])
 
-  const minLevel = useMemo(() => Math.min(...headings.map(h => h.level)), [headings])
+  const minLevel = Math.min(...headings.map(h => h.level))
 
   if (headings.length === 0) {
     return null

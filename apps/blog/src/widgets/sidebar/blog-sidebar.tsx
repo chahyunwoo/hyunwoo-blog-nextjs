@@ -1,11 +1,9 @@
 import { formatDate } from '@hyunwoo/shared/lib'
 import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
-import { SidebarTagCloud } from '@/entities/category/ui/sidebar-tag-cloud'
-import { getCategoriesWithTags, getRecentPosts, getTagCloud } from '@/entities/post/api/post.api'
-import { Badge } from '@/shared/ui/badge'
-import { SidebarError } from '@/shared/ui/error'
+import { BlogCategoryNavigator, SidebarTagCloud } from '@/entities/category'
+import { getCategoriesWithTags, getRecentPosts, getTagCloud } from '@/entities/post'
+import { Badge, SidebarError } from '@/shared/ui'
 
 export async function BlogSidebar() {
   const [categories, recentPosts, tagData] = await Promise.all([

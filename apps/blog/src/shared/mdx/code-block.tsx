@@ -1,8 +1,8 @@
 'use client'
 
 import { cn } from '@hyunwoo/shared/lib'
-import { type DetailedHTMLProps, type HTMLAttributes, useCallback, useRef } from 'react'
-import CopyButton from '@/shared/ui/copy-button'
+import { type DetailedHTMLProps, type HTMLAttributes, useRef } from 'react'
+import { CopyButton } from '@/shared/ui'
 export function CodeBlock({
   children,
   className,
@@ -10,9 +10,9 @@ export function CodeBlock({
 }: DetailedHTMLProps<HTMLAttributes<HTMLPreElement>, HTMLPreElement>) {
   const preRef = useRef<HTMLPreElement>(null)
 
-  const getCodeContent = useCallback(() => {
+  const getCodeContent = () => {
     return preRef.current?.textContent || ''
-  }, [])
+  }
 
   return (
     <div className="relative">

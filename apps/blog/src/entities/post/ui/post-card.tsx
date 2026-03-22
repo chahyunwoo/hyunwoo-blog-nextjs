@@ -3,8 +3,7 @@ import { estimateReadingTime, formatDate } from '@hyunwoo/shared/lib'
 import type { Post } from '@hyunwoo/shared/types'
 import { Calendar, Clock } from 'lucide-react'
 import Image from 'next/image'
-import { Badge } from '@/shared/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/ui/tooltip'
+import { Badge, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/ui'
 
 interface PostCardProps {
   post: Post

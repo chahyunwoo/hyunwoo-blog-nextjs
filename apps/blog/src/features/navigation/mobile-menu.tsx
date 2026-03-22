@@ -2,25 +2,31 @@
 
 import type { CategoryData, MenuItem } from '@hyunwoo/shared/types'
 import { AlertCircle, Menu } from 'lucide-react'
-import { Suspense, useCallback, useState } from 'react'
-import ActiveLink from '@/entities/category/ui/active-link'
-import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
-import { Button } from '@/shared/ui/button'
-import Logo from '@/shared/ui/logo'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/ui/sheet'
-import { BlogMenuSkeleton } from '@/shared/ui/skeletons'
+import { Suspense, useState } from 'react'
+import { ActiveLink, BlogCategoryNavigator } from '@/entities/category'
+import {
+  BlogMenuSkeleton,
+  Button,
+  Logo,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/shared/ui'
 
 interface MobileMenuProps {
   menuItems: MenuItem[]
   categories: CategoryData[]
 }
 
-export default function MobileMenu({ menuItems, categories = [] }: MobileMenuProps) {
+export function MobileMenu({ menuItems, categories = [] }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     setIsOpen(false)
-  }, [])
+  }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

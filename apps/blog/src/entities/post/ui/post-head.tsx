@@ -1,7 +1,7 @@
 import { estimateReadingTime, formatDate } from '@hyunwoo/shared/lib'
 import type { Post } from '@hyunwoo/shared/types'
 import { Calendar, Clock } from 'lucide-react'
-import { Badge } from '@/shared/ui/badge'
+import { Badge } from '@/shared/ui'
 
 export function PostHead({ post }: { post: Post }) {
   const readTime = estimateReadingTime(post.content)
