@@ -355,7 +355,11 @@ function SkillsSection() {
 
   const handleCreate = () => {
     if (!newSkill.category.trim() || !newSkill.name.trim()) return
-    createSkill.mutate(newSkill, {
+    const body: CreateSkillBody = {
+      ...newSkill,
+      description: newSkill.description?.trim() || undefined,
+    }
+    createSkill.mutate(body, {
       onSuccess: () => {
         setNewSkill({ category: '', name: '', proficiency: 80, description: '' })
         setShowAddForm(false)
@@ -516,7 +520,11 @@ function SkillRow({
   const updateSkill = useUpdateSkill(skill.id)
 
   const handleSave = () => {
-    updateSkill.mutate(editForm, { onSuccess: () => onCancelEdit() })
+    const cleaned = {
+      ...editForm,
+      description: editForm.description?.trim() || undefined,
+    }
+    updateSkill.mutate(cleaned, { onSuccess: () => onCancelEdit() })
   }
 
   if (isEditing) {
