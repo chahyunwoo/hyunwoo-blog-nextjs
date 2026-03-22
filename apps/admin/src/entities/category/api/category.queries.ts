@@ -1,30 +1,9 @@
 import { notifications } from '@mantine/notifications'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { HTTPError } from 'ky'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-
-interface Category {
-  category: string
-  icon: string
-  count: number
-  recent: boolean
-}
-
-interface CreateCategoryBody {
-  name: string
-  icon: string
-  sortOrder?: number
-}
-
-async function getErrorMessage(e: unknown): Promise<string> {
-  if (e instanceof HTTPError) {
-    const body = await e.response.json().catch(() => null)
-    if (body?.message) return Array.isArray(body.message) ? body.message[0] : body.message
-    return `HTTP ${e.response.status}`
-  }
-  return e instanceof Error ? e.message : '알 수 없는 오류'
-}
+import { getErrorMessage } from '@/shared/lib'
+import type { Category, CreateCategoryBody } from '../model'
 
 export function useCategories() {
   return useQuery({
@@ -86,5 +65,3 @@ export function useDeleteCategory() {
     },
   })
 }
-
-export type { Category, CreateCategoryBody }

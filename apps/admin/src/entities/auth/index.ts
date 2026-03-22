@@ -1,3 +1,2 @@
-export { extendSession, getPreviewToken, login, logout, refreshSession } from './auth.api'
-export { getRemainingSession, setAuthenticated, useAuth } from './auth.store'
-export { useSessionTimer } from './use-session-timer'
+export { extendSession, getPreviewToken, login, logout, refreshSession } from './api'
+export { getRemainingSession, setAuthenticated, useAuth, useSessionTimer } from './model'

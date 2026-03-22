@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-import type { DashboardData, PopularPost, Referrer, SystemInfo, VisitorData } from './analytics.queries'
+import type { DashboardData, PopularPost, Referrer, SystemInfo, VisitorData } from '../model'
 
 export function dashboardOptions() {
   return queryOptions({

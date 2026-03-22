@@ -1,24 +1,11 @@
 import { ENDPOINTS } from '@hyunwoo/shared/api'
 import { notifications } from '@mantine/notifications'
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { HTTPError } from 'ky'
 import { adminApi, uploadFile } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-import type { CreatePostBody, Post, PostListParams, UpdatePostBody } from './model'
+import { getErrorMessage, stripLeadingSlash } from '@/shared/lib'
+import type { CreatePostBody, Post, PostListParams, UpdatePostBody } from '../model'
 import { postDetailOptions, postListOptions } from './post.options'
-
-function stripLeadingSlash(path: string) {
-  return path.startsWith('/') ? path.slice(1) : path
-}
-
-async function getErrorMessage(e: unknown): Promise<string> {
-  if (e instanceof HTTPError) {
-    const body = await e.response.json().catch(() => null)
-    if (body?.message) return Array.isArray(body.message) ? body.message[0] : body.message
-    return `HTTP ${e.response.status}`
-  }
-  return e instanceof Error ? e.message : '알 수 없는 오류'
-}
 
 export function usePostList(params?: PostListParams) {
   return useSuspenseQuery(postListOptions(params))

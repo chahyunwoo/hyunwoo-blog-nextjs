@@ -16,7 +16,7 @@ export function setAuthenticated(value: boolean) {
   notify()
 }
 
-export function getSessionTimeout(): number | null {
+function getSessionTimeout(): number | null {
   const match = document.cookie.match(/session_timeout=(\d+)/)
   return match ? Number(match[1]) : null
 }
