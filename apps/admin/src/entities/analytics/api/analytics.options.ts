@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-import type { DashboardData, PopularPost, Referrer, SystemInfo, VisitorData } from '../model'
+import type { AdminLog, DashboardData, PopularPost, Referrer, SystemInfo, VisitorData } from '../model'
 
 export function dashboardOptions() {
   return queryOptions({
@@ -38,5 +38,12 @@ export function systemOptions() {
   return queryOptions({
     queryKey: queryKeys.analytics.system,
     queryFn: () => adminApi.get('api/analytics/system').json<SystemInfo>(),
+  })
+}
+
+export function adminLogsOptions(limit = 20) {
+  return queryOptions({
+    queryKey: queryKeys.analytics.adminLogs(limit),
+    queryFn: () => adminApi.get(`api/analytics/admin-logs?limit=${limit}`).json<AdminLog[]>(),
   })
 }

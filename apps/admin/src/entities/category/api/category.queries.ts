@@ -51,6 +51,13 @@ export function useUpdateCategory() {
   })
 }
 
+export function useTags() {
+  return useQuery({
+    queryKey: queryKeys.tags.all,
+    queryFn: () => adminApi.get('api/blog/tags').json<{ tags: { name: string; count: number }[]; total: number }>(),
+  })
+}
+
 export function useDeleteCategory() {
   const queryClient = useQueryClient()
 

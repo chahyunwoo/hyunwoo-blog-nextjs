@@ -1,7 +1,8 @@
 import { Card, Group, Text, ThemeIcon } from '@mantine/core'
+import type { ReactNode } from 'react'
 
 interface StatCardProps {
-  icon: React.ReactNode
+  icon: ReactNode
   label: string
   value: number
   color: string

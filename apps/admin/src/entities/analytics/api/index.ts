@@ -1,4 +1,5 @@
 export {
+  adminLogsOptions,
   dashboardOptions,
   popularPostsOptions,
   referrersOptions,

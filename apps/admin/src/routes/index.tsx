@@ -1,6 +1,7 @@
 import { Center, Loader } from '@mantine/core'
 import { createFileRoute } from '@tanstack/react-router'
 import {
+  adminLogsOptions,
   dashboardOptions,
   popularPostsOptions,
   referrersOptions,
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/')({
       queryClient.ensureQueryData(popularPostsOptions(5)),
       queryClient.ensureQueryData(referrersOptions(30, 'blog')),
       queryClient.ensureQueryData(systemOptions()),
+      queryClient.ensureQueryData(adminLogsOptions(5)),
     ]),
   pendingComponent: () => (
     <Center mih={400}>
