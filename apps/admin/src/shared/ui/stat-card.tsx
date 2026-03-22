@@ -1,5 +1,6 @@
-import { Card, Group, Text, ThemeIcon } from '@mantine/core'
+import { Card, CardContent } from '@hyunwoo/ui'
 import type { ReactNode } from 'react'
+import { ICON_COLORS } from '@/shared/config'
 
 interface StatCardProps {
   icon: ReactNode
@@ -10,20 +11,16 @@ interface StatCardProps {
 
 export function StatCard({ icon, label, value, color }: StatCardProps) {
   return (
-    <Card shadow="xs" padding="lg" radius="md" withBorder>
-      <Group justify="space-between" align="flex-start">
+    <Card className="py-0">
+      <CardContent className="flex items-center justify-between py-4">
         <div>
-          <Text size="xs" c="dimmed" tt="uppercase" fw={600} mb={4}>
-            {label}
-          </Text>
-          <Text size="xl" fw={700}>
-            {value.toLocaleString()}
-          </Text>
+          <p className="text-[11px] text-muted-foreground uppercase font-semibold mb-0.5">{label}</p>
+          <span className="text-lg font-bold">{value.toLocaleString()}</span>
         </div>
-        <ThemeIcon variant="light" color={color} size="lg" radius="md">
+        <div className={`flex items-center justify-center size-9 rounded-md ${ICON_COLORS[color] ?? ICON_COLORS.blue}`}>
           {icon}
-        </ThemeIcon>
-      </Group>
+        </div>
+      </CardContent>
     </Card>
   )
 }

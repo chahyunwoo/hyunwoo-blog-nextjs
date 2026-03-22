@@ -1,4 +1,4 @@
-import { notifications } from '@mantine/notifications'
+import { toast } from '@hyunwoo/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
@@ -19,14 +19,10 @@ export function useCreateCategory() {
     mutationFn: (body: CreateCategoryBody) => adminApi.post('api/blog/categories', { json: body }).json<Category>(),
     onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
-      notifications.show({
-        title: '카테고리 생성',
-        message: `"${data.category}" 카테고리가 생성되었습니다.`,
-        color: 'teal',
-      })
+      toast.success(`"${data.category}" 카테고리가 생성되었습니다.`)
     },
     onError: async e => {
-      notifications.show({ title: '생성 실패', message: await getErrorMessage(e), color: 'red' })
+      toast.error(await getErrorMessage(e))
     },
   })
 }
@@ -39,14 +35,10 @@ export function useUpdateCategory() {
       adminApi.put(`api/blog/categories/${encodeURIComponent(category)}`, { json: body }).json<Category>(),
     onSuccess: data => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
-      notifications.show({
-        title: '카테고리 수정',
-        message: `"${data.category}" 카테고리가 수정되었습니다.`,
-        color: 'teal',
-      })
+      toast.success(`"${data.category}" 카테고리가 수정되었습니다.`)
     },
     onError: async e => {
-      notifications.show({ title: '수정 실패', message: await getErrorMessage(e), color: 'red' })
+      toast.error(await getErrorMessage(e))
     },
   })
 }
@@ -65,10 +57,10 @@ export function useDeleteCategory() {
     mutationFn: (category: string) => adminApi.delete(`api/blog/categories/${encodeURIComponent(category)}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.categories.all })
-      notifications.show({ title: '카테고리 삭제', message: '카테고리가 삭제되었습니다.', color: 'teal' })
+      toast.success('카테고리가 삭제되었습니다.')
     },
     onError: async e => {
-      notifications.show({ title: '삭제 실패', message: await getErrorMessage(e), color: 'red' })
+      toast.error(await getErrorMessage(e))
     },
   })
 }

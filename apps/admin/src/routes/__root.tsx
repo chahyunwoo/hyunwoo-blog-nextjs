@@ -1,22 +1,11 @@
-import {
-  ActionIcon,
-  AppShell,
-  Burger,
-  Center,
-  Group,
-  Loader,
-  NavLink,
-  Text,
-  Tooltip,
-  UnstyledButton,
-} from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
-import { IconClock, IconLogout } from '@tabler/icons-react'
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@hyunwoo/ui'
 import type { QueryClient } from '@tanstack/react-query'
-import { createRootRouteWithContext, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { createRootRouteWithContext, Outlet, useMatchRoute } from '@tanstack/react-router'
+import { Clock, FileText, LayoutDashboard, Loader2, LogOut, Menu, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { logout, refreshSession, setAuthenticated, useAuth, useSessionTimer } from '@/entities/auth'
 import { LOGIN_PATH } from '@/shared/config'
+import { NavItem } from '@/shared/ui'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
@@ -38,9 +27,9 @@ function RootLayout() {
 
   if (!initialized) {
     return (
-      <Center mih="100vh">
-        <Loader />
-      </Center>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="size-6 animate-spin" />
+      </div>
     )
   }
 
@@ -52,7 +41,7 @@ function RootLayout() {
 }
 
 function AuthenticatedLayout() {
-  const [opened, { toggle }] = useDisclosure()
+  const [opened, setOpened] = useState(false)
   const { isAuthenticated } = useAuth()
   const { display, showWarning, extend } = useSessionTimer()
 
@@ -62,50 +51,67 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Group>
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Text fw={700} size="lg">
-              hyunwoo.dev
-            </Text>
-          </Group>
-          <Group gap="sm">
-            <Tooltip label="세션 연장" position="bottom">
-              <UnstyledButton onClick={extend}>
-                <Group gap={6}>
-                  <IconClock
-                    size={16}
-                    color={showWarning ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-blue-4)'}
-                  />
-                  <Text size="xs" ff="monospace" c={showWarning ? 'red' : 'blue.4'} fw={showWarning ? 700 : 500}>
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-50 flex h-[60px] items-center justify-between border-b bg-background px-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setOpened(prev => !prev)}>
+            {opened ? <X className="size-5" /> : <Menu className="size-5" />}
+          </Button>
+          <span className="text-lg font-bold">hyunwoo.dev</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" onClick={extend} className="flex items-center gap-1.5 cursor-pointer px-2">
+                  <Clock className={`size-4 ${showWarning ? 'text-red-500' : 'text-blue-400'}`} />
+                  <span
+                    className={`text-xs font-mono ${showWarning ? 'text-red-500 font-bold' : 'text-blue-400 font-medium'}`}
+                  >
                     {display}
-                  </Text>
-                </Group>
-              </UnstyledButton>
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>세션 연장</TooltipContent>
             </Tooltip>
-            <Tooltip label="로그아웃" position="bottom">
-              <ActionIcon variant="subtle" color="gray" onClick={logout}>
-                <IconLogout size={18} />
-              </ActionIcon>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={logout}>
+                  <LogOut className="size-[18px]" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>로그아웃</TooltipContent>
             </Tooltip>
-          </Group>
-        </Group>
-      </AppShell.Header>
+          </TooltipProvider>
+        </div>
+      </header>
 
-      <AppShell.Navbar p="md">
-        <NavLink component={Link} to="/" label="Dashboard" />
-        <NavLink component={Link} to="/posts" label="Posts" />
-      </AppShell.Navbar>
+      <div className="flex">
+        <nav
+          className={`${
+            opened ? 'block' : 'hidden'
+          } sm:block fixed sm:sticky top-[60px] left-0 z-40 w-60 shrink-0 border-r bg-background p-4 h-[calc(100vh-60px)] overflow-y-auto`}
+        >
+          <div className="flex flex-col gap-1">
+            <NavItem to="/" label="Dashboard" icon={<LayoutDashboard className="size-4" />} />
+            <NavItem to="/posts" label="Posts" icon={<FileText className="size-4" />} />
+          </div>
+        </nav>
 
-      <AppShell.Main>
-        <Outlet />
-      </AppShell.Main>
-    </AppShell>
+        {opened && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 sm:hidden"
+            onClick={() => setOpened(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        <main className="flex-1 p-6 md:p-8 min-h-[calc(100vh-60px)]">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   )
 }

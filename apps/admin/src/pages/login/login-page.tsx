@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Card, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, toast } from '@hyunwoo/ui'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { HTTPError } from 'ky'
+import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { login } from '@/entities/auth'
 import { type LoginForm, loginSchema } from '@/shared/schemas'
@@ -27,44 +27,36 @@ export function LoginPage() {
         const body = await e.response.json().catch(() => null)
         message = body?.message ?? `HTTP ${e.response.status}`
       }
-      notifications.show({
-        title: '로그인 실패',
-        message,
-        color: 'red',
-      })
+      toast.error(message)
     },
   })
 
   return (
-    <Stack align="center" justify="center" mih="100vh" p="md">
-      <Card shadow="sm" padding="xl" radius="md" withBorder w={400} maw="100%">
-        <Title order={2} ta="center" mb="md">
-          hyunwoo.dev Admin
-        </Title>
-        <Text size="sm" c="dimmed" ta="center" mb="xl">
-          관리자 로그인
-        </Text>
-
-        <form onSubmit={handleSubmit(values => loginMutation.mutate(values))}>
-          <Stack>
-            <TextInput
-              label="아이디"
-              placeholder="username"
-              error={errors.username?.message}
-              {...register('username')}
-            />
-            <PasswordInput
-              label="비밀번호"
-              placeholder="password"
-              error={errors.password?.message}
-              {...register('password')}
-            />
-            <Button type="submit" fullWidth loading={loginMutation.isPending}>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <Card className="w-[400px] max-w-full">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">hyunwoo.dev Admin</CardTitle>
+          <p className="text-sm text-muted-foreground text-center">관리자 로그인</p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(values => loginMutation.mutate(values))} className="flex flex-col gap-4">
+            <div>
+              <Label htmlFor="username">아이디</Label>
+              <Input id="username" placeholder="username" {...register('username')} />
+              {errors.username && <p className="text-xs text-destructive mt-1">{errors.username.message}</p>}
+            </div>
+            <div>
+              <Label htmlFor="password">비밀번호</Label>
+              <Input id="password" type="password" placeholder="password" {...register('password')} />
+              {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
+            </div>
+            <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+              {loginMutation.isPending && <Loader2 className="size-4 animate-spin" />}
               로그인
             </Button>
-          </Stack>
-        </form>
+          </form>
+        </CardContent>
       </Card>
-    </Stack>
+    </div>
   )
 }

@@ -1,12 +1,9 @@
-import '@mantine/core/styles.css'
-import '@mantine/notifications/styles.css'
+import './app.css'
 
-import { MantineProvider } from '@mantine/core'
-import { Notifications } from '@mantine/notifications'
+import { Toaster } from '@hyunwoo/ui'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { createRoot } from 'react-dom/client'
-import { adminTheme } from '@/shared/lib'
 import { routeTree } from './routeTree.gen'
 
 const queryClient = new QueryClient()
@@ -28,10 +25,8 @@ const root = document.getElementById('root')
 if (!root) throw new Error('Root element not found')
 
 createRoot(root).render(
-  <MantineProvider defaultColorScheme="auto" theme={adminTheme}>
-    <Notifications />
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </MantineProvider>,
+  <QueryClientProvider client={queryClient}>
+    <RouterProvider router={router} />
+    <Toaster theme="dark" />
+  </QueryClientProvider>,
 )

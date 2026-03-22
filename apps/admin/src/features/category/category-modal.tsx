@@ -1,21 +1,21 @@
 import {
-  ActionIcon,
-  Box,
   Button,
-  Divider,
-  Group,
-  Modal,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+  Separator,
   Tooltip,
-  UnstyledButton,
-} from '@mantine/core'
-import { notifications } from '@mantine/notifications'
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  toast,
+} from '@hyunwoo/ui'
 import type { LucideIcon } from 'lucide-react'
 import * as icons from 'lucide-react'
+import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   type Category,
@@ -71,7 +71,7 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
     if (nameChanged && editTarget.count > 0) {
       if (
         !window.confirm(
-          `"${editTarget.category}" → "${name.trim()}" 변경 시 ${editTarget.count}개 포스트의 카테고리도 함께 변경됩니다. 계속하시겠습니까?`,
+          `"${editTarget.category}" -> "${name.trim()}" 변경 시 ${editTarget.count}개 포스트의 카테고리도 함께 변경됩니다. 계속하시겠습니까?`,
         )
       )
         return
@@ -84,11 +84,9 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
 
   const handleDelete = (cat: Category) => {
     if (cat.count > 0) {
-      notifications.show({
-        title: '삭제 불가',
-        message: `"${cat.category}" 카테고리에 ${cat.count}개의 포스트가 있습니다. 포스트를 먼저 다른 카테고리로 이동하세요.`,
-        color: 'red',
-      })
+      toast.error(
+        `"${cat.category}" 카테고리에 ${cat.count}개의 포스트가 있습니다. 포스트를 먼저 다른 카테고리로 이동하세요.`,
+      )
       return
     }
     if (!window.confirm(`"${cat.category}" 카테고리를 삭제하시겠습니까?`)) return
@@ -103,155 +101,156 @@ export function CategoryModal({ opened, onClose, onSelect }: CategoryModalProps)
   }
 
   return (
-    <Modal
-      opened={opened}
-      onClose={() => {
-        onClose()
-        resetForm()
+    <Dialog
+      open={opened}
+      onOpenChange={(open: boolean) => {
+        if (!open) {
+          onClose()
+          resetForm()
+        }
       }}
-      title="카테고리 관리"
-      size="md"
     >
-      {mode === 'list' ? (
-        <Stack gap="sm">
-          {categories?.map(cat => {
-            const Icon = getIcon(cat.icon)
-            return (
-              <Group
-                key={cat.category}
-                justify="space-between"
-                p="xs"
-                style={{
-                  borderRadius: 'var(--mantine-radius-md)',
-                  border: '1px solid var(--mantine-color-default-border)',
-                }}
-              >
-                <Group
-                  gap="sm"
-                  style={{ cursor: onSelect ? 'pointer' : 'default', flex: 1 }}
-                  onClick={() => {
-                    if (onSelect) {
-                      onSelect(cat.category)
-                      onClose()
-                      resetForm()
-                    }
-                  }}
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>카테고리 관리</DialogTitle>
+        </DialogHeader>
+
+        {mode === 'list' ? (
+          <div className="flex flex-col gap-2">
+            {categories?.map(cat => {
+              const Icon = getIcon(cat.icon)
+              return (
+                <div
+                  key={cat.category}
+                  className="flex items-center justify-between p-2 rounded-md border border-border"
                 >
-                  <Icon size={18} />
-                  <Text size="sm" fw={500}>
-                    {cat.category}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {cat.count}개
-                  </Text>
-                </Group>
-                <Group gap={4}>
-                  <Tooltip label="수정">
-                    <ActionIcon variant="subtle" size="sm" onClick={() => startEdit(cat)}>
-                      <IconEdit size={14} />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label={cat.count > 0 ? `${cat.count}개 포스트 사용 중` : '삭제'}>
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      size="sm"
-                      disabled={cat.count > 0}
-                      onClick={() => handleDelete(cat)}
-                    >
-                      <IconTrash size={14} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              </Group>
-            )
-          })}
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 flex-1 cursor-pointer bg-transparent border-none text-left"
+                    style={{ cursor: onSelect ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (onSelect) {
+                        onSelect(cat.category)
+                        onClose()
+                        resetForm()
+                      }
+                    }}
+                  >
+                    <Icon size={18} />
+                    <span className="text-sm font-medium">{cat.category}</span>
+                    <span className="text-xs text-muted-foreground">{cat.count}개</span>
+                  </button>
+                  <div className="flex items-center gap-1">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7"
+                            onClick={() => startEdit(cat)}
+                            aria-label="수정"
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>수정</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 text-destructive hover:text-destructive"
+                            disabled={cat.count > 0}
+                            onClick={() => handleDelete(cat)}
+                            aria-label="삭제"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{cat.count > 0 ? `${cat.count}개 포스트 사용 중` : '삭제'}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
+              )
+            })}
 
-          <Button
-            variant="light"
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setMode('create')}
-            fullWidth
-            mt="xs"
-          >
-            새 카테고리
-          </Button>
-        </Stack>
-      ) : (
-        <Stack gap="md">
-          <TextInput
-            label="카테고리 이름"
-            placeholder="카테고리 이름"
-            value={name}
-            onChange={e => setName(e.currentTarget.value)}
-          />
-
-          <Box>
-            <Text size="sm" fw={500} mb={8}>
-              아이콘
-            </Text>
-            <TextInput
-              placeholder="아이콘 검색..."
-              size="xs"
-              mb="xs"
-              value={iconSearch}
-              onChange={e => setIconSearch(e.currentTarget.value)}
-            />
-            <Box
-              style={{
-                maxHeight: 200,
-                overflow: 'auto',
-                border: '1px solid var(--mantine-color-default-border)',
-                borderRadius: 'var(--mantine-radius-md)',
-                padding: 8,
-              }}
-            >
-              <SimpleGrid cols={8} spacing={4}>
-                {filteredIcons.map(iconName => {
-                  const Icon = getIcon(iconName)
-                  const isSelected = selectedIcon === iconName
-                  return (
-                    <Tooltip key={iconName} label={iconName} position="top">
-                      <UnstyledButton
-                        onClick={() => setSelectedIcon(iconName)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 36,
-                          height: 36,
-                          borderRadius: 'var(--mantine-radius-md)',
-                          border: isSelected ? '2px solid var(--mantine-color-indigo-filled)' : '1px solid transparent',
-                          background: isSelected ? 'var(--mantine-color-indigo-light)' : undefined,
-                        }}
-                      >
-                        <Icon size={18} />
-                      </UnstyledButton>
-                    </Tooltip>
-                  )
-                })}
-              </SimpleGrid>
-            </Box>
-            <Text size="xs" c="dimmed" mt={4}>
-              선택됨: {selectedIcon}
-            </Text>
-          </Box>
-
-          <Divider />
-
-          <Group justify="flex-end" gap="xs">
-            <Button variant="subtle" onClick={resetForm}>
-              취소
+            <Button variant="secondary" className="w-full mt-2" onClick={() => setMode('create')}>
+              <Plus size={16} />새 카테고리
             </Button>
-            <Button
-              onClick={mode === 'create' ? handleCreate : handleUpdate}
-              loading={createCategory.isPending || updateCategory.isPending}
-            >
-              {mode === 'create' ? '생성' : '수정'}
-            </Button>
-          </Group>
-        </Stack>
-      )}
-    </Modal>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div>
+              <Label htmlFor="categoryName">카테고리 이름</Label>
+              <Input
+                id="categoryName"
+                placeholder="카테고리 이름"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <span className="text-sm font-medium block mb-2">아이콘</span>
+              <Input
+                placeholder="아이콘 검색..."
+                className="mb-2 h-8 text-xs"
+                value={iconSearch}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIconSearch(e.target.value)}
+              />
+              <div className="max-h-[200px] overflow-auto border border-border rounded-md p-2">
+                <div className="grid grid-cols-8 gap-1">
+                  {filteredIcons.map(iconName => {
+                    const Icon = getIcon(iconName)
+                    const isSelected = selectedIcon === iconName
+                    return (
+                      <TooltipProvider key={iconName}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedIcon(iconName)}
+                              className={`flex items-center justify-center size-9 rounded-md cursor-pointer transition-colors ${
+                                isSelected
+                                  ? 'border-2 border-primary bg-primary/10'
+                                  : 'border border-transparent hover:bg-accent'
+                              }`}
+                            >
+                              <Icon size={18} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{iconName}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )
+                  })}
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground mt-1 block">선택됨: {selectedIcon}</span>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={resetForm}>
+                취소
+              </Button>
+              <Button
+                onClick={mode === 'create' ? handleCreate : handleUpdate}
+                disabled={createCategory.isPending || updateCategory.isPending}
+              >
+                {(createCategory.isPending || updateCategory.isPending) && <Loader2 className="size-4 animate-spin" />}
+                {mode === 'create' ? '생성' : '수정'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
