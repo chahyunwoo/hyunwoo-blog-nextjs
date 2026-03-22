@@ -16,7 +16,6 @@ export { Badge, badgeVariants } from './badge'
 export { Button, buttonVariants } from './button'
 export { Calendar } from './calendar'
 export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card'
-export { cn } from './cn'
 export {
   Dialog,
   DialogClose,

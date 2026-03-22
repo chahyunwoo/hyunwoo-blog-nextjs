@@ -11,6 +11,7 @@ import {
   RecentExperience,
   Skills,
 } from '@/entities/about'
+import { LanguageSwitch } from '@/features/navigation'
 import { InnerContainer } from '@/shared/ui'
 
 export async function generateStaticParams() {
@@ -88,7 +89,10 @@ export default async function Page({ params }: Params<{ locale: Locale }>) {
         }}
       />
       <div className="max-w-3xl mx-auto">
-        <ProfileHeader profile={profile} locales={locales} />
+        <ProfileHeader
+          profile={profile}
+          languageSwitch={<LanguageSwitch locales={locales.map(l => ({ code: l.code, label: l.label }))} />}
+        />
         <BriefIntroduction profile={profile} />
         <Skills profile={profile} />
         <Education profile={profile} />

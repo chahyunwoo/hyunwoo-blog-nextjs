@@ -1,3 +1,5 @@
 export { ICON_COLORS } from './colors'
 export { BLOG_URL, LOGIN_PATH } from './constants'
+export type { LocaleCode } from './locales'
+export { LOCALE_TABS } from './locales'
 export { queryKeys } from './query-keys'

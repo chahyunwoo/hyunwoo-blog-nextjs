@@ -1,5 +1,7 @@
+import type { LocaleCode } from '@/shared/config'
+
+export type { LocaleCode }
 export type WorkType = 'business' | 'personal'
-export type LocaleCode = 'ko' | 'en' | 'jp'
 
 // --- GET 응답 타입 (플랫 구조, locale에 맞게 변환되어 내려옴) ---
 

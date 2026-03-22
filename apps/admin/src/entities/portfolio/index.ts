@@ -29,7 +29,6 @@ export {
   useUpdateWork,
   useUploadProfileIcon,
   useUploadProfileImage,
-  useWork,
   useWorkDetail,
   useWorks,
 } from './api'
