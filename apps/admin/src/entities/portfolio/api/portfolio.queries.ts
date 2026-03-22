@@ -1,6 +1,6 @@
 import { toast } from '@hyunwoo/ui'
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { adminApi } from '@/shared/api'
+import { adminApi, uploadFile } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
 import { getErrorMessage } from '@/shared/lib'
 import type {
@@ -10,14 +10,19 @@ import type {
   CreateSkillBody,
   CreateWorkBody,
   Education,
+  EducationDetail,
   Experience,
+  ExperienceDetail,
   PortfolioLocale,
   PortfolioProfile,
+  PortfolioProfileAll,
   Project,
+  ProjectDetail,
   Skill,
   UpdateProfileBody,
   UpdateWorkBody,
   Work,
+  WorkDetail,
 } from '../model'
 
 // Works
@@ -34,6 +39,13 @@ export function useWork(id: number) {
   return useSuspenseQuery({
     queryKey: queryKeys.portfolio.works.detail(id),
     queryFn: () => adminApi.get(`api/portfolio/works/${id}`).json<Work>(),
+  })
+}
+
+export function useWorkDetail(id: number) {
+  return useSuspenseQuery({
+    queryKey: queryKeys.portfolio.works.detail(id),
+    queryFn: () => adminApi.get(`api/portfolio/works/${id}`).json<WorkDetail>(),
   })
 }
 
@@ -285,11 +297,76 @@ export function useDeleteEducation() {
   })
 }
 
+// Detail hooks (GET /:id with translations)
+export function useExperienceDetail(id: number) {
+  return useQuery({
+    queryKey: [...queryKeys.portfolio.experiences.all, 'detail', id],
+    queryFn: () => adminApi.get(`api/portfolio/experiences/${id}`).json<ExperienceDetail>(),
+  })
+}
+
+export function useProjectDetail(id: number) {
+  return useQuery({
+    queryKey: [...queryKeys.portfolio.projects.all, 'detail', id],
+    queryFn: () => adminApi.get(`api/portfolio/projects/${id}`).json<ProjectDetail>(),
+  })
+}
+
+export function useEducationDetail(id: number) {
+  return useQuery({
+    queryKey: [...queryKeys.portfolio.education.all, 'detail', id],
+    queryFn: () => adminApi.get(`api/portfolio/education/${id}`).json<EducationDetail>(),
+  })
+}
+
 // Profile
 export function useProfile() {
   return useQuery({
     queryKey: queryKeys.portfolio.profile(),
     queryFn: () => adminApi.get('api/portfolio/profile').json<PortfolioProfile>(),
+  })
+}
+
+export function useProfileAll() {
+  return useQuery({
+    queryKey: [...queryKeys.portfolio.profile(), 'all'],
+    queryFn: () => adminApi.get('api/portfolio/profile/all').json<PortfolioProfileAll>(),
+  })
+}
+
+export function useUploadProfileImage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData()
+      formData.append('image', file)
+      return uploadFile<{ url: string }>('api/portfolio/profile/image', formData)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.portfolio.profile() })
+      toast.success('이미지 업로드 완료')
+    },
+    onError: async e => {
+      toast.error(await getErrorMessage(e))
+    },
+  })
+}
+
+export function useUploadProfileIcon() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData()
+      formData.append('icon', file)
+      return uploadFile<{ url: string }>('api/portfolio/profile/icon', formData)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.portfolio.profile() })
+      toast.success('아이콘 업로드 완료')
+    },
+    onError: async e => {
+      toast.error(await getErrorMessage(e))
+    },
   })
 }
 

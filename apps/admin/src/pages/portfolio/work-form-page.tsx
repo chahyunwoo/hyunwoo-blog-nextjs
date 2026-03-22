@@ -14,10 +14,10 @@ import Editor, { type Monaco } from '@monaco-editor/react'
 import { useNavigate } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import type { CreateWorkBody, LocaleCode, Work, WorkTranslation, WorkType } from '@/entities/portfolio'
-import { useCreateWork, useUpdateWork, useWork } from '@/entities/portfolio'
+import type { CreateWorkBody, LocaleCode, WorkDetail, WorkTranslation, WorkType } from '@/entities/portfolio'
+import { useCreateWork, useUpdateWork, useWorkDetail } from '@/entities/portfolio'
 import { monokaiWinterNight } from '@/shared/lib'
-import { AdminInput, AdminLabel, DatePicker, TagsInput } from '@/shared/ui'
+import { AdminInput, AdminLabel, MonthPicker, TagsInput } from '@/shared/ui'
 
 const LOCALES: { code: LocaleCode; label: string }[] = [
   { code: 'ko', label: 'KO' },
@@ -42,14 +42,14 @@ export function WorkFormPage({ mode, id }: WorkFormPageProps) {
 }
 
 function WorkEditForm({ id }: { id: number }) {
-  const { data } = useWork(id)
+  const { data } = useWorkDetail(id)
   return <WorkFormInner mode="edit" id={id} initial={data} />
 }
 
 interface WorkFormInnerProps {
   mode: 'create' | 'edit'
   id?: number
-  initial?: Work
+  initial?: WorkDetail
 }
 
 function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
@@ -71,14 +71,19 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
     if (!initial) {
       return LOCALES.map(l => createEmptyTranslation(l.code))
     }
-    return LOCALES.map(l => ({
-      locale: l.code as LocaleCode,
-      title: l.code === 'ko' ? initial.title : '',
-      role: l.code === 'ko' ? (initial.role ?? '') : '',
-      summary: l.code === 'ko' ? initial.summary : '',
-      content: l.code === 'ko' ? initial.content : '',
-      highlights: l.code === 'ko' ? initial.highlights : [],
-    }))
+    return LOCALES.map(l => {
+      const existing = initial.translations.find(t => t.locale === l.code)
+      return existing
+        ? {
+            locale: l.code,
+            title: existing.title,
+            role: existing.role ?? '',
+            summary: existing.summary,
+            content: existing.content,
+            highlights: existing.highlights ?? [],
+          }
+        : createEmptyTranslation(l.code)
+    })
   })
 
   const isPending = createWork.isPending || updateWork.isPending
@@ -118,172 +123,173 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold">{mode === 'create' ? '새 Work' : 'Work 수정'}</h2>
+      <h2 className="text-2xl font-bold mb-6">{mode === 'create' ? '새 Work' : 'Work 수정'}</h2>
 
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 lg:col-span-4">
-            <Card>
-              <CardContent className="pt-6 flex flex-col gap-4">
-                <div>
-                  <AdminLabel htmlFor="type">Type</AdminLabel>
-                  <Select value={type} onValueChange={v => setType(v as WorkType)}>
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="business">Business</SelectItem>
-                      <SelectItem value="personal">Personal</SelectItem>
-                    </SelectContent>
-                  </Select>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+        {/* Left column — main content */}
+        <div className="flex flex-col gap-5">
+          {/* Locale tabs */}
+          <div className="flex items-center gap-1">
+            {LOCALES.map(l => (
+              <Button
+                key={l.code}
+                type="button"
+                variant={activeLocale === l.code ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveLocale(l.code)}
+              >
+                {l.label}
+              </Button>
+            ))}
+          </div>
+
+          {currentTranslation && (
+            <>
+              <div>
+                <AdminLabel>Title</AdminLabel>
+                <AdminInput
+                  value={currentTranslation.title}
+                  onChange={e => updateTranslation(activeLocale, 'title', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <AdminLabel>Role</AdminLabel>
+                <AdminInput
+                  value={currentTranslation.role ?? ''}
+                  onChange={e => updateTranslation(activeLocale, 'role', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <AdminLabel>Summary</AdminLabel>
+                <AdminInput
+                  value={currentTranslation.summary}
+                  onChange={e => updateTranslation(activeLocale, 'summary', e.target.value)}
+                />
+              </div>
+
+              {/* Monaco Editor for content */}
+              <div>
+                <AdminLabel>Content (MDX)</AdminLabel>
+                <div className="rounded-md overflow-hidden border border-border">
+                  <Editor
+                    height="calc(100vh - 500px)"
+                    defaultLanguage="markdown"
+                    value={currentTranslation.content}
+                    onChange={value => updateTranslation(activeLocale, 'content', value ?? '')}
+                    beforeMount={(monaco: Monaco) => {
+                      monaco.editor.defineTheme('monokai-winter-night', monokaiWinterNight)
+                    }}
+                    theme="monokai-winter-night"
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 14,
+                      lineNumbers: 'on',
+                      wordWrap: 'on',
+                      scrollBeyondLastLine: false,
+                      padding: { top: 16, bottom: 16 },
+                    }}
+                  />
                 </div>
+              </div>
+            </>
+          )}
+        </div>
 
+        {/* Right column — settings */}
+        <div className="flex flex-col gap-4">
+          <Card>
+            <CardContent className="pt-4 flex flex-col gap-4">
+              <AdminLabel className="text-base font-semibold mb-0">Settings</AdminLabel>
+
+              <div>
+                <AdminLabel>Type</AdminLabel>
+                <Select value={type} onValueChange={v => setType(v as WorkType)}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">Business</SelectItem>
+                    <SelectItem value="personal">Personal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <AdminLabel>Start Date</AdminLabel>
-                  <DatePicker value={startDate} onChange={setStartDate} />
+                  <MonthPicker value={startDate} onChange={setStartDate} placeholder="시작일" />
                 </div>
-
                 <div>
                   <AdminLabel>End Date</AdminLabel>
-                  <DatePicker value={endDate} onChange={setEndDate} disabled={isCurrent} />
+                  <MonthPicker value={endDate} onChange={setEndDate} placeholder="종료일" disabled={isCurrent} />
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <AdminLabel htmlFor="isCurrent">현재 진행중</AdminLabel>
-                  <Switch id="isCurrent" checked={isCurrent} onCheckedChange={setIsCurrent} />
-                </div>
+              <div className="flex items-center justify-between">
+                <AdminLabel className="mb-0">현재 진행 중</AdminLabel>
+                <Switch checked={isCurrent} onCheckedChange={setIsCurrent} />
+              </div>
 
-                <TagsInput label="Tech Stack" placeholder="Enter로 추가" value={techStack} onChange={setTechStack} />
+              <div className="flex items-center justify-between">
+                <AdminLabel className="mb-0">Featured</AdminLabel>
+                <Switch checked={featured} onCheckedChange={setFeatured} />
+              </div>
 
-                <div>
-                  <AdminLabel htmlFor="demoUrl">Demo URL</AdminLabel>
-                  <AdminInput
-                    id="demoUrl"
-                    value={demoUrl}
-                    onChange={e => setDemoUrl(e.target.value)}
-                    placeholder="https://"
-                  />
-                </div>
+              <div>
+                <AdminLabel>Sort Order</AdminLabel>
+                <AdminInput type="number" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} />
+              </div>
+            </CardContent>
+          </Card>
 
-                <div>
-                  <AdminLabel htmlFor="repoUrl">Repo URL</AdminLabel>
-                  <AdminInput
-                    id="repoUrl"
-                    value={repoUrl}
-                    onChange={e => setRepoUrl(e.target.value)}
-                    placeholder="https://"
-                  />
-                </div>
+          <Card>
+            <CardContent className="pt-4 flex flex-col gap-4">
+              <AdminLabel className="text-base font-semibold mb-0">Tech Stack</AdminLabel>
+              <TagsInput value={techStack} onChange={setTechStack} placeholder="Enter로 추가" />
+            </CardContent>
+          </Card>
 
-                <div className="flex items-center justify-between">
-                  <AdminLabel htmlFor="featured">Featured</AdminLabel>
-                  <Switch id="featured" checked={featured} onCheckedChange={setFeatured} />
-                </div>
+          <Card>
+            <CardContent className="pt-4 flex flex-col gap-4">
+              <AdminLabel className="text-base font-semibold mb-0">URLs</AdminLabel>
+              <div>
+                <AdminLabel>Demo URL</AdminLabel>
+                <AdminInput value={demoUrl} onChange={e => setDemoUrl(e.target.value)} placeholder="https://" />
+              </div>
+              <div>
+                <AdminLabel>Repository URL</AdminLabel>
+                <AdminInput value={repoUrl} onChange={e => setRepoUrl(e.target.value)} placeholder="https://" />
+              </div>
+            </CardContent>
+          </Card>
 
-                <div>
-                  <AdminLabel htmlFor="sortOrder">Sort Order</AdminLabel>
-                  <AdminInput
-                    id="sortOrder"
-                    type="number"
-                    value={sortOrder}
-                    onChange={e => setSortOrder(Number(e.target.value))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="col-span-12 lg:col-span-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-1 mb-4">
-                  {LOCALES.map(l => (
-                    <Button
-                      key={l.code}
-                      type="button"
-                      variant={activeLocale === l.code ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setActiveLocale(l.code)}
-                    >
-                      {l.label}
-                    </Button>
-                  ))}
-                </div>
-
-                {currentTranslation && (
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <AdminLabel>Title</AdminLabel>
-                      <AdminInput
-                        value={currentTranslation.title}
-                        onChange={e => updateTranslation(activeLocale, 'title', e.target.value)}
-                      />
-                    </div>
-
-                    <div>
-                      <AdminLabel>Role</AdminLabel>
-                      <AdminInput
-                        value={currentTranslation.role ?? ''}
-                        onChange={e => updateTranslation(activeLocale, 'role', e.target.value)}
-                      />
-                    </div>
-
-                    <div>
-                      <AdminLabel>Summary</AdminLabel>
-                      <AdminInput
-                        value={currentTranslation.summary}
-                        onChange={e => updateTranslation(activeLocale, 'summary', e.target.value)}
-                      />
-                    </div>
-
-                    <div>
-                      <AdminLabel>Content (Markdown)</AdminLabel>
-                      <div className="rounded-md overflow-hidden border border-border">
-                        <Editor
-                          height="400px"
-                          defaultLanguage="markdown"
-                          value={currentTranslation.content}
-                          onChange={value => updateTranslation(activeLocale, 'content', value ?? '')}
-                          beforeMount={(monaco: Monaco) => {
-                            monaco.editor.defineTheme('monokai-winter-night', monokaiWinterNight)
-                          }}
-                          theme="monokai-winter-night"
-                          options={{
-                            minimap: { enabled: false },
-                            fontSize: 14,
-                            lineNumbers: 'on',
-                            wordWrap: 'on',
-                            scrollBeyondLastLine: false,
-                            padding: { top: 16, bottom: 16 },
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <TagsInput
-                      label="Highlights"
-                      placeholder="Enter로 추가"
-                      value={currentTranslation.highlights ?? []}
-                      onChange={v => updateTranslation(activeLocale, 'highlights', v)}
-                    />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardContent className="pt-4 flex flex-col gap-4">
+              <AdminLabel className="text-base font-semibold mb-0">Highlights</AdminLabel>
+              {currentTranslation && (
+                <TagsInput
+                  value={currentTranslation.highlights ?? []}
+                  onChange={v => updateTranslation(activeLocale, 'highlights', v)}
+                  placeholder="Enter로 추가"
+                />
+              )}
+            </CardContent>
+          </Card>
         </div>
+      </div>
 
-        <Separator />
+      <Separator className="my-6" />
 
-        <div className="flex items-center justify-end gap-2">
-          <Button type="button" variant="outline" onClick={() => navigate({ to: '/portfolio/works' })}>
-            취소
-          </Button>
-          <Button type="submit" disabled={isPending}>
-            {isPending && <Loader2 className="size-4 animate-spin" />}
-            {mode === 'create' ? '생성' : '저장'}
-          </Button>
-        </div>
+      <div className="flex items-center justify-end gap-2">
+        <Button type="button" variant="outline" onClick={() => navigate({ to: '/portfolio/works' })}>
+          취소
+        </Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending && <Loader2 className="size-4 animate-spin" />}
+          {mode === 'create' ? '생성' : '저장'}
+        </Button>
       </div>
     </form>
   )
