@@ -1,7 +1,7 @@
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@hyunwoo/ui'
 import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Outlet, useMatchRoute } from '@tanstack/react-router'
-import { Clock, FileText, LayoutDashboard, Loader2, LogOut, Menu, X } from 'lucide-react'
+import { Briefcase, Clock, FileText, LayoutDashboard, Loader2, LogOut, Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { logout, refreshSession, setAuthenticated, useAuth, useSessionTimer } from '@/entities/auth'
 import { LOGIN_PATH } from '@/shared/config'
@@ -97,6 +97,7 @@ function AuthenticatedLayout() {
           <div className="flex flex-col gap-1">
             <NavItem to="/" label="Dashboard" icon={<LayoutDashboard className="size-4" />} />
             <NavItem to="/posts" label="Posts" icon={<FileText className="size-4" />} />
+            <NavItem to="/portfolio" label="Portfolio" icon={<Briefcase className="size-4" />} />
           </div>
         </nav>
 

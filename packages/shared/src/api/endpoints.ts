@@ -15,5 +15,6 @@ export const ENDPOINTS = {
     skills: '/api/portfolio/skills',
     education: '/api/portfolio/education',
     locales: '/api/portfolio/locales',
+    works: '/api/portfolio/works',
   },
 } as const

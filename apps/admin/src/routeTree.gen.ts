@@ -12,8 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as PortfolioIndexRouteImport } from './routes/portfolio/index'
 import { Route as PostsNewRouteImport } from './routes/posts/new'
 import { Route as PostsSlugRouteImport } from './routes/posts/$slug'
+import { Route as PortfolioManageRouteImport } from './routes/portfolio/manage'
+import { Route as PortfolioContentRouteImport } from './routes/portfolio/content'
+import { Route as PortfolioWorksIndexRouteImport } from './routes/portfolio/works/index'
+import { Route as PortfolioWorksNewRouteImport } from './routes/portfolio/works/new'
+import { Route as PortfolioWorksIdRouteImport } from './routes/portfolio/works/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -30,6 +36,11 @@ const PostsIndexRoute = PostsIndexRouteImport.update({
   path: '/posts/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortfolioIndexRoute = PortfolioIndexRouteImport.update({
+  id: '/portfolio/',
+  path: '/portfolio/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostsNewRoute = PostsNewRouteImport.update({
   id: '/posts/new',
   path: '/posts/new',
@@ -40,43 +51,126 @@ const PostsSlugRoute = PostsSlugRouteImport.update({
   path: '/posts/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortfolioManageRoute = PortfolioManageRouteImport.update({
+  id: '/portfolio/manage',
+  path: '/portfolio/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioContentRoute = PortfolioContentRouteImport.update({
+  id: '/portfolio/content',
+  path: '/portfolio/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioWorksIndexRoute = PortfolioWorksIndexRouteImport.update({
+  id: '/portfolio/works/',
+  path: '/portfolio/works/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioWorksNewRoute = PortfolioWorksNewRouteImport.update({
+  id: '/portfolio/works/new',
+  path: '/portfolio/works/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioWorksIdRoute = PortfolioWorksIdRouteImport.update({
+  id: '/portfolio/works/$id',
+  path: '/portfolio/works/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/portfolio/content': typeof PortfolioContentRoute
+  '/portfolio/manage': typeof PortfolioManageRoute
   '/posts/$slug': typeof PostsSlugRoute
   '/posts/new': typeof PostsNewRoute
+  '/portfolio/': typeof PortfolioIndexRoute
   '/posts/': typeof PostsIndexRoute
+  '/portfolio/works/$id': typeof PortfolioWorksIdRoute
+  '/portfolio/works/new': typeof PortfolioWorksNewRoute
+  '/portfolio/works/': typeof PortfolioWorksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/portfolio/content': typeof PortfolioContentRoute
+  '/portfolio/manage': typeof PortfolioManageRoute
   '/posts/$slug': typeof PostsSlugRoute
   '/posts/new': typeof PostsNewRoute
+  '/portfolio': typeof PortfolioIndexRoute
   '/posts': typeof PostsIndexRoute
+  '/portfolio/works/$id': typeof PortfolioWorksIdRoute
+  '/portfolio/works/new': typeof PortfolioWorksNewRoute
+  '/portfolio/works': typeof PortfolioWorksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/portfolio/content': typeof PortfolioContentRoute
+  '/portfolio/manage': typeof PortfolioManageRoute
   '/posts/$slug': typeof PostsSlugRoute
   '/posts/new': typeof PostsNewRoute
+  '/portfolio/': typeof PortfolioIndexRoute
   '/posts/': typeof PostsIndexRoute
+  '/portfolio/works/$id': typeof PortfolioWorksIdRoute
+  '/portfolio/works/new': typeof PortfolioWorksNewRoute
+  '/portfolio/works/': typeof PortfolioWorksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/posts/$slug' | '/posts/new' | '/posts/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/portfolio/content'
+    | '/portfolio/manage'
+    | '/posts/$slug'
+    | '/posts/new'
+    | '/portfolio/'
+    | '/posts/'
+    | '/portfolio/works/$id'
+    | '/portfolio/works/new'
+    | '/portfolio/works/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/posts/$slug' | '/posts/new' | '/posts'
-  id: '__root__' | '/' | '/login' | '/posts/$slug' | '/posts/new' | '/posts/'
+  to:
+    | '/'
+    | '/login'
+    | '/portfolio/content'
+    | '/portfolio/manage'
+    | '/posts/$slug'
+    | '/posts/new'
+    | '/portfolio'
+    | '/posts'
+    | '/portfolio/works/$id'
+    | '/portfolio/works/new'
+    | '/portfolio/works'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/portfolio/content'
+    | '/portfolio/manage'
+    | '/posts/$slug'
+    | '/posts/new'
+    | '/portfolio/'
+    | '/posts/'
+    | '/portfolio/works/$id'
+    | '/portfolio/works/new'
+    | '/portfolio/works/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  PortfolioContentRoute: typeof PortfolioContentRoute
+  PortfolioManageRoute: typeof PortfolioManageRoute
   PostsSlugRoute: typeof PostsSlugRoute
   PostsNewRoute: typeof PostsNewRoute
+  PortfolioIndexRoute: typeof PortfolioIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
+  PortfolioWorksIdRoute: typeof PortfolioWorksIdRoute
+  PortfolioWorksNewRoute: typeof PortfolioWorksNewRoute
+  PortfolioWorksIndexRoute: typeof PortfolioWorksIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portfolio/': {
+      id: '/portfolio/'
+      path: '/portfolio'
+      fullPath: '/portfolio/'
+      preLoaderRoute: typeof PortfolioIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/posts/new': {
       id: '/posts/new'
       path: '/posts/new'
@@ -116,15 +217,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portfolio/manage': {
+      id: '/portfolio/manage'
+      path: '/portfolio/manage'
+      fullPath: '/portfolio/manage'
+      preLoaderRoute: typeof PortfolioManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio/content': {
+      id: '/portfolio/content'
+      path: '/portfolio/content'
+      fullPath: '/portfolio/content'
+      preLoaderRoute: typeof PortfolioContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio/works/': {
+      id: '/portfolio/works/'
+      path: '/portfolio/works'
+      fullPath: '/portfolio/works/'
+      preLoaderRoute: typeof PortfolioWorksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio/works/new': {
+      id: '/portfolio/works/new'
+      path: '/portfolio/works/new'
+      fullPath: '/portfolio/works/new'
+      preLoaderRoute: typeof PortfolioWorksNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio/works/$id': {
+      id: '/portfolio/works/$id'
+      path: '/portfolio/works/$id'
+      fullPath: '/portfolio/works/$id'
+      preLoaderRoute: typeof PortfolioWorksIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  PortfolioContentRoute: PortfolioContentRoute,
+  PortfolioManageRoute: PortfolioManageRoute,
   PostsSlugRoute: PostsSlugRoute,
   PostsNewRoute: PostsNewRoute,
+  PortfolioIndexRoute: PortfolioIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
+  PortfolioWorksIdRoute: PortfolioWorksIdRoute,
+  PortfolioWorksNewRoute: PortfolioWorksNewRoute,
+  PortfolioWorksIndexRoute: PortfolioWorksIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
