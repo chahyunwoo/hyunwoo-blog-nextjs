@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { Button } from '@/shared/ui/button'
-import { InnerContainer } from '@/shared/ui/inner-container'
+import { Button } from '../button'
+import { InnerContainer } from '../inner-container'
 
 interface NotFoundFallbackProps {
   title?: string

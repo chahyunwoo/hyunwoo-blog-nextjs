@@ -1,18 +1,17 @@
 import type { Profile } from '@hyunwoo/shared/types'
 import { Github, MapPin } from 'lucide-react'
 import Image from 'next/image'
-import type { ApiLocale } from '@/entities/about/model'
-import LanguageSwitch from '@/features/navigation/language-switch'
-import { SOCIAL_ICON_MAP } from '@/shared/config/constants'
-import { IconButton } from '@/shared/ui/button'
-import CopyButton from '@/shared/ui/copy-button'
+import { LanguageSwitch } from '@/features/navigation'
+import { SOCIAL_ICON_MAP } from '@/shared/config'
+import { CopyButton, IconButton } from '@/shared/ui'
+import type { ApiLocale } from '../model'
 
 interface ProfileHeaderProps {
   profile: Profile
   locales: ApiLocale[]
 }
 
-export default function ProfileHeader({ profile, locales }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, locales }: ProfileHeaderProps) {
   return (
     <div className="flex gap-8 items-center justify-between flex-col-reverse md:flex-row pb-8 border-b border-border">
       <div className="flex flex-col items-center md:items-start">

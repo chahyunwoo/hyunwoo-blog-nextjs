@@ -4,14 +4,17 @@ import { ChevronLeft } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPostBySlug, getPublishedPosts } from '@/entities/post/api/post.api'
-import { MobileTOC } from '@/entities/post/ui/mobile-toc'
-import { PostBody } from '@/entities/post/ui/post-body'
-import { PostFooter } from '@/entities/post/ui/post-footer'
-import { PostHead } from '@/entities/post/ui/post-head'
-import { PostTOC } from '@/entities/post/ui/post-toc'
-import { ReadingProgress } from '@/entities/post/ui/reading-progress'
-import { InnerContainer } from '@/shared/ui/inner-container'
+import {
+  getPostBySlug,
+  getPublishedPosts,
+  MobileTOC,
+  PostBody,
+  PostFooter,
+  PostHead,
+  PostTOC,
+  ReadingProgress,
+} from '@/entities/post'
+import { InnerContainer } from '@/shared/ui'
 
 export async function generateStaticParams() {
   const posts = await getPublishedPosts()

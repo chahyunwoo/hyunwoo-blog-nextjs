@@ -1,4 +1,4 @@
-import { NotFoundFallback } from '@/shared/ui/error'
+import { NotFoundFallback } from '@/shared/ui'
 
 export default function NotFound() {
   return (

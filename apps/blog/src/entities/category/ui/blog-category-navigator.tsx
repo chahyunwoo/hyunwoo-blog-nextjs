@@ -6,8 +6,7 @@ import type { CategoryData, LinkType } from '@hyunwoo/shared/types'
 import type { LucideIcon } from 'lucide-react'
 import * as icons from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
-import ActiveLink from './active-link'
+import { ActiveLink } from './active-link'
 
 function getIcon(name?: string): LucideIcon {
   if (!name) return icons.Folder
@@ -25,37 +24,30 @@ export function BlogCategoryNavigator({ categories, variant, closeMenu = () => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const urlParams = useMemo(() => {
-    return {
-      category: searchParams.get('category') || '',
-      tag: searchParams.get('tag') || '',
-      parentCategory: searchParams.get('parentCategory') || '',
-    }
-  }, [searchParams])
+  const urlParams = {
+    category: searchParams.get('category') || '',
+    tag: searchParams.get('tag') || '',
+    parentCategory: searchParams.get('parentCategory') || '',
+  }
 
-  const totalPostCount = useMemo(() => {
-    return categories.reduce((sum, cat) => sum + cat.postCount, 0)
-  }, [categories])
+  const totalPostCount = categories.reduce((sum, cat) => sum + cat.postCount, 0)
 
-  const checkIsActive = useCallback(
-    (href: string, title: string, type: LinkType) => {
-      switch (type) {
-        case LINK_TYPES.ALL: {
-          const hasNoParams = !urlParams.category && !urlParams.tag && !urlParams.parentCategory
-          return pathname === '/' && hasNoParams
-        }
-
-        case LINK_TYPES.CATEGORY: {
-          const categoryName = getParamFromHref('category', href)
-          return urlParams.category === categoryName || urlParams.parentCategory === title
-        }
-
-        default:
-          return pathname === href || (href === '/' && pathname.startsWith('/blog/'))
+  const checkIsActive = (href: string, title: string, type: LinkType) => {
+    switch (type) {
+      case LINK_TYPES.ALL: {
+        const hasNoParams = !urlParams.category && !urlParams.tag && !urlParams.parentCategory
+        return pathname === '/' && hasNoParams
       }
-    },
-    [pathname, urlParams],
-  )
+
+      case LINK_TYPES.CATEGORY: {
+        const categoryName = getParamFromHref('category', href)
+        return urlParams.category === categoryName || urlParams.parentCategory === title
+      }
+
+      default:
+        return pathname === href || (href === '/' && pathname.startsWith('/blog/'))
+    }
+  }
 
   const categoriesContent = (
     <div className="space-y-0.5">

@@ -3,9 +3,8 @@ import NextTopLoader from 'nextjs-toploader'
 import '@/styles/globals.css'
 import { BASE_URL } from '@hyunwoo/shared/config'
 import { ThemeProvider } from '@/providers/theme-provider'
-import { PageviewTracker } from '@/shared/lib/pageview-tracker'
-import Footer from '@/widgets/header/footer'
-import { Header } from '@/widgets/header/header'
+import { PageviewTracker } from '@/shared/lib'
+import { Footer, Header } from '@/widgets/header'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

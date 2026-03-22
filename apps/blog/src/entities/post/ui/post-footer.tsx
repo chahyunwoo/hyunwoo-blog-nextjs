@@ -1,7 +1,6 @@
 import type { Post } from '@hyunwoo/shared/types'
 import { Tag } from 'lucide-react'
-import { Badge } from '@/shared/ui/badge'
-import CopyButton from '@/shared/ui/copy-button'
+import { Badge, CopyButton } from '@/shared/ui'
 import { Giscus } from './giscus'
 import { RelatedPosts } from './related-posts'
 

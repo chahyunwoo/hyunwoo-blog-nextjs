@@ -3,7 +3,7 @@ interface AboutContainerProps {
   children: React.ReactNode
 }
 
-export default function AboutContainer({ title, children }: AboutContainerProps) {
+export function AboutContainer({ title, children }: AboutContainerProps) {
   return (
     <section className="mt-10 pb-6">
       <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6 flex items-center gap-2">

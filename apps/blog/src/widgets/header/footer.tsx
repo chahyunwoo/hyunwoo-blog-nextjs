@@ -1,6 +1,6 @@
-import { InnerContainer } from '@/shared/ui/inner-container'
+import { InnerContainer } from '@/shared/ui'
 
-export default function Footer() {
+export function Footer() {
   return (
     <footer className="w-full border-t bg-background">
       <InnerContainer className="h-12 flex items-center justify-center">

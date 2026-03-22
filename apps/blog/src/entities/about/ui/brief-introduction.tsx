@@ -1,7 +1,7 @@
 import type { Profile } from '@hyunwoo/shared/types'
-import AboutContainer from '@/shared/ui/about-container'
+import { AboutContainer } from '@/shared/ui'
 
-export default function BriefIntroduction({ profile }: { profile: Profile }) {
+export function BriefIntroduction({ profile }: { profile: Profile }) {
   return (
     <AboutContainer title="BRIEF INTRODUCTION">
       <p className="text-muted-foreground leading-relaxed">

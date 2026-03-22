@@ -1,6 +1,6 @@
 import { BASE_URL } from '@hyunwoo/shared/config'
 import type { MetadataRoute } from 'next'
-import { getPublishedPosts } from '@/entities/post/api/post.api'
+import { getPublishedPosts } from '@/entities/post'
 
 const ABOUT_LAST_MODIFIED = '2025-03-27T00:00:00.000Z'
 

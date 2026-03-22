@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '@/shared/ui/skeleton'
+import { Skeleton } from '../skeleton'
 
 export function BlogMenuSkeleton() {
   return (

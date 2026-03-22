@@ -19,3 +19,10 @@ export const SOCIAL_ICON_MAP: Record<string, React.ElementType> = {
 }
 
 export const PREVIEW_ALLOWED_ORIGINS = ['http://localhost:3100', 'https://admin.chahyunwoo.dev']
+
+export const GISCUS_CONFIG = {
+  repo: 'chahyunwoo/hyunwoo-dev',
+  repoId: 'R_kgDOOKi_qg',
+  category: 'Announcements',
+  categoryId: 'DIC_kwDOOKi_qs4Coeoz',
+} as const

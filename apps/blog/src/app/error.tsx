@@ -1,6 +1,6 @@
 'use client'
 
-import { ErrorFallback } from '@/shared/ui/error'
+import { ErrorFallback } from '@/shared/ui'
 
 export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (

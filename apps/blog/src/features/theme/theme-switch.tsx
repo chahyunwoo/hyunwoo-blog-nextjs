@@ -4,23 +4,18 @@ import { cn } from '@hyunwoo/shared/lib'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import type * as React from 'react'
-import { memo, useCallback } from 'react'
-import { THEME_TYPES } from '@/shared/config/constants'
-import { Button } from '@/shared/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/ui/dropdown-menu'
+import { THEME_TYPES } from '@/shared/config'
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/ui'
 
-export default memo(function ThemeSwitch() {
+export function ThemeSwitch() {
   const { theme, setTheme } = useTheme()
 
-  const handleThemeChange = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const themeName = event.currentTarget.dataset.theme
-      if (themeName) {
-        setTheme(themeName)
-      }
-    },
-    [setTheme],
-  )
+  const handleThemeChange = (event: React.MouseEvent<HTMLDivElement>) => {
+    const themeName = event.currentTarget.dataset.theme
+    if (themeName) {
+      setTheme(themeName)
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -46,4 +41,4 @@ export default memo(function ThemeSwitch() {
       </DropdownMenuContent>
     </DropdownMenu>
   )
-})
+}
