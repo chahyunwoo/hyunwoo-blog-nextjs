@@ -13,8 +13,8 @@ export function Skills({ profile }: { profile: Profile }) {
               <p className="text-xs text-muted-foreground mb-2">{group.category}</p>
               <div className="flex flex-wrap gap-2">
                 {group.items.map(skill => (
-                  <Badge key={skill} variant="outline">
-                    {skill}
+                  <Badge key={skill.name} variant="outline">
+                    {skill.name}
                   </Badge>
                 ))}
               </div>

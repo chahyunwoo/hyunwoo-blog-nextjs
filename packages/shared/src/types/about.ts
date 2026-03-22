@@ -31,7 +31,7 @@ export type Profile = {
   skills:
     | {
         category: string
-        items: string[]
+        items: { name: string; proficiency: number; description: string }[]
       }[]
     | null
   experience:

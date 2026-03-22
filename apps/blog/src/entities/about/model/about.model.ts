@@ -40,9 +40,15 @@ export interface ApiProject {
   featured: boolean
 }
 
+export interface ApiSkillItem {
+  name: string
+  proficiency: number
+  description: string
+}
+
 export interface ApiSkillGroup {
   category: string
-  items: string[]
+  items: ApiSkillItem[]
 }
 
 export interface ApiEducation {
