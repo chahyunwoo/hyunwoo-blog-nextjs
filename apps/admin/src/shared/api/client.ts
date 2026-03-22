@@ -1,6 +1,6 @@
 import { API_KEY, API_URL } from '@hyunwoo/shared/config'
 import ky from 'ky'
-import { setAuthenticated } from '@/entities/auth/auth.store'
+import { setAuthenticated } from '@/entities/auth'
 
 let isRefreshing = false
 let refreshPromise: Promise<boolean> | null = null

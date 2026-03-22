@@ -2,11 +2,8 @@ import { ENDPOINTS } from '@hyunwoo/shared/api'
 import { queryOptions } from '@tanstack/react-query'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-import type { Post, PostListParams, PostListResponse } from './model'
-
-function stripLeadingSlash(path: string) {
-  return path.startsWith('/') ? path.slice(1) : path
-}
+import { stripLeadingSlash } from '@/shared/lib'
+import type { Post, PostListParams, PostListResponse } from '../model'
 
 export function postListOptions(params?: PostListParams) {
   const searchParams = new URLSearchParams()

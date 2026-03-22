@@ -40,7 +40,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { CategoryModal } from '@/features/category'
 import { adminApi, uploadFile } from '@/shared/api'
 import { BLOG_URL } from '@/shared/config'
-import { monokaiWinterNight } from '@/shared/config/editor-theme'
+import { monokaiWinterNight } from '@/shared/lib'
 import { type PostFormValues, postSchema } from '@/shared/schemas'
 
 interface PostFormProps {
@@ -100,7 +100,6 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
   })
 
   const thumbnailUrl = watch('thumbnailUrl')
-  const published = watch('published')
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
     try {

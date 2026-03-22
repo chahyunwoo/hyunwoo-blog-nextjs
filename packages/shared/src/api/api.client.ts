@@ -13,7 +13,7 @@ export async function apiFetch<T>(path: string, options?: FetchOptions): Promise
         revalidate: options?.revalidate ?? DEFAULT_REVALIDATE,
         tags: options?.tags,
       },
-    })
+    } as RequestInit)
 
     if (!res.ok) return null
 

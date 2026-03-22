@@ -3,19 +3,13 @@ export {
   popularPostsOptions,
   referrersOptions,
   systemOptions,
+  visitorsOptions,
+} from './analytics.options'
+export {
   useAdminLogs,
   useDashboard,
   usePopularPosts,
   useReferrers,
   useSystemInfo,
   useVisitors,
-  visitorsOptions,
-} from './api'
-export type {
-  AdminLog,
-  DashboardData,
-  PopularPost,
-  Referrer,
-  SystemInfo,
-  VisitorData,
-} from './model'
+} from './analytics.queries'

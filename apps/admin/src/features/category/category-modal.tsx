@@ -24,7 +24,7 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from '@/entities/category'
-import { ICON_LIST } from '@/shared/config/icon-list'
+import { ICON_LIST } from '@/shared/lib'
 
 interface CategoryModalProps {
   opened: boolean

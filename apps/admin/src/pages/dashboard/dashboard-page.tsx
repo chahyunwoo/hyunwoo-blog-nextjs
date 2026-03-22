@@ -4,6 +4,7 @@ import {
   Card,
   Grid,
   Group,
+  Loader,
   Progress,
   RingProgress,
   SimpleGrid,
@@ -32,7 +33,7 @@ import {
   useSystemInfo,
   useVisitors,
 } from '@/entities/analytics'
-import { StatCard } from '@/shared/ui/stat-card'
+import { StatCard } from '@/shared/ui'
 
 export function DashboardPage() {
   const { data: dashboard } = useDashboard()

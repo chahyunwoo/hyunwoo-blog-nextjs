@@ -1,5 +1,5 @@
 import { adminApi } from '@/shared/api'
-import { setAuthenticated } from './auth.store'
+import { setAuthenticated } from '../model/auth.store'
 
 export async function login(username: string, password: string) {
   await adminApi.post('api/auth/login', { json: { username, password } })

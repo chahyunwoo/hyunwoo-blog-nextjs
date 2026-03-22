@@ -1,11 +1,12 @@
 import { formatDate } from '@hyunwoo/shared/lib'
 import { ActionIcon, Badge, Button, Card, Group, Stack, Text, Title, Tooltip } from '@mantine/core'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useDeletePost, usePostList } from '@/entities/post'
 
 export function PostListPage() {
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const { data } = usePostList({ page, limit: 20 })
   const deletePost = useDeletePost()
@@ -56,11 +57,9 @@ export function PostListPage() {
                 <Group gap={4} wrap="nowrap">
                   <Tooltip label="수정">
                     <ActionIcon
-                      component={Link}
-                      to="/posts/$slug"
-                      params={{ slug: post.slug }}
                       variant="subtle"
                       color="gray"
+                      onClick={() => navigate({ to: '/posts/$slug', params: { slug: post.slug } })}
                     >
                       <IconEdit size={16} />
                     </ActionIcon>

@@ -1,10 +1,11 @@
-export type { CreatePostBody, Post, PostListParams, PostListResponse, UpdatePostBody } from './model'
-export { postDetailOptions, postListOptions } from './post.options'
 export {
+  postDetailOptions,
+  postListOptions,
   useCreatePost,
   useDeletePost,
   usePostDetail,
   usePostList,
   useUpdatePost,
   useUploadThumbnail,
-} from './post.queries'
+} from './api'
+export type { CreatePostBody, Post, PostListParams, PostListResponse, UpdatePostBody } from './model'
