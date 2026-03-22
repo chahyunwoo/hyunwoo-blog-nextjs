@@ -1,5 +1,5 @@
+import { Button } from '@hyunwoo/ui'
 import Link from 'next/link'
-import { Button } from '../button'
 import { InnerContainer } from '../inner-container'
 
 interface NotFoundFallbackProps {

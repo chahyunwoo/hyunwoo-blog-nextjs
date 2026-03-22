@@ -1,10 +1,10 @@
 'use client'
 
+import { Alert, AlertDescription } from '@hyunwoo/ui'
 import type { LucideProps } from 'lucide-react'
 import { Check, icons } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Alert, AlertDescription } from './alert'
-import { IconButton } from './button'
+import { IconButton } from './icon-button'
 
 interface CopyButtonProps {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
