@@ -1,3 +1,4 @@
+'use client'
 import { Toaster as SonnerToaster } from 'sonner'
 
 function Toaster({ theme = 'system' }: { theme?: 'light' | 'dark' | 'system' }) {
