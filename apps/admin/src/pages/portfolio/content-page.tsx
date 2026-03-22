@@ -14,8 +14,10 @@ import { useState } from 'react'
 import type {
   CreateExperienceBody,
   CreateProjectBody,
+  ExperienceDetail,
   ExperienceTranslation,
   LocaleCode,
+  ProjectDetail,
   ProjectTranslation,
 } from '@/entities/portfolio'
 import {
@@ -28,6 +30,7 @@ import {
   useUpdateExperience,
   useUpdateProject,
 } from '@/entities/portfolio'
+import { adminApi } from '@/shared/api'
 import { AdminInput, AdminLabel, AdminTextarea, DatePicker, TagsInput, useConfirm } from '@/shared/ui'
 
 const LOCALE_TABS: { code: LocaleCode; label: string }[] = [
@@ -114,7 +117,7 @@ function ExperiencesSection() {
     deleteExperience.mutate(id)
   }
 
-  const startEdit = (exp: {
+  const startEdit = async (exp: {
     id: number
     startDate: string
     endDate: string | null
@@ -123,17 +126,16 @@ function ExperiencesSection() {
     role: string
     responsibilities: string[]
   }) => {
-    setEditingId(exp.id)
-    setStartDate(exp.startDate)
-    setEndDate(exp.endDate ?? '')
-    setIsCurrent(exp.isCurrent)
+    const detail = await adminApi.get(`api/portfolio/experiences/${exp.id}`).json<ExperienceDetail>()
+    setEditingId(detail.id)
+    setStartDate(detail.startDate)
+    setEndDate(detail.endDate ?? '')
+    setIsCurrent(detail.isCurrent)
     setTranslations(
-      LOCALE_TABS.map(l => ({
-        locale: l.code as LocaleCode,
-        title: l.code === 'ko' ? exp.title : '',
-        role: l.code === 'ko' ? exp.role : '',
-        responsibilities: l.code === 'ko' ? exp.responsibilities : [],
-      })),
+      LOCALE_TABS.map(l => {
+        const existing = detail.translations.find(t => t.locale === l.code)
+        return existing ?? { locale: l.code as LocaleCode, title: '', role: '', responsibilities: [] }
+      }),
     )
     setShowForm(true)
   }
@@ -245,7 +247,10 @@ function ExperiencesSection() {
         {experiences?.map(exp => {
           const title = exp.title || '제목 없음'
           return (
-            <div key={exp.id} className="flex items-center justify-between p-4 rounded-md border">
+            <div
+              key={exp.id}
+              className={`flex items-center justify-between p-4 rounded-md border ${editingId === exp.id ? 'border-primary bg-primary/5' : ''}`}
+            >
               <div>
                 <span className="text-sm font-medium">{title}</span>
                 <div className="flex items-center gap-2 mt-1">
@@ -312,7 +317,9 @@ function ExperienceSaveButton({
           startDate,
           endDate: endDate || undefined,
           isCurrent,
-          translations: translations.filter(t => t.title.trim()),
+          translations: translations
+            .filter(t => t.title.trim())
+            .map(({ locale, title, role, responsibilities }) => ({ locale, title, role, responsibilities })),
         },
         { onSuccess },
       )
@@ -391,7 +398,7 @@ function ProjectsSection() {
     deleteProject.mutate(id)
   }
 
-  const startEdit = (proj: {
+  const startEdit = async (proj: {
     id: number
     techStack: string[]
     demoUrl: string | null
@@ -400,17 +407,17 @@ function ProjectsSection() {
     title: string
     description: string | null
   }) => {
-    setEditingId(proj.id)
-    setTechStack(proj.techStack)
-    setDemoUrl(proj.demoUrl ?? '')
-    setRepoUrl(proj.repoUrl ?? '')
-    setFeatured(proj.featured)
+    const detail = await adminApi.get(`api/portfolio/projects/${proj.id}`).json<ProjectDetail>()
+    setEditingId(detail.id)
+    setTechStack(detail.techStack)
+    setDemoUrl(detail.demoUrl ?? '')
+    setRepoUrl(detail.repoUrl ?? '')
+    setFeatured(detail.featured)
     setTranslations(
-      LOCALE_TABS.map(l => ({
-        locale: l.code as LocaleCode,
-        title: l.code === 'ko' ? proj.title : '',
-        description: l.code === 'ko' ? (proj.description ?? '') : '',
-      })),
+      LOCALE_TABS.map(l => {
+        const existing = detail.translations.find(t => t.locale === l.code)
+        return existing ?? { locale: l.code as LocaleCode, title: '', description: '' }
+      }),
     )
     setShowForm(true)
   }
@@ -517,7 +524,10 @@ function ProjectsSection() {
         {projects?.map(proj => {
           const title = proj.title || '제목 없음'
           return (
-            <div key={proj.id} className="flex items-center justify-between p-4 rounded-md border">
+            <div
+              key={proj.id}
+              className={`flex items-center justify-between p-4 rounded-md border ${editingId === proj.id ? 'border-primary bg-primary/5' : ''}`}
+            >
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{title}</span>
@@ -591,7 +601,9 @@ function ProjectSaveButton({
           demoUrl: demoUrl || undefined,
           repoUrl: repoUrl || undefined,
           featured,
-          translations: translations.filter(t => t.title.trim()),
+          translations: translations
+            .filter(t => t.title.trim())
+            .map(({ locale, title, description }) => ({ locale, title, description })),
         },
         { onSuccess },
       )

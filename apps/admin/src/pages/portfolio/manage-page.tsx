@@ -16,11 +16,12 @@ import {
 } from '@hyunwoo/ui'
 import type { LucideIcon } from 'lucide-react'
 import * as icons from 'lucide-react'
-import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Image as ImageIcon, Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type {
   CreateEducationBody,
   CreateSkillBody,
+  EducationDetail,
   EducationTranslation,
   LocaleCode,
   ProfileTranslation,
@@ -36,13 +37,16 @@ import {
   useDeleteSkill,
   useEducation,
   useLocales,
-  useProfile,
+  useProfileAll,
   useSkills,
   useUpdateEducation,
   useUpdateProfile,
   useUpdateSkill,
+  useUploadProfileIcon,
+  useUploadProfileImage,
 } from '@/entities/portfolio'
-import { AdminInput, AdminLabel, AdminTextarea, useConfirm } from '@/shared/ui'
+import { adminApi } from '@/shared/api'
+import { AdminInput, AdminLabel, AdminTextarea, FileInput, useConfirm } from '@/shared/ui'
 
 const LOCALE_TABS: { code: LocaleCode; label: string }[] = [
   { code: 'ko', label: 'KO' },
@@ -123,8 +127,10 @@ export function ManagePage() {
 // ─── Profile ───
 
 function ProfileSection() {
-  const { data: profile, isLoading } = useProfile()
+  const { data: profile, isLoading } = useProfileAll()
   const updateProfile = useUpdateProfile()
+  const uploadImage = useUploadProfileImage()
+  const uploadIcon = useUploadProfileIcon()
 
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
@@ -143,13 +149,14 @@ function ProfileSection() {
     setLocation(profile.location)
     setImageUrl(profile.imageUrl)
     setIconUrl(profile.iconUrl)
-    setSocialLinks((profile.socialLinks ?? []).map(link => ({ ...link, _key: keyCounter.current++ })))
+    setSocialLinks((profile.socialLinks ?? []).map((link: SocialLink) => ({ ...link, _key: keyCounter.current++ })))
     setTranslations(
-      LOCALE_TABS.map(l => ({
-        locale: l.code as LocaleCode,
-        jobTitle: l.code === 'ko' ? (profile.jobTitle ?? '') : '',
-        introduction: l.code === 'ko' ? (profile.introduction ?? []) : [],
-      })),
+      LOCALE_TABS.map(l => {
+        const existing = profile.translations?.find(t => t.locale === l.code)
+        return existing
+          ? { locale: l.code, jobTitle: existing.jobTitle, introduction: existing.introduction }
+          : { locale: l.code as LocaleCode, jobTitle: '', introduction: [] }
+      }),
     )
   }, [profile])
 
@@ -202,13 +209,54 @@ function ProfileSection() {
           <AdminLabel htmlFor="profile-location">Location</AdminLabel>
           <AdminInput id="profile-location" value={location} onChange={e => setLocation(e.target.value)} />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <AdminLabel htmlFor="profile-imageUrl">Image URL</AdminLabel>
-          <AdminInput id="profile-imageUrl" value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+          <AdminLabel>Profile Image</AdminLabel>
+          {imageUrl ? (
+            <div className="flex flex-col gap-2">
+              <img src={imageUrl} alt="Profile" className="size-24 rounded-full object-cover" />
+              <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl('')}>
+                제거
+              </Button>
+            </div>
+          ) : (
+            <FileInput
+              placeholder="이미지 선택"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              leftSection={<ImageIcon className="size-4" />}
+              disabled={uploadImage.isPending}
+              onChange={async file => {
+                if (!file) return
+                const result = await uploadImage.mutateAsync(file)
+                setImageUrl(result.url)
+              }}
+            />
+          )}
         </div>
         <div>
-          <AdminLabel htmlFor="profile-iconUrl">Icon URL</AdminLabel>
-          <AdminInput id="profile-iconUrl" value={iconUrl} onChange={e => setIconUrl(e.target.value)} />
+          <AdminLabel>Icon</AdminLabel>
+          {iconUrl ? (
+            <div className="flex flex-col gap-2">
+              <img src={iconUrl} alt="Icon" className="size-24 rounded-md object-cover" />
+              <Button type="button" variant="outline" size="sm" onClick={() => setIconUrl('')}>
+                제거
+              </Button>
+            </div>
+          ) : (
+            <FileInput
+              placeholder="아이콘 선택"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              leftSection={<ImageIcon className="size-4" />}
+              disabled={uploadIcon.isPending}
+              onChange={async file => {
+                if (!file) return
+                const result = await uploadIcon.mutateAsync(file)
+                setIconUrl(result.url)
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -294,7 +342,7 @@ function SkillsSection() {
     proficiency: 80,
     description: '',
   })
-  const [editingName, setEditingName] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [editForm, setEditForm] = useState<Partial<CreateSkillBody>>({})
 
   if (isLoading) {
@@ -315,8 +363,7 @@ function SkillsSection() {
     })
   }
 
-  const handleDelete = async (id: number | undefined, name: string) => {
-    if (!id) return
+  const handleDelete = async (id: number, name: string) => {
     const ok = await confirm({
       title: '스킬 삭제',
       description: `"${name}" 스킬을 삭제하시겠습니까?`,
@@ -416,13 +463,13 @@ function SkillsSection() {
             <div className="flex flex-col gap-2">
               {group.items.map(skill => (
                 <SkillRow
-                  key={skill.name}
+                  key={skill.id}
                   skill={skill}
                   category={group.category}
-                  isEditing={editingName === skill.name}
+                  isEditing={editingId === skill.id}
                   editForm={editForm}
                   onStartEdit={() => {
-                    setEditingName(skill.name)
+                    setEditingId(skill.id)
                     setEditForm({
                       category: group.category,
                       name: skill.name,
@@ -430,7 +477,7 @@ function SkillsSection() {
                       description: skill.description ?? '',
                     })
                   }}
-                  onCancelEdit={() => setEditingName(null)}
+                  onCancelEdit={() => setEditingId(null)}
                   onEditFormChange={setEditForm}
                   onDelete={() => handleDelete(skill.id, skill.name)}
                   deleteIsPending={deleteSkill.isPending}
@@ -445,7 +492,7 @@ function SkillsSection() {
 }
 
 interface SkillRowProps {
-  skill: { id?: number; name: string; proficiency: number; description: string | null }
+  skill: { id: number; name: string; proficiency: number; description: string | null }
   category: string
   isEditing: boolean
   editForm: Partial<CreateSkillBody>
@@ -466,7 +513,7 @@ function SkillRow({
   onDelete,
   deleteIsPending,
 }: SkillRowProps) {
-  const updateSkill = useUpdateSkill(skill.id ?? 0)
+  const updateSkill = useUpdateSkill(skill.id)
 
   const handleSave = () => {
     updateSkill.mutate(editForm, { onSuccess: () => onCancelEdit() })
@@ -597,15 +644,15 @@ function EducationSection() {
     deleteEducation.mutate(id)
   }
 
-  const startEdit = (edu: { id: number; period: string; institution: string; degree: string }) => {
-    setEditingId(edu.id)
-    setPeriod(edu.period)
+  const startEdit = async (edu: { id: number; period: string; institution: string; degree: string }) => {
+    const detail = await adminApi.get(`api/portfolio/education/${edu.id}`).json<EducationDetail>()
+    setEditingId(detail.id)
+    setPeriod(detail.period)
     setTranslations(
-      LOCALE_TABS.map(l => ({
-        locale: l.code as LocaleCode,
-        institution: l.code === 'ko' ? edu.institution : '',
-        degree: l.code === 'ko' ? edu.degree : '',
-      })),
+      LOCALE_TABS.map(l => {
+        const existing = detail.translations.find(t => t.locale === l.code)
+        return existing ?? { locale: l.code as LocaleCode, institution: '', degree: '' }
+      }),
     )
     setShowForm(true)
   }
@@ -681,7 +728,10 @@ function EducationSection() {
         )}
 
         {educationList?.map(edu => (
-          <div key={edu.id} className="flex items-center justify-between px-3 py-3 rounded-md border">
+          <div
+            key={edu.id}
+            className={`flex items-center justify-between px-3 py-3 rounded-md border ${editingId === edu.id ? 'border-primary bg-primary/5' : ''}`}
+          >
             <div>
               <span className="text-sm font-medium">{edu.institution || '기관 없음'}</span>
               <div className="flex items-center gap-2 mt-1">
@@ -740,7 +790,15 @@ function EducationSaveButton({
 
   if (editingId) {
     const handleUpdate = () => {
-      updateEducation.mutate({ period, translations: translations.filter(t => t.institution.trim()) }, { onSuccess })
+      updateEducation.mutate(
+        {
+          period,
+          translations: translations
+            .filter(t => t.institution.trim())
+            .map(({ locale, institution, degree }) => ({ locale, institution, degree })),
+        },
+        { onSuccess },
+      )
     }
     return (
       <Button type="button" size="sm" onClick={handleUpdate} disabled={updateEducation.isPending}>

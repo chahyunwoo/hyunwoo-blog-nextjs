@@ -32,6 +32,7 @@ export function TagsInput({ label, placeholder, data = [], value, onChange, erro
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) return
     if (e.key === 'Enter') {
       e.preventDefault()
       if (input.trim()) addTag(input)
@@ -49,7 +50,7 @@ export function TagsInput({ label, placeholder, data = [], value, onChange, erro
       )}
       <div
         className={cn(
-          'flex flex-wrap gap-1.5 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background cursor-text',
+          'flex flex-wrap gap-2 rounded-md border border-input bg-transparent px-3 py-2.5 text-sm ring-offset-background cursor-text min-h-[42px]',
           'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
           error && 'border-destructive',
         )}
@@ -57,7 +58,7 @@ export function TagsInput({ label, placeholder, data = [], value, onChange, erro
         {value.map((tag, i) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+            className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-2.5 py-1 text-sm font-medium text-secondary-foreground leading-relaxed"
           >
             {tag}
             <button

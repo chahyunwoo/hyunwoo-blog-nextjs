@@ -16,5 +16,12 @@ export const ENDPOINTS = {
     education: '/api/portfolio/education',
     locales: '/api/portfolio/locales',
     works: '/api/portfolio/works',
+    workById: (id: number) => `/api/portfolio/works/${id}`,
+    experienceById: (id: number) => `/api/portfolio/experiences/${id}`,
+    projectById: (id: number) => `/api/portfolio/projects/${id}`,
+    educationById: (id: number) => `/api/portfolio/education/${id}`,
+    profileAll: '/api/portfolio/profile/all',
+    profileImage: '/api/portfolio/profile/image',
+    profileIcon: '/api/portfolio/profile/icon',
   },
 } as const

@@ -43,7 +43,7 @@ export interface Project {
 }
 
 export interface Skill {
-  id?: number
+  id: number
   category?: string
   name: string
   sortOrder?: number
@@ -169,4 +169,56 @@ export interface UpdateProfileBody {
   iconUrl?: string
   socialLinks?: SocialLink[]
   translations?: ProfileTranslation[]
+}
+
+// --- Detail 응답 타입 (GET /:id — translations 포함) ---
+
+export interface WorkDetail {
+  id: number
+  type: WorkType
+  sortOrder: number
+  startDate: string | null
+  endDate: string | null
+  isCurrent: boolean
+  techStack: string[]
+  demoUrl: string | null
+  repoUrl: string | null
+  featured: boolean
+  gradientColors: string[] | null
+  translations: WorkTranslation[]
+}
+
+export interface ExperienceDetail {
+  id: number
+  sortOrder: number
+  startDate: string
+  endDate: string | null
+  isCurrent: boolean
+  translations: ExperienceTranslation[]
+}
+
+export interface ProjectDetail {
+  id: number
+  sortOrder: number
+  techStack: string[]
+  demoUrl: string | null
+  repoUrl: string | null
+  featured: boolean
+  translations: ProjectTranslation[]
+}
+
+export interface EducationDetail {
+  id: number
+  period: string
+  sortOrder: number
+  translations: EducationTranslation[]
+}
+
+export interface PortfolioProfileAll {
+  name: string
+  location: string
+  imageUrl: string
+  iconUrl: string
+  socialLinks: SocialLink[]
+  translations: ProfileTranslation[]
 }
