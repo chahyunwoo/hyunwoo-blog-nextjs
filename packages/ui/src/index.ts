@@ -1,8 +1,20 @@
 export { toast } from 'sonner'
 export { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion'
 export { Alert, AlertDescription, AlertTitle } from './alert'
+export {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './alert-dialog'
 export { Badge, badgeVariants } from './badge'
 export { Button, buttonVariants } from './button'
+export { Calendar } from './calendar'
 export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card'
 export { cn } from './cn'
 export {
@@ -36,6 +48,7 @@ export {
 } from './dropdown-menu'
 export { Input } from './input'
 export { Label } from './label'
+export { Popover, PopoverContent, PopoverTrigger } from './popover'
 export { Progress } from './progress'
 export {
   Select,

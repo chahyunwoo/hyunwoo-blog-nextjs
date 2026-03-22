@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, toast } from '@hyunwoo/ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, toast } from '@hyunwoo/ui'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { HTTPError } from 'ky'
@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { login } from '@/entities/auth'
 import { type LoginForm, loginSchema } from '@/shared/schemas'
+import { AdminInput, AdminLabel } from '@/shared/ui'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -41,13 +42,13 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(values => loginMutation.mutate(values))} className="flex flex-col gap-4">
             <div>
-              <Label htmlFor="username">아이디</Label>
-              <Input id="username" placeholder="username" {...register('username')} />
+              <AdminLabel htmlFor="username">아이디</AdminLabel>
+              <AdminInput id="username" placeholder="username" {...register('username')} />
               {errors.username && <p className="text-xs text-destructive mt-1">{errors.username.message}</p>}
             </div>
             <div>
-              <Label htmlFor="password">비밀번호</Label>
-              <Input id="password" type="password" placeholder="password" {...register('password')} />
+              <AdminLabel htmlFor="password">비밀번호</AdminLabel>
+              <AdminInput id="password" type="password" placeholder="password" {...register('password')} />
               {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
             </div>
             <Button type="submit" className="w-full" disabled={loginMutation.isPending}>

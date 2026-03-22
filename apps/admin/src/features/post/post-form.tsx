@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  Input,
-  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -30,7 +28,6 @@ import {
   Loader2,
   Plus,
   Upload,
-  X,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
@@ -40,7 +37,7 @@ import { uploadFile } from '@/shared/api'
 import { BLOG_URL } from '@/shared/config'
 import { monokaiWinterNight } from '@/shared/lib'
 import { type PostFormValues, postSchema } from '@/shared/schemas'
-import { FileInput, TagsInput } from '@/shared/ui'
+import { AdminInput, AdminLabel, DatePicker, FileInput, TagsInput } from '@/shared/ui'
 
 interface CategoryModalProps {
   opened: boolean
@@ -123,8 +120,8 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
         <div className="col-span-12 lg:col-span-8">
           <div className="flex flex-col gap-6">
             <div>
-              <Label htmlFor="title">제목</Label>
-              <Input
+              <AdminLabel htmlFor="title">제목</AdminLabel>
+              <AdminInput
                 id="title"
                 placeholder="포스트 제목을 입력하세요"
                 className="text-lg font-semibold h-11"
@@ -134,8 +131,8 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
             </div>
 
             <div>
-              <Label htmlFor="description">설명</Label>
-              <Input
+              <AdminLabel htmlFor="description">설명</AdminLabel>
+              <AdminInput
                 id="description"
                 placeholder="미입력 시 본문에서 자동 추출됩니다"
                 className="h-11"
@@ -276,9 +273,9 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                       name="category"
                       control={control}
                       render={({ field }) => (
-                        <div className="relative">
+                        <div>
                           <Select value={field.value || undefined} onValueChange={field.onChange}>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-10 w-full">
                               <SelectValue placeholder="카테고리 선택" />
                             </SelectTrigger>
                             <SelectContent>
@@ -289,16 +286,6 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                               ))}
                             </SelectContent>
                           </Select>
-                          {field.value && (
-                            <button
-                              type="button"
-                              onClick={() => field.onChange('')}
-                              className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                              aria-label="카테고리 선택 해제"
-                            >
-                              <X className="size-3.5" />
-                            </button>
-                          )}
                         </div>
                       )}
                     />
@@ -331,14 +318,11 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                     control={control}
                     render={({ field }) => (
                       <div>
-                        <Label htmlFor="publishedAt">발행일</Label>
-                        <Input
-                          id="publishedAt"
-                          type="date"
-                          placeholder="미입력 시 발행 시점 자동"
-                          max={new Date().toISOString().split('T')[0]}
+                        <AdminLabel>발행일</AdminLabel>
+                        <DatePicker
                           value={field.value || ''}
-                          onChange={e => field.onChange(e.target.value)}
+                          onChange={field.onChange}
+                          placeholder="미입력 시 발행 시점 자동"
                         />
                       </div>
                     )}
