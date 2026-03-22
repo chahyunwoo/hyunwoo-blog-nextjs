@@ -1,35 +1,127 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
 
 interface HeroContentProps {
   name: string
   jobTitle: string
-  iconUrl: string
 }
 
-export function HeroContent({ name, jobTitle, iconUrl }: HeroContentProps) {
+const TITLE = 'Portfolio'
+
+function MagneticLetter({
+  char,
+  index,
+  mousePos,
+}: {
+  char: string
+  index: number
+  mousePos: { x: number; y: number }
+  explode: number
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const springX = useSpring(x, { stiffness: 120, damping: 12 })
+  const springY = useSpring(y, { stiffness: 120, damping: 12 })
+  const scale = useSpring(1, { stiffness: 200, damping: 20 })
+  const rotate = useSpring(0, { stiffness: 80, damping: 12 })
+
+  useEffect(() => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+
+    const dx = mousePos.x - centerX
+    const dy = mousePos.y - centerY
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    const radius = 350
+
+    const time = Date.now() * 0.001
+    const floatX = Math.sin(time * 0.8 + index * 1.2) * 2
+    const floatY = Math.cos(time * 0.6 + index * 0.9) * 1.5
+
+    if (dist < radius) {
+      // close: repel
+      const strength = 1 - dist / radius
+      const force = strength * 60
+      x.set((-dx / dist) * force + floatX)
+      y.set((-dy / dist) * force + floatY)
+      scale.set(1 + strength * 0.4)
+      rotate.set((dx / dist) * strength * 20)
+    } else {
+      // far: attract toward mouse (always active, closer = stronger)
+      const maxDist = Math.max(window.innerWidth, window.innerHeight)
+      const pull = (1 - dist / maxDist) * 45
+      x.set((dx / dist) * pull + floatX)
+      y.set((dy / dist) * pull + floatY)
+      scale.set(1)
+      rotate.set(0)
+    }
+  }, [mousePos, x, y, scale, rotate, index])
+
+  return (
+    <motion.span
+      ref={ref}
+      style={{
+        x: springX,
+        y: springY,
+        scale,
+        rotate,
+        display: 'inline-block',
+        filter:
+          'drop-shadow(0 3px 4px rgba(108,60,224,0.7)) drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 1px 0px rgba(255,255,255,0.15))',
+      }}
+      className="text-shimmer"
+    >
+      {char}
+    </motion.span>
+  )
+}
+
+export function HeroContent({ name, jobTitle }: HeroContentProps) {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const springX = useSpring(mouseX, { stiffness: 40, damping: 15 })
+  const springY = useSpring(mouseY, { stiffness: 40, damping: 15 })
+
+  const subtitleX = useTransform(springX, v => v * -6)
+  const subtitleY = useTransform(springY, v => v * -4)
+  const titleX = useTransform(springX, v => v * 0)
+  const titleY = useTransform(springY, v => v * 0)
+  const nameX = useTransform(springX, v => v * 8)
+  const nameY = useTransform(springY, v => v * 5)
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const nx = (e.clientX / window.innerWidth - 0.5) * 2
+      const ny = (e.clientY / window.innerHeight - 0.5) * 2
+      mouseX.set(nx)
+      mouseY.set(ny)
+      setMousePos({ x: e.clientX, y: e.clientY })
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [mouseX, mouseY])
+
   return (
     <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6 pointer-events-none">
-      {iconUrl && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-6"
-        >
-          <div className="size-20 md:size-24 rounded-full overflow-hidden ring-2 ring-primary/30 ring-offset-2 ring-offset-background mx-auto">
-            <Image src={iconUrl} alt={name} width={96} height={96} className="size-full object-cover" priority />
-          </div>
-        </motion.div>
-      )}
-
       <motion.p
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
+        style={{
+          x: subtitleX,
+          y: subtitleY,
+          filter:
+            'drop-shadow(0 3px 6px rgba(108,60,224,0.6)) drop-shadow(0 8px 18px rgba(0,0,0,0.5)) drop-shadow(0 1px 0px rgba(255,255,255,0.12))',
+        }}
         className="text-base md:text-lg tracking-[0.3em] uppercase text-shimmer mb-4 font-semibold"
       >
         {jobTitle}
@@ -39,16 +131,24 @@ export function HeroContent({ name, jobTitle, iconUrl }: HeroContentProps) {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.6 }}
-        className="text-6xl md:text-8xl lg:text-9xl font-bold text-shimmer"
-        style={{ filter: 'drop-shadow(0 4px 20px rgba(108,60,224,0.4))' }}
+        className="text-6xl md:text-8xl lg:text-9xl font-bold"
+        style={{ x: titleX, y: titleY, filter: 'drop-shadow(0 4px 20px rgba(108,60,224,0.4))' }}
       >
-        Portfolio
+        {TITLE.split('').map((char, i) => (
+          <MagneticLetter key={`${char}-${i}`} char={char} index={i} mousePos={mousePos} explode={0} />
+        ))}
       </motion.h1>
 
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.0 }}
+        style={{
+          x: nameX,
+          y: nameY,
+          filter:
+            'drop-shadow(0 3px 6px rgba(108,60,224,0.6)) drop-shadow(0 8px 18px rgba(0,0,0,0.5)) drop-shadow(0 1px 0px rgba(255,255,255,0.12))',
+        }}
         className="mt-4 text-shimmer text-lg md:text-xl font-semibold"
       >
         {name}

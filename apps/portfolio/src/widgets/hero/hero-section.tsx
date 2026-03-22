@@ -12,7 +12,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
       <div className="absolute inset-0 h-screen">
         <HeroCanvas />
       </div>
-      <HeroContent name={profile.name} jobTitle={profile.jobTitle} iconUrl={profile.iconUrl} />
+      <HeroContent name={profile.name} jobTitle={profile.jobTitle} />
     </section>
   )
 }

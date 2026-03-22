@@ -51,7 +51,7 @@ export function LoadingScreen() {
           transition={{ duration: 0.6 }}
           className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center gap-6"
         >
-          <div className="text-shimmer text-4xl font-bold">Portfolio</div>
+          <div className="text-shimmer-loading text-4xl font-bold">Portfolio</div>
           <div className="w-48 h-0.5 rounded-full bg-white/10 overflow-hidden">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60"

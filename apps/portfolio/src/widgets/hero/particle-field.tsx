@@ -1,12 +1,13 @@
 'use client'
 
 import { useFrame } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uHover;
+  uniform float uClick;
   uniform vec2 uMouse;
   varying vec3 vNormal;
   varying float vDisplacement;
@@ -86,6 +87,7 @@ const VERTEX_SHADER = `
 const FRAGMENT_SHADER = `
   uniform float uTime;
   uniform float uHover;
+  uniform float uClick;
   uniform vec2 uMouse;
   varying vec3 vNormal;
   varying float vDisplacement;
@@ -104,12 +106,17 @@ const FRAGMENT_SHADER = `
     vec3 color = mix(deepPurple, hotPink, clamp(mixFactor, 0.0, 1.0));
     color = mix(color, electricBlue, clamp(mixFactor - 0.8, 0.0, 1.0));
 
-    // mouse angle shifts palette dramatically
-    float mouseAngle = atan(uMouse.y, uMouse.x);
-    float hueShift = mouseAngle / 3.14159;
-    vec3 mouseColor = mix(hotPink, cyan, clamp(hueShift + 0.5, 0.0, 1.0));
-    mouseColor = mix(mouseColor, gold, clamp(-hueShift + 0.3, 0.0, 1.0));
-    color = mix(color, mouseColor, uHover * 0.6);
+    // 4-corner color mapping (extreme)
+    float mx = uMouse.x * 0.5 + 0.5;
+    float my = uMouse.y * 0.5 + 0.5;
+    vec3 topLeft = vec3(0.0, 0.3, 1.0);      // blue
+    vec3 topRight = vec3(0.0, 1.0, 0.4);     // green
+    vec3 bottomLeft = vec3(1.0, 0.0, 0.3);   // red
+    vec3 bottomRight = vec3(1.0, 0.9, 0.0);  // yellow
+    vec3 top = mix(topLeft, topRight, mx);
+    vec3 bottom = mix(bottomLeft, bottomRight, mx);
+    vec3 mouseColor = mix(bottom, top, my);
+    color = mix(color, mouseColor, uHover * 0.85);
 
     // bright glow on mouse-facing side
     color += vMouseProximity * uHover * vec3(0.3, 0.2, 0.4);
@@ -123,6 +130,9 @@ const FRAGMENT_SHADER = `
     vec3 rimColor = mix(vec3(0.3, 0.2, 0.5), mouseColor, uHover * 0.5);
     color += fresnel * rimColor;
 
+    // click rim flash
+    color += uClick * fresnel * vec3(0.15, 0.1, 0.25);
+
     gl_FragColor = vec4(color, 0.88);
   }
 `
@@ -135,10 +145,22 @@ export function MorphingSphere() {
     () => ({
       uTime: { value: 0 },
       uHover: { value: 0 },
+      uClick: { value: 0 },
       uMouse: { value: new THREE.Vector2(0, 0) },
     }),
     [],
   )
+
+  useEffect(() => {
+    const handleClick = () => {
+      if (window.scrollY < window.innerHeight * 0.3) {
+        uniforms.uClick.value = 1.0
+        window.dispatchEvent(new Event('hero-explode'))
+      }
+    }
+    window.addEventListener('click', handleClick)
+    return () => window.removeEventListener('click', handleClick)
+  }, [uniforms])
 
   useFrame(({ clock, pointer }) => {
     if (!meshRef.current) return
@@ -154,12 +176,16 @@ export function MorphingSphere() {
     const targetHover = dist < 1.5 ? 1.0 - dist / 1.5 : 0
     uniforms.uHover.value += (targetHover - uniforms.uHover.value) * 0.08
 
-    // tilt toward mouse
+    // click decay
+    uniforms.uClick.value *= 0.93
+
+    // tilt toward mouse + click spin boost
+    const spinSpeed = 0.001 + uniforms.uClick.value * 0.03
     const targetRotX = -mouseSmooth.current.y * 0.4
     const targetRotY = mouseSmooth.current.x * 0.4
     meshRef.current.rotation.x += (targetRotX - meshRef.current.rotation.x) * 0.05
     meshRef.current.rotation.y += (targetRotY - meshRef.current.rotation.y) * 0.05
-    meshRef.current.rotation.y += 0.001
+    meshRef.current.rotation.y += spinSpeed
   })
 
   return (

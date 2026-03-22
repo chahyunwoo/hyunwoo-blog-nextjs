@@ -1,1 +1,252 @@
 @import "tailwindcss";
+
+@source "../../../../packages/mdx/src";
+@source "../../../../packages/ui/src";
+
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Pretendard Fallback";
+  src: local("Arial");
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+  size-adjust: 104%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: Pretendard, "Pretendard Fallback", sans-serif;
+  }
+}
+
+@theme {
+  --font-pretendard: Pretendard, "Pretendard Fallback", sans-serif;
+  --color-shiki-dark: #bfbdb6;
+  --color-shiki-dark-bg: #0b0e14;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.06 0.015 270);
+
+  code[data-theme],
+  code[data-theme] span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+
+  figure[data-rehype-pretty-code-figure] pre {
+    @apply bg-shiki-dark-bg my-0 rounded-tl-none;
+  }
+
+  figcaption[data-rehype-pretty-code-title] {
+    @apply bg-shiki-dark-bg text-shiki-dark px-4 py-1 inline-block border-1 border-b-foreground/30 rounded-tr-xs rounded-tl-xs;
+  }
+
+  pre {
+    @apply bg-shiki-dark-bg text-shiki-dark px-0 border-1;
+  }
+
+  code span[data-highlighted-line] {
+    background-color: rgba(253, 224, 71, 0.2);
+  }
+  --foreground: oklch(0.95 0.005 270);
+  --card: oklch(0.12 0.02 270);
+  --card-foreground: oklch(0.95 0.005 270);
+  --primary: oklch(0.72 0.2 280);
+  --primary-foreground: oklch(0.06 0.015 270);
+  --secondary: oklch(0.18 0.025 270);
+  --secondary-foreground: oklch(0.9 0.005 270);
+  --muted: oklch(0.18 0.02 270);
+  --muted-foreground: oklch(0.6 0.015 270);
+  --accent: oklch(0.2 0.04 280);
+  --accent-foreground: oklch(0.9 0.005 270);
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.72 0.2 280);
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, oklch(0.82 0.2 280), oklch(0.78 0.22 310), oklch(0.8 0.2 280));
+  }
+
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(200, 180, 255, 0.7) 0%,
+      rgba(200, 180, 255, 0.7) 40%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(200, 180, 255, 0.7) 60%,
+      rgba(200, 180, 255, 0.7) 100%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 6s ease-in-out infinite;
+  }
+
+  .text-shimmer-loading {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 1) 25%,
+      rgba(168, 130, 255, 0.9) 50%,
+      rgba(255, 255, 255, 1) 75%,
+      rgba(255, 255, 255, 0.6) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer-loading 3s linear infinite;
+  }
+
+  @keyframes shimmer-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .section-padding {
+    @apply py-24 px-6 md:py-32 md:px-12 lg:px-24;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .works-grid-bg {
+    background-image:
+      linear-gradient(rgba(255 255 255 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255 255 255 / 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .prose {
+    figure img {
+      @apply m-0;
+    }
+
+    .anchor {
+      @apply text-green-500 underline underline-offset-4 hover:text-green-600/80 transition-colors;
+    }
+
+    .external-link p {
+      @apply m-0;
+    }
+
+    h1 {
+      @apply text-3xl font-bold;
+    }
+
+    h2 {
+      @apply text-2xl font-bold;
+    }
+
+    h3 {
+      @apply text-xl font-bold;
+    }
+
+    h4 {
+      @apply text-lg font-bold;
+    }
+
+    h5 {
+      @apply text-base font-bold;
+    }
+
+    figure[data-rehype-pretty-code-figure] {
+      @apply border-foreground;
+    }
+
+    blockquote {
+      @apply border-none bg-white/5 rounded-sm not-italic py-1 px-4;
+    }
+
+    blockquote p::before,
+    blockquote p::after {
+      content: "";
+    }
+
+    pre > code > span {
+      padding: 0 1rem;
+    }
+
+    :not(pre) > code::before,
+    :not(pre) > code::after {
+      content: "";
+    }
+
+    :not(pre) > code {
+      @apply text-primary bg-white/5 px-1.5 py-0.5 rounded-xs;
+    }
+
+    code span[data-highlighted-line] span {
+      @apply !bg-transparent;
+    }
+
+    .callout-content {
+      @apply py-4;
+    }
+  }
+}

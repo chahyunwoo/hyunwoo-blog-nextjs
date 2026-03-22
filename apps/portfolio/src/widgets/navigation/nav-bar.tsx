@@ -41,7 +41,7 @@ export function NavBar({ hasBanner = false }: NavBarProps) {
           setActiveSection(visible[0].target.id)
         }
       },
-      { threshold: 0.1, rootMargin: '-40% 0px -50% 0px' },
+      { threshold: 0.1, rootMargin: '-20% 0px -70% 0px' },
     )
 
     window.addEventListener('scroll', handleScroll, { passive: true })
