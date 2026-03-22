@@ -1,8 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { adminApi } from '@/shared/api'
-import { queryKeys } from '@/shared/config'
-import type { AdminLog } from '../model'
 import {
+  adminLogsOptions,
   dashboardOptions,
   popularPostsOptions,
   referrersOptions,
@@ -31,8 +29,5 @@ export function useSystemInfo() {
 }
 
 export function useAdminLogs(limit = 20) {
-  return useSuspenseQuery({
-    queryKey: queryKeys.analytics.adminLogs(limit),
-    queryFn: () => adminApi.get(`api/analytics/admin-logs?limit=${limit}`).json<AdminLog[]>(),
-  })
+  return useSuspenseQuery(adminLogsOptions(limit))
 }

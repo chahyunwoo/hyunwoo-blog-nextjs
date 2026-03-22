@@ -33,15 +33,21 @@ import {
   IconPlus,
   IconUpload,
 } from '@tabler/icons-react'
-import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { CategoryModal } from '@/features/category'
-import { adminApi, uploadFile } from '@/shared/api'
+import { useCategories, useTags } from '@/entities/category'
+import { uploadFile } from '@/shared/api'
 import { BLOG_URL } from '@/shared/config'
 import { monokaiWinterNight } from '@/shared/lib'
 import { type PostFormValues, postSchema } from '@/shared/schemas'
+
+interface CategoryModalProps {
+  opened: boolean
+  onClose: () => void
+  onSelect: (category: string) => void
+}
 
 interface PostFormProps {
   defaultValues?: Partial<PostFormValues>
@@ -49,9 +55,10 @@ interface PostFormProps {
   isPending: boolean
   mode: 'create' | 'edit'
   slug?: string
+  renderCategoryModal: (props: CategoryModalProps) => ReactNode
 }
 
-export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: PostFormProps) {
+export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, renderCategoryModal }: PostFormProps) {
   const navigate = useNavigate()
   const [thumbnailUploading, setThumbnailUploading] = useState(false)
   const [previewToken, setPreviewToken] = useState<string | null>(null)
@@ -64,15 +71,8 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
 
   const [categoryModalOpened, setCategoryModalOpened] = useState(false)
 
-  const { data: categoriesData } = useQuery({
-    queryKey: ['categories-list'],
-    queryFn: () => adminApi.get('api/blog/categories').json<{ category: string; count: number }[]>(),
-  })
-
-  const { data: tagsData } = useQuery({
-    queryKey: ['tags-list'],
-    queryFn: () => adminApi.get('api/blog/tags').json<{ tags: { name: string; count: number }[]; total: number }>(),
-  })
+  const { data: categoriesData } = useCategories()
+  const { data: tagsData } = useTags()
 
   const categoryOptions = categoriesData?.map(c => c.category) ?? []
   const tagOptions = tagsData?.tags.map(t => t.name) ?? []
@@ -298,11 +298,11 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug }: Pos
                   />
                 </div>
 
-                <CategoryModal
-                  opened={categoryModalOpened}
-                  onClose={() => setCategoryModalOpened(false)}
-                  onSelect={(v: string) => setValue('category', v)}
-                />
+                {renderCategoryModal({
+                  opened: categoryModalOpened,
+                  onClose: () => setCategoryModalOpened(false),
+                  onSelect: (v: string) => setValue('category', v),
+                })}
 
                 <Controller
                   name="tags"

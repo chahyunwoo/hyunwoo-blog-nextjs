@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { usePostDetail, useUpdatePost } from '@/entities/post'
+import { CategoryModal } from '@/features/category'
 import { PostForm } from '@/features/post'
 import type { PostFormValues } from '@/shared/schemas'
 
@@ -41,6 +42,7 @@ export function PostEditPage({ slug }: PostEditPageProps) {
       slug={slug}
       onSubmit={handleSubmit}
       isPending={updatePost.isPending}
+      renderCategoryModal={props => <CategoryModal {...props} />}
     />
   )
 }

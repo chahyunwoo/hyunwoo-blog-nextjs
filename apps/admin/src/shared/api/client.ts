@@ -1,6 +1,6 @@
 import { API_KEY, API_URL } from '@hyunwoo/shared/config'
 import ky from 'ky'
-import { setAuthenticated } from '@/entities/auth'
+import { LOGIN_PATH } from '@/shared/config'
 
 let isRefreshing = false
 let refreshPromise: Promise<boolean> | null = null
@@ -44,8 +44,7 @@ export const adminApi = ky.create({
           return ky(request, { ...options, credentials: 'include' })
         }
 
-        setAuthenticated(false)
-        window.location.href = '/login'
+        window.location.href = LOGIN_PATH
         throw new Error('Session expired')
       },
     ],

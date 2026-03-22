@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useCreatePost } from '@/entities/post'
+import { CategoryModal } from '@/features/category'
 import { PostForm } from '@/features/post'
 import type { PostFormValues } from '@/shared/schemas'
 
@@ -20,5 +21,12 @@ export function PostNewPage() {
     )
   }
 
-  return <PostForm mode="create" onSubmit={handleSubmit} isPending={createPost.isPending} />
+  return (
+    <PostForm
+      mode="create"
+      onSubmit={handleSubmit}
+      isPending={createPost.isPending}
+      renderCategoryModal={props => <CategoryModal {...props} />}
+    />
+  )
 }

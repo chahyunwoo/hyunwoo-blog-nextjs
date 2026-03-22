@@ -8,12 +8,14 @@ import { useDeletePost, usePostList } from '@/entities/post'
 export function PostListPage() {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
+  const [deletingSlug, setDeletingSlug] = useState<string | null>(null)
   const { data } = usePostList({ page, limit: 20 })
   const deletePost = useDeletePost()
 
   const handleDelete = (slug: string, title: string) => {
     if (!window.confirm(`"${title}" 포스트를 삭제하시겠습니까?`)) return
-    deletePost.mutate(slug)
+    setDeletingSlug(slug)
+    deletePost.mutate(slug, { onSettled: () => setDeletingSlug(null) })
   }
 
   return (
@@ -68,7 +70,7 @@ export function PostListPage() {
                     <ActionIcon
                       variant="subtle"
                       color="red"
-                      loading={deletePost.isPending}
+                      loading={deletePost.isPending && deletingSlug === post.slug}
                       onClick={() => handleDelete(post.slug, post.title)}
                     >
                       <IconTrash size={16} />

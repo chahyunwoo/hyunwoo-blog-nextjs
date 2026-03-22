@@ -10,14 +10,6 @@ export const queryKeys = {
   tags: {
     all: ['tags'] as const,
   },
-  portfolio: {
-    profile: (locale: string) => ['portfolio', 'profile', locale] as const,
-    experiences: (locale: string) => ['portfolio', 'experiences', locale] as const,
-    projects: (locale: string) => ['portfolio', 'projects', locale] as const,
-    skills: ['portfolio', 'skills'] as const,
-    education: (locale: string) => ['portfolio', 'education', locale] as const,
-    locales: ['portfolio', 'locales'] as const,
-  },
   analytics: {
     dashboard: ['analytics', 'dashboard'] as const,
     visitors: (days?: number, app?: string) => ['analytics', 'visitors', days, app] as const,

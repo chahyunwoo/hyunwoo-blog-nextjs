@@ -1,10 +1,22 @@
-import { ActionIcon, AppShell, Burger, Center, Group, Loader, NavLink, Text, Tooltip } from '@mantine/core'
+import {
+  ActionIcon,
+  AppShell,
+  Burger,
+  Center,
+  Group,
+  Loader,
+  NavLink,
+  Text,
+  Tooltip,
+  UnstyledButton,
+} from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconClock, IconLogout } from '@tabler/icons-react'
 import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { logout, refreshSession, setAuthenticated, useAuth, useSessionTimer } from '@/entities/auth'
+import { LOGIN_PATH } from '@/shared/config'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
@@ -12,7 +24,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootLayout() {
   const matchRoute = useMatchRoute()
-  const isLoginPage = matchRoute({ to: '/login' })
+  const isLoginPage = matchRoute({ to: LOGIN_PATH })
   const { initialized } = useAuth()
 
   useEffect(() => {
@@ -45,7 +57,7 @@ function AuthenticatedLayout() {
   const { display, showWarning, extend } = useSessionTimer()
 
   if (!isAuthenticated) {
-    window.location.href = '/login'
+    window.location.href = LOGIN_PATH
     return null
   }
 
@@ -65,15 +77,17 @@ function AuthenticatedLayout() {
           </Group>
           <Group gap="sm">
             <Tooltip label="세션 연장" position="bottom">
-              <Group gap={6} style={{ cursor: 'pointer' }} onClick={extend}>
-                <IconClock
-                  size={16}
-                  color={showWarning ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-blue-4)'}
-                />
-                <Text size="xs" ff="monospace" c={showWarning ? 'red' : 'blue.4'} fw={showWarning ? 700 : 500}>
-                  {display}
-                </Text>
-              </Group>
+              <UnstyledButton onClick={extend}>
+                <Group gap={6}>
+                  <IconClock
+                    size={16}
+                    color={showWarning ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-blue-4)'}
+                  />
+                  <Text size="xs" ff="monospace" c={showWarning ? 'red' : 'blue.4'} fw={showWarning ? 700 : 500}>
+                    {display}
+                  </Text>
+                </Group>
+              </UnstyledButton>
             </Tooltip>
             <Tooltip label="로그아웃" position="bottom">
               <ActionIcon variant="subtle" color="gray" onClick={logout}>

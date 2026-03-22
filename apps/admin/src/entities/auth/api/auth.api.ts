@@ -1,4 +1,5 @@
 import { adminApi } from '@/shared/api'
+import { LOGIN_PATH } from '@/shared/config'
 import { setAuthenticated } from '../model/auth.store'
 
 export async function login(username: string, password: string) {
@@ -32,7 +33,7 @@ export async function logout() {
     // 로그아웃 API 실패해도 리다이렉트
   } finally {
     setAuthenticated(false)
-    window.location.href = '/login'
+    window.location.href = LOGIN_PATH
   }
 }
 
