@@ -11,8 +11,21 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground/85;
     font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-foreground;
+  }
+
+  label {
+    @apply text-foreground/95;
   }
 }
 

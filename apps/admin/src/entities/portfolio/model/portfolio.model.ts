@@ -43,10 +43,10 @@ export interface Project {
 }
 
 export interface Skill {
-  id: number
-  category: string
+  id?: number
+  category?: string
   name: string
-  sortOrder: number
+  sortOrder?: number
   proficiency: number
   description: string | null
 }

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5",
+    "date-fns": "^4",
     "@hyunwoo/shared": "workspace:*",
     "@hyunwoo/ui": "workspace:*",
     "@monaco-editor/react": "^4.7.0",

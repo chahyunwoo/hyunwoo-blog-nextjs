@@ -2,8 +2,6 @@ import {
   Button,
   Card,
   CardContent,
-  Input,
-  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -19,7 +17,7 @@ import { useState } from 'react'
 import type { CreateWorkBody, LocaleCode, Work, WorkTranslation, WorkType } from '@/entities/portfolio'
 import { useCreateWork, useUpdateWork, useWork } from '@/entities/portfolio'
 import { monokaiWinterNight } from '@/shared/lib'
-import { TagsInput } from '@/shared/ui'
+import { AdminInput, AdminLabel, DatePicker, TagsInput } from '@/shared/ui'
 
 const LOCALES: { code: LocaleCode; label: string }[] = [
   { code: 'ko', label: 'KO' },
@@ -128,9 +126,9 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
             <Card>
               <CardContent className="pt-6 flex flex-col gap-4">
                 <div>
-                  <Label htmlFor="type">Type</Label>
+                  <AdminLabel htmlFor="type">Type</AdminLabel>
                   <Select value={type} onValueChange={v => setType(v as WorkType)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -141,31 +139,25 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="startDate">Start Date</Label>
-                  <Input id="startDate" type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                  <AdminLabel>Start Date</AdminLabel>
+                  <DatePicker value={startDate} onChange={setStartDate} />
                 </div>
 
                 <div>
-                  <Label htmlFor="endDate">End Date</Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={endDate}
-                    onChange={e => setEndDate(e.target.value)}
-                    disabled={isCurrent}
-                  />
+                  <AdminLabel>End Date</AdminLabel>
+                  <DatePicker value={endDate} onChange={setEndDate} disabled={isCurrent} />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="isCurrent">현재 진행중</Label>
+                  <AdminLabel htmlFor="isCurrent">현재 진행중</AdminLabel>
                   <Switch id="isCurrent" checked={isCurrent} onCheckedChange={setIsCurrent} />
                 </div>
 
                 <TagsInput label="Tech Stack" placeholder="Enter로 추가" value={techStack} onChange={setTechStack} />
 
                 <div>
-                  <Label htmlFor="demoUrl">Demo URL</Label>
-                  <Input
+                  <AdminLabel htmlFor="demoUrl">Demo URL</AdminLabel>
+                  <AdminInput
                     id="demoUrl"
                     value={demoUrl}
                     onChange={e => setDemoUrl(e.target.value)}
@@ -174,8 +166,8 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="repoUrl">Repo URL</Label>
-                  <Input
+                  <AdminLabel htmlFor="repoUrl">Repo URL</AdminLabel>
+                  <AdminInput
                     id="repoUrl"
                     value={repoUrl}
                     onChange={e => setRepoUrl(e.target.value)}
@@ -184,13 +176,13 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="featured">Featured</Label>
+                  <AdminLabel htmlFor="featured">Featured</AdminLabel>
                   <Switch id="featured" checked={featured} onCheckedChange={setFeatured} />
                 </div>
 
                 <div>
-                  <Label htmlFor="sortOrder">Sort Order</Label>
-                  <Input
+                  <AdminLabel htmlFor="sortOrder">Sort Order</AdminLabel>
+                  <AdminInput
                     id="sortOrder"
                     type="number"
                     value={sortOrder}
@@ -221,31 +213,31 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 {currentTranslation && (
                   <div className="flex flex-col gap-4">
                     <div>
-                      <Label>Title</Label>
-                      <Input
+                      <AdminLabel>Title</AdminLabel>
+                      <AdminInput
                         value={currentTranslation.title}
                         onChange={e => updateTranslation(activeLocale, 'title', e.target.value)}
                       />
                     </div>
 
                     <div>
-                      <Label>Role</Label>
-                      <Input
+                      <AdminLabel>Role</AdminLabel>
+                      <AdminInput
                         value={currentTranslation.role ?? ''}
                         onChange={e => updateTranslation(activeLocale, 'role', e.target.value)}
                       />
                     </div>
 
                     <div>
-                      <Label>Summary</Label>
-                      <Input
+                      <AdminLabel>Summary</AdminLabel>
+                      <AdminInput
                         value={currentTranslation.summary}
                         onChange={e => updateTranslation(activeLocale, 'summary', e.target.value)}
                       />
                     </div>
 
                     <div>
-                      <Label>Content (Markdown)</Label>
+                      <AdminLabel>Content (Markdown)</AdminLabel>
                       <div className="rounded-md overflow-hidden border border-border">
                         <Editor
                           height="400px"

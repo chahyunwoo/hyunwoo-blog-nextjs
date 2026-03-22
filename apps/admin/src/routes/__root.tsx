@@ -1,7 +1,7 @@
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@hyunwoo/ui'
 import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, Outlet, useMatchRoute } from '@tanstack/react-router'
-import { Briefcase, Clock, FileText, LayoutDashboard, Loader2, LogOut, Menu, X } from 'lucide-react'
+import { Briefcase, Clock, FileText, FolderOpen, LayoutDashboard, Loader2, LogOut, Menu, User, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { logout, refreshSession, setAuthenticated, useAuth, useSessionTimer } from '@/entities/auth'
 import { LOGIN_PATH } from '@/shared/config'
@@ -97,7 +97,14 @@ function AuthenticatedLayout() {
           <div className="flex flex-col gap-1">
             <NavItem to="/" label="Dashboard" icon={<LayoutDashboard className="size-4" />} />
             <NavItem to="/posts" label="Posts" icon={<FileText className="size-4" />} />
-            <NavItem to="/portfolio" label="Portfolio" icon={<Briefcase className="size-4" />} />
+          </div>
+          <div className="mt-4">
+            <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Portfolio</p>
+            <div className="flex flex-col gap-1">
+              <NavItem to="/portfolio/works" label="Works" icon={<Briefcase className="size-4" />} />
+              <NavItem to="/portfolio/content" label="Career" icon={<FolderOpen className="size-4" />} />
+              <NavItem to="/portfolio/manage" label="Settings" icon={<User className="size-4" />} />
+            </div>
           </div>
         </nav>
 

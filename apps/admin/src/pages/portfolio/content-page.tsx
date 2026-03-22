@@ -7,8 +7,6 @@ import {
   Button,
   Card,
   CardContent,
-  Input,
-  Label,
   Switch,
 } from '@hyunwoo/ui'
 import { Loader2, Plus } from 'lucide-react'
@@ -30,7 +28,7 @@ import {
   useUpdateExperience,
   useUpdateProject,
 } from '@/entities/portfolio'
-import { TagsInput } from '@/shared/ui'
+import { AdminInput, AdminLabel, AdminTextarea, DatePicker, TagsInput, useConfirm } from '@/shared/ui'
 
 const LOCALE_TABS: { code: LocaleCode; label: string }[] = [
   { code: 'ko', label: 'KO' },
@@ -40,18 +38,18 @@ const LOCALE_TABS: { code: LocaleCode; label: string }[] = [
 
 export function ContentPage() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h2 className="text-2xl font-bold">Portfolio 콘텐츠</h2>
       <Accordion type="multiple" defaultValue={['experiences']}>
         <AccordionItem value="experiences">
           <AccordionTrigger>경력</AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent className="px-1 pt-4 pb-2">
             <ExperiencesSection />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="projects">
           <AccordionTrigger>프로젝트</AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent className="px-1 pt-4 pb-2">
             <ProjectsSection />
           </AccordionContent>
         </AccordionItem>
@@ -64,6 +62,7 @@ function ExperiencesSection() {
   const { data: experiences, isLoading } = useExperiences()
   const createExperience = useCreateExperience()
   const deleteExperience = useDeleteExperience()
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -104,8 +103,14 @@ function ExperiencesSection() {
     createExperience.mutate(body, { onSuccess: resetForm })
   }
 
-  const handleDelete = (id: number, title: string) => {
-    if (!window.confirm(`"${title}" 경력을 삭제하시겠습니까?`)) return
+  const handleDelete = async (id: number, title: string) => {
+    const ok = await confirm({
+      title: '경력 삭제',
+      description: `"${title}" 경력을 삭제하시겠습니까?`,
+      confirmLabel: '삭제',
+      variant: 'destructive',
+    })
+    if (!ok) return
     deleteExperience.mutate(id)
   }
 
@@ -140,135 +145,140 @@ function ExperiencesSection() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            resetForm()
-            setShowForm(true)
-          }}
-        >
-          <Plus className="size-3" /> 추가
-        </Button>
-      </div>
+    <>
+      {ConfirmDialog}
+      <div className="flex flex-col gap-5">
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              resetForm()
+              setShowForm(true)
+            }}
+          >
+            <Plus className="size-3" /> 추가
+          </Button>
+        </div>
 
-      {showForm && (
-        <Card>
-          <CardContent className="pt-4 flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>Start Date</Label>
-                <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+        {showForm && (
+          <Card>
+            <CardContent className="pt-4 flex flex-col gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-1">
+                  <AdminLabel>Start Date</AdminLabel>
+                  <DatePicker value={startDate} onChange={setStartDate} />
+                </div>
+                <div className="space-y-1">
+                  <AdminLabel>End Date</AdminLabel>
+                  <DatePicker value={endDate} onChange={setEndDate} disabled={isCurrent} />
+                </div>
+                <div className="flex items-center gap-2 pt-6">
+                  <AdminLabel htmlFor="exp-isCurrent">현재 재직중</AdminLabel>
+                  <Switch id="exp-isCurrent" checked={isCurrent} onCheckedChange={setIsCurrent} />
+                </div>
               </div>
-              <div>
-                <Label>End Date</Label>
-                <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} disabled={isCurrent} />
-              </div>
-              <div className="flex items-center gap-2 pt-6">
-                <Label htmlFor="exp-isCurrent">현재 재직중</Label>
-                <Switch id="exp-isCurrent" checked={isCurrent} onCheckedChange={setIsCurrent} />
-              </div>
-            </div>
 
-            <div className="flex items-center gap-1">
-              {LOCALE_TABS.map(l => (
-                <Button
-                  key={l.code}
-                  type="button"
-                  variant={activeLocale === l.code ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveLocale(l.code)}
-                >
-                  {l.label}
+              <div className="flex items-center gap-2">
+                {LOCALE_TABS.map(l => (
+                  <Button
+                    key={l.code}
+                    type="button"
+                    variant={activeLocale === l.code ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveLocale(l.code)}
+                  >
+                    {l.label}
+                  </Button>
+                ))}
+              </div>
+
+              {currentTranslation && (
+                <div className="flex flex-col gap-5">
+                  <div className="space-y-1">
+                    <AdminLabel>Title (회사명)</AdminLabel>
+                    <AdminInput
+                      value={currentTranslation.title}
+                      onChange={e => updateTranslationField(activeLocale, 'title', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <AdminLabel>Role</AdminLabel>
+                    <AdminInput
+                      value={currentTranslation.role}
+                      onChange={e => updateTranslationField(activeLocale, 'role', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <AdminLabel>Responsibilities (한 줄씩 입력)</AdminLabel>
+                    <AdminTextarea
+                      className="min-h-[100px]"
+                      value={currentTranslation.responsibilities.join('\n')}
+                      onChange={e =>
+                        updateTranslationField(activeLocale, 'responsibilities', e.target.value.split('\n'))
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 justify-end">
+                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
+                  취소
                 </Button>
-              ))}
-            </div>
+                <ExperienceSaveButton
+                  editingId={editingId}
+                  startDate={startDate}
+                  endDate={endDate}
+                  isCurrent={isCurrent}
+                  translations={translations}
+                  createIsPending={createExperience.isPending}
+                  onCreate={handleCreate}
+                  onSuccess={resetForm}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-            {currentTranslation && (
-              <div className="flex flex-col gap-2">
-                <div>
-                  <Label>Title (회사명)</Label>
-                  <Input
-                    value={currentTranslation.title}
-                    onChange={e => updateTranslationField(activeLocale, 'title', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Role</Label>
-                  <Input
-                    value={currentTranslation.role}
-                    onChange={e => updateTranslationField(activeLocale, 'role', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Responsibilities (한 줄씩 입력)</Label>
-                  <textarea
-                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[100px]"
-                    value={currentTranslation.responsibilities.join('\n')}
-                    onChange={e => updateTranslationField(activeLocale, 'responsibilities', e.target.value.split('\n'))}
-                  />
+        {experiences?.map(exp => {
+          const title = exp.title || '제목 없음'
+          return (
+            <div key={exp.id} className="flex items-center justify-between p-4 rounded-md border">
+              <div>
+                <span className="text-sm font-medium">{title}</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-muted-foreground">
+                    {exp.startDate} ~ {exp.isCurrent ? '현재' : exp.endDate}
+                  </span>
+                  {exp.role && (
+                    <Badge variant="secondary" className="text-xs">
+                      {exp.role}
+                    </Badge>
+                  )}
                 </div>
               </div>
-            )}
-
-            <div className="flex items-center gap-2 justify-end">
-              <Button type="button" variant="outline" size="sm" onClick={resetForm}>
-                취소
-              </Button>
-              <ExperienceSaveButton
-                editingId={editingId}
-                startDate={startDate}
-                endDate={endDate}
-                isCurrent={isCurrent}
-                translations={translations}
-                createIsPending={createExperience.isPending}
-                onCreate={handleCreate}
-                onSuccess={resetForm}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {experiences?.map(exp => {
-        const title = exp.title || '제목 없음'
-        return (
-          <div key={exp.id} className="flex items-center justify-between p-3 rounded-md border">
-            <div>
-              <span className="text-sm font-medium">{title}</span>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-muted-foreground">
-                  {exp.startDate} ~ {exp.isCurrent ? '현재' : exp.endDate}
-                </span>
-                {exp.role && (
-                  <Badge variant="secondary" className="text-xs">
-                    {exp.role}
-                  </Badge>
-                )}
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" onClick={() => startEdit(exp)}>
+                  수정
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => handleDelete(exp.id, title)}
+                  disabled={deleteExperience.isPending}
+                >
+                  삭제
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Button type="button" variant="ghost" size="sm" onClick={() => startEdit(exp)}>
-                수정
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => handleDelete(exp.id, title)}
-                disabled={deleteExperience.isPending}
-              >
-                삭제
-              </Button>
-            </div>
-          </div>
-        )
-      })}
-    </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
 
@@ -316,7 +326,7 @@ function ExperienceSaveButton({
   }
 
   return (
-    <Button type="button" size="sm" onClick={onCreate} disabled={createIsPending}>
+    <Button type="button" size="sm" variant="secondary" onClick={onCreate} disabled={createIsPending}>
       {createIsPending && <Loader2 className="size-3 animate-spin" />}
       추가
     </Button>
@@ -327,6 +337,7 @@ function ProjectsSection() {
   const { data: projects, isLoading } = useProjects()
   const createProject = useCreateProject()
   const deleteProject = useDeleteProject()
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -369,8 +380,14 @@ function ProjectsSection() {
     createProject.mutate(body, { onSuccess: resetForm })
   }
 
-  const handleDelete = (id: number, title: string) => {
-    if (!window.confirm(`"${title}" 프로젝트를 삭제하시겠습니까?`)) return
+  const handleDelete = async (id: number, title: string) => {
+    const ok = await confirm({
+      title: '프로젝트 삭제',
+      description: `"${title}" 프로젝트를 삭제하시겠습니까?`,
+      confirmLabel: '삭제',
+      variant: 'destructive',
+    })
+    if (!ok) return
     deleteProject.mutate(id)
   }
 
@@ -405,136 +422,139 @@ function ProjectsSection() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            resetForm()
-            setShowForm(true)
-          }}
-        >
-          <Plus className="size-3" /> 추가
-        </Button>
-      </div>
+    <>
+      {ConfirmDialog}
+      <div className="flex flex-col gap-5">
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              resetForm()
+              setShowForm(true)
+            }}
+          >
+            <Plus className="size-3" /> 추가
+          </Button>
+        </div>
 
-      {showForm && (
-        <Card>
-          <CardContent className="pt-4 flex flex-col gap-4">
-            <TagsInput label="Tech Stack" placeholder="Enter로 추가" value={techStack} onChange={setTechStack} />
+        {showForm && (
+          <Card>
+            <CardContent className="pt-4 flex flex-col gap-5">
+              <TagsInput label="Tech Stack" placeholder="Enter로 추가" value={techStack} onChange={setTechStack} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Demo URL</Label>
-                <Input value={demoUrl} onChange={e => setDemoUrl(e.target.value)} placeholder="https://" />
-              </div>
-              <div>
-                <Label>Repo URL</Label>
-                <Input value={repoUrl} onChange={e => setRepoUrl(e.target.value)} placeholder="https://" />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Label htmlFor="proj-featured">Featured</Label>
-              <Switch id="proj-featured" checked={featured} onCheckedChange={setFeatured} />
-            </div>
-
-            <div className="flex items-center gap-1">
-              {LOCALE_TABS.map(l => (
-                <Button
-                  key={l.code}
-                  type="button"
-                  variant={activeLocale === l.code ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveLocale(l.code)}
-                >
-                  {l.label}
-                </Button>
-              ))}
-            </div>
-
-            {currentTranslation && (
-              <div className="flex flex-col gap-2">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={currentTranslation.title}
-                    onChange={e => updateTranslationField(activeLocale, 'title', e.target.value)}
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1">
+                  <AdminLabel>Demo URL</AdminLabel>
+                  <AdminInput value={demoUrl} onChange={e => setDemoUrl(e.target.value)} placeholder="https://" />
                 </div>
-                <div>
-                  <Label>Description</Label>
-                  <textarea
-                    className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[80px]"
-                    value={currentTranslation.description ?? ''}
-                    onChange={e => updateTranslationField(activeLocale, 'description', e.target.value)}
-                  />
+                <div className="space-y-1">
+                  <AdminLabel>Repo URL</AdminLabel>
+                  <AdminInput value={repoUrl} onChange={e => setRepoUrl(e.target.value)} placeholder="https://" />
                 </div>
               </div>
-            )}
 
-            <div className="flex items-center gap-2 justify-end">
-              <Button type="button" variant="outline" size="sm" onClick={resetForm}>
-                취소
-              </Button>
-              <ProjectSaveButton
-                editingId={editingId}
-                techStack={techStack}
-                demoUrl={demoUrl}
-                repoUrl={repoUrl}
-                featured={featured}
-                translations={translations}
-                createIsPending={createProject.isPending}
-                onCreate={handleCreate}
-                onSuccess={resetForm}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {projects?.map(proj => {
-        const title = proj.title || '제목 없음'
-        return (
-          <div key={proj.id} className="flex items-center justify-between p-3 rounded-md border">
-            <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{title}</span>
-                {proj.featured && (
-                  <Badge variant="outline" className="text-xs">
-                    Featured
-                  </Badge>
-                )}
+                <AdminLabel htmlFor="proj-featured">Featured</AdminLabel>
+                <Switch id="proj-featured" checked={featured} onCheckedChange={setFeatured} />
               </div>
-              <div className="flex flex-wrap items-center gap-1 mt-1">
-                {proj.techStack.map(tech => (
-                  <Badge key={tech} variant="secondary" className="text-xs">
-                    {tech}
-                  </Badge>
+
+              <div className="flex items-center gap-2">
+                {LOCALE_TABS.map(l => (
+                  <Button
+                    key={l.code}
+                    type="button"
+                    variant={activeLocale === l.code ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveLocale(l.code)}
+                  >
+                    {l.label}
+                  </Button>
                 ))}
               </div>
+
+              {currentTranslation && (
+                <div className="flex flex-col gap-5">
+                  <div className="space-y-1">
+                    <AdminLabel>Title</AdminLabel>
+                    <AdminInput
+                      value={currentTranslation.title}
+                      onChange={e => updateTranslationField(activeLocale, 'title', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <AdminLabel>Description</AdminLabel>
+                    <AdminTextarea
+                      className="min-h-[80px]"
+                      value={currentTranslation.description ?? ''}
+                      onChange={e => updateTranslationField(activeLocale, 'description', e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 justify-end">
+                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
+                  취소
+                </Button>
+                <ProjectSaveButton
+                  editingId={editingId}
+                  techStack={techStack}
+                  demoUrl={demoUrl}
+                  repoUrl={repoUrl}
+                  featured={featured}
+                  translations={translations}
+                  createIsPending={createProject.isPending}
+                  onCreate={handleCreate}
+                  onSuccess={resetForm}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {projects?.map(proj => {
+          const title = proj.title || '제목 없음'
+          return (
+            <div key={proj.id} className="flex items-center justify-between p-4 rounded-md border">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{title}</span>
+                  {proj.featured && (
+                    <Badge variant="outline" className="text-xs">
+                      Featured
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-1 mt-1">
+                  {proj.techStack.map(tech => (
+                    <Badge key={tech} variant="secondary" className="text-xs">
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" onClick={() => startEdit(proj)}>
+                  수정
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => handleDelete(proj.id, title)}
+                  disabled={deleteProject.isPending}
+                >
+                  삭제
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Button type="button" variant="ghost" size="sm" onClick={() => startEdit(proj)}>
-                수정
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => handleDelete(proj.id, title)}
-                disabled={deleteProject.isPending}
-              >
-                삭제
-              </Button>
-            </div>
-          </div>
-        )
-      })}
-    </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
 
@@ -585,7 +605,7 @@ function ProjectSaveButton({
   }
 
   return (
-    <Button type="button" size="sm" onClick={onCreate} disabled={createIsPending}>
+    <Button type="button" size="sm" variant="secondary" onClick={onCreate} disabled={createIsPending}>
       {createIsPending && <Loader2 className="size-3 animate-spin" />}
       추가
     </Button>
