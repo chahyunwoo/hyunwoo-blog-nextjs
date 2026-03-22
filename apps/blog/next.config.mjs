@@ -16,7 +16,7 @@ const nextConfig = {
     ],
   },
   experimental: {
-    optimizeCss: true,
+    reactCompiler: true,
   },
   headers: async () => [
     {

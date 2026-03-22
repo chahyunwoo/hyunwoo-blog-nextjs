@@ -1,5 +1,3 @@
-'use client'
-
 import { Skeleton } from '@hyunwoo/ui'
 
 export function BlogSidebarSkeleton() {

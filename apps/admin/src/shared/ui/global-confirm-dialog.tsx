@@ -8,39 +8,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@hyunwoo/ui'
+import { useConfirmStore } from './confirm-store'
 
-interface ConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description: string
-  onConfirm: () => void
-  confirmLabel?: string
-  cancelLabel?: string
-  variant?: 'default' | 'destructive'
-}
+export function GlobalConfirmDialog() {
+  const { isOpen, title, description, confirmLabel, variant, handleConfirm, handleCancel } = useConfirmStore()
 
-export function ConfirmDialog({
-  open,
-  onOpenChange,
-  title,
-  description,
-  onConfirm,
-  confirmLabel = '확인',
-  cancelLabel = '취소',
-  variant = 'destructive',
-}: ConfirmDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog
+      open={isOpen}
+      onOpenChange={open => {
+        if (!open) handleCancel()
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
+          <AlertDialogCancel onClick={handleCancel}>취소</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className={
               variant === 'destructive' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''
             }

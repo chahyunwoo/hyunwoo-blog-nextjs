@@ -14,16 +14,12 @@ import Editor, { type Monaco } from '@monaco-editor/react'
 import { useNavigate } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import type { CreateWorkBody, LocaleCode, WorkDetail, WorkTranslation, WorkType } from '@/entities/portfolio'
+import type { CreateWorkBody, WorkDetail, WorkTranslation, WorkType } from '@/entities/portfolio'
 import { useCreateWork, useUpdateWork, useWorkDetail } from '@/entities/portfolio'
+import type { LocaleCode } from '@/shared/config'
+import { LOCALE_TABS } from '@/shared/config'
 import { monokaiWinterNight } from '@/shared/lib'
 import { AdminInput, AdminLabel, MonthPicker, TagsInput } from '@/shared/ui'
-
-const LOCALES: { code: LocaleCode; label: string }[] = [
-  { code: 'ko', label: 'KO' },
-  { code: 'en', label: 'EN' },
-  { code: 'jp', label: 'JP' },
-]
 
 function createEmptyTranslation(locale: LocaleCode): WorkTranslation {
   return { locale, title: '', role: '', summary: '', content: '', highlights: [] }
@@ -69,9 +65,9 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
   const [activeLocale, setActiveLocale] = useState<LocaleCode>('ko')
   const [translations, setTranslations] = useState<WorkTranslation[]>(() => {
     if (!initial) {
-      return LOCALES.map(l => createEmptyTranslation(l.code))
+      return LOCALE_TABS.map(l => createEmptyTranslation(l.code))
     }
-    return LOCALES.map(l => {
+    return LOCALE_TABS.map(l => {
       const existing = initial.translations.find(t => t.locale === l.code)
       return existing
         ? {
@@ -130,7 +126,7 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
         <div className="flex flex-col gap-5">
           {/* Locale tabs */}
           <div className="flex items-center gap-1">
-            {LOCALES.map(l => (
+            {LOCALE_TABS.map(l => (
               <Button
                 key={l.code}
                 type="button"

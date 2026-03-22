@@ -1,21 +1,19 @@
 import type { Profile } from '@hyunwoo/shared/types'
 import { Github, MapPin } from 'lucide-react'
 import Image from 'next/image'
-import { LanguageSwitch } from '@/features/navigation'
-import { SOCIAL_ICON_MAP } from '@/shared/config'
+import { CONTACT_EMAIL, SOCIAL_ICON_MAP } from '@/shared/config'
 import { CopyButton, IconButton } from '@/shared/ui'
-import type { ApiLocale } from '../model'
 
 interface ProfileHeaderProps {
   profile: Profile
-  locales: ApiLocale[]
+  languageSwitch?: React.ReactNode
 }
 
-export function ProfileHeader({ profile, locales }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, languageSwitch }: ProfileHeaderProps) {
   return (
     <div className="flex gap-8 items-center justify-between flex-col-reverse md:flex-row pb-8 border-b border-border">
       <div className="flex flex-col items-center md:items-start">
-        <LanguageSwitch locales={locales} />
+        {languageSwitch}
         <h1 className="font-black text-3xl mb-2 tracking-tight">{profile.name}</h1>
         <p className="text-primary font-medium mb-3">{profile.job}</p>
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -33,7 +31,7 @@ export function ProfileHeader({ profile, locales }: ProfileHeaderProps) {
               aria-label={link.name}
             />
           ))}
-          <CopyButton variant="outline" icon="Mail" description="Email copied!" target="chahyunwoobi@gmail.com" />
+          <CopyButton variant="outline" icon="Mail" description="Email copied!" target={CONTACT_EMAIL} />
         </div>
       </div>
       <div>

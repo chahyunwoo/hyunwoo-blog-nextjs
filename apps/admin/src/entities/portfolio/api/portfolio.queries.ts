@@ -35,13 +35,6 @@ export function useWorks(type?: string) {
   })
 }
 
-export function useWork(id: number) {
-  return useSuspenseQuery({
-    queryKey: queryKeys.portfolio.works.detail(id),
-    queryFn: () => adminApi.get(`api/portfolio/works/${id}`).json<Work>(),
-  })
-}
-
 export function useWorkDetail(id: number) {
   return useSuspenseQuery({
     queryKey: queryKeys.portfolio.works.detail(id),

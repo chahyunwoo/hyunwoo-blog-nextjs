@@ -14,8 +14,6 @@ import {
   SelectValue,
   Separator,
 } from '@hyunwoo/ui'
-import type { LucideIcon } from 'lucide-react'
-import * as icons from 'lucide-react'
 import { Image as ImageIcon, Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type {
@@ -23,7 +21,6 @@ import type {
   CreateSkillBody,
   EducationDetail,
   EducationTranslation,
-  LocaleCode,
   ProfileTranslation,
   SocialLink,
   UpdateProfileBody,
@@ -46,19 +43,12 @@ import {
   useUploadProfileImage,
 } from '@/entities/portfolio'
 import { adminApi } from '@/shared/api'
-import { AdminInput, AdminLabel, AdminTextarea, FileInput, useConfirm } from '@/shared/ui'
-
-const LOCALE_TABS: { code: LocaleCode; label: string }[] = [
-  { code: 'ko', label: 'KO' },
-  { code: 'en', label: 'EN' },
-  { code: 'jp', label: 'JP' },
-]
+import type { LocaleCode } from '@/shared/config'
+import { LOCALE_TABS } from '@/shared/config'
+import { getIcon } from '@/shared/lib'
+import { AdminInput, AdminLabel, AdminTextarea, FileInput, useConfirmStore } from '@/shared/ui'
 
 const SOCIAL_ICONS = ['Github', 'Instagram', 'Linkedin', 'Twitter', 'Mail', 'Globe', 'Youtube', 'Facebook'] as const
-
-function getIcon(name: string): LucideIcon {
-  return (icons as unknown as Record<string, LucideIcon>)[name] ?? icons.HelpCircle
-}
 
 function SocialIconPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const CurrentIcon = getIcon(value)
@@ -331,7 +321,7 @@ function SkillsSection() {
   const { data: skillGroups, isLoading } = useSkills()
   const createSkill = useCreateSkill()
   const deleteSkill = useDeleteSkill()
-  const { confirm, ConfirmDialog } = useConfirm()
+  const confirm = useConfirmStore(state => state.confirm)
 
   const existingCategories = skillGroups?.map(g => g.category) ?? []
 
@@ -379,119 +369,116 @@ function SkillsSection() {
   }
 
   return (
-    <>
-      {ConfirmDialog}
-      <div className="flex flex-col gap-6">
-        <div className="flex justify-end">
-          <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(prev => !prev)}>
-            <Plus className="size-3" /> 추가
-          </Button>
-        </div>
-
-        {showAddForm && (
-          <Card>
-            <CardContent className="pt-4 flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <AdminLabel>Category</AdminLabel>
-                  {existingCategories.length > 0 ? (
-                    <Select value={newSkill.category} onValueChange={v => setNewSkill(p => ({ ...p, category: v }))}>
-                      <SelectTrigger className="h-10 w-full">
-                        <SelectValue placeholder="카테고리 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {existingCategories.map(cat => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <AdminInput
-                      placeholder="새 카테고리명"
-                      value={newSkill.category}
-                      onChange={e => setNewSkill(p => ({ ...p, category: e.target.value }))}
-                    />
-                  )}
-                </div>
-                <div>
-                  <AdminLabel>Name</AdminLabel>
-                  <AdminInput
-                    placeholder="스킬명"
-                    value={newSkill.name}
-                    onChange={e => setNewSkill(p => ({ ...p, name: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <AdminLabel>Proficiency (%)</AdminLabel>
-                  <AdminInput
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={newSkill.proficiency}
-                    onChange={e => setNewSkill(p => ({ ...p, proficiency: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <AdminLabel>Description</AdminLabel>
-                  <AdminInput
-                    placeholder="설명 (선택)"
-                    value={newSkill.description ?? ''}
-                    onChange={e => setNewSkill(p => ({ ...p, description: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(false)}>
-                  취소
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={handleCreate}
-                  disabled={createSkill.isPending}
-                >
-                  {createSkill.isPending && <Loader2 className="size-3 animate-spin" />}
-                  추가
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {skillGroups?.map(group => (
-          <div key={group.category}>
-            <h4 className="text-sm font-semibold mb-3">{group.category}</h4>
-            <div className="flex flex-col gap-2">
-              {group.items.map(skill => (
-                <SkillRow
-                  key={skill.id}
-                  skill={skill}
-                  category={group.category}
-                  isEditing={editingId === skill.id}
-                  editForm={editForm}
-                  onStartEdit={() => {
-                    setEditingId(skill.id)
-                    setEditForm({
-                      category: group.category,
-                      name: skill.name,
-                      proficiency: skill.proficiency,
-                      description: skill.description ?? '',
-                    })
-                  }}
-                  onCancelEdit={() => setEditingId(null)}
-                  onEditFormChange={setEditForm}
-                  onDelete={() => handleDelete(skill.id, skill.name)}
-                  deleteIsPending={deleteSkill.isPending}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+    <div className="flex flex-col gap-6">
+      <div className="flex justify-end">
+        <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(prev => !prev)}>
+          <Plus className="size-3" /> 추가
+        </Button>
       </div>
-    </>
+
+      {showAddForm && (
+        <Card>
+          <CardContent className="pt-4 flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <AdminLabel>Category</AdminLabel>
+                {existingCategories.length > 0 ? (
+                  <Select value={newSkill.category} onValueChange={v => setNewSkill(p => ({ ...p, category: v }))}>
+                    <SelectTrigger className="h-10 w-full">
+                      <SelectValue placeholder="카테고리 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {existingCategories.map(cat => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <AdminInput
+                    placeholder="새 카테고리명"
+                    value={newSkill.category}
+                    onChange={e => setNewSkill(p => ({ ...p, category: e.target.value }))}
+                  />
+                )}
+              </div>
+              <div>
+                <AdminLabel>Name</AdminLabel>
+                <AdminInput
+                  placeholder="스킬명"
+                  value={newSkill.name}
+                  onChange={e => setNewSkill(p => ({ ...p, name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <AdminLabel>Proficiency (%)</AdminLabel>
+                <AdminInput
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={newSkill.proficiency}
+                  onChange={e => setNewSkill(p => ({ ...p, proficiency: Number(e.target.value) }))}
+                />
+              </div>
+              <div>
+                <AdminLabel>Description</AdminLabel>
+                <AdminInput
+                  placeholder="설명 (선택)"
+                  value={newSkill.description ?? ''}
+                  onChange={e => setNewSkill(p => ({ ...p, description: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(false)}>
+                취소
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={handleCreate}
+                disabled={createSkill.isPending}
+              >
+                {createSkill.isPending && <Loader2 className="size-3 animate-spin" />}
+                추가
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {skillGroups?.map(group => (
+        <div key={group.category}>
+          <h4 className="text-sm font-semibold mb-3">{group.category}</h4>
+          <div className="flex flex-col gap-2">
+            {group.items.map(skill => (
+              <SkillRow
+                key={skill.id}
+                skill={skill}
+                category={group.category}
+                isEditing={editingId === skill.id}
+                editForm={editForm}
+                onStartEdit={() => {
+                  setEditingId(skill.id)
+                  setEditForm({
+                    category: group.category,
+                    name: skill.name,
+                    proficiency: skill.proficiency,
+                    description: skill.description ?? '',
+                  })
+                }}
+                onCancelEdit={() => setEditingId(null)}
+                onEditFormChange={setEditForm}
+                onDelete={() => handleDelete(skill.id, skill.name)}
+                deleteIsPending={deleteSkill.isPending}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -606,7 +593,7 @@ function EducationSection() {
   const { data: educationList, isLoading } = useEducation()
   const createEducation = useCreateEducation()
   const deleteEducation = useDeleteEducation()
-  const { confirm, ConfirmDialog } = useConfirm()
+  const confirm = useConfirmStore(state => state.confirm)
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
@@ -672,108 +659,105 @@ function EducationSection() {
   }
 
   return (
-    <>
-      {ConfirmDialog}
-      <div className="flex flex-col gap-6">
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              resetForm()
-              setShowForm(true)
-            }}
-          >
-            <Plus className="size-3" /> 추가
-          </Button>
-        </div>
+    <div className="flex flex-col gap-6">
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            resetForm()
+            setShowForm(true)
+          }}
+        >
+          <Plus className="size-3" /> 추가
+        </Button>
+      </div>
 
-        {showForm && (
-          <Card>
-            <CardContent className="pt-4 flex flex-col gap-5">
-              <div>
-                <AdminLabel>Period</AdminLabel>
-                <AdminInput placeholder="2018 - 2022" value={period} onChange={e => setPeriod(e.target.value)} />
-              </div>
-
-              <LocaleTabs activeLocale={activeLocale} onChange={setActiveLocale} />
-
-              {currentTranslation && (
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <AdminLabel>Institution</AdminLabel>
-                    <AdminInput
-                      value={currentTranslation.institution}
-                      onChange={e => updateTranslationField(activeLocale, 'institution', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <AdminLabel>Degree</AdminLabel>
-                    <AdminInput
-                      value={currentTranslation.degree}
-                      onChange={e => updateTranslationField(activeLocale, 'degree', e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 justify-end">
-                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
-                  취소
-                </Button>
-                <EducationSaveButton
-                  editingId={editingId}
-                  period={period}
-                  translations={translations}
-                  createIsPending={createEducation.isPending}
-                  onCreate={handleCreate}
-                  onSuccess={resetForm}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {educationList?.map(edu => (
-          <div
-            key={edu.id}
-            className={`flex items-center justify-between px-3 py-3 rounded-md border ${editingId === edu.id ? 'border-primary bg-primary/5' : ''}`}
-          >
+      {showForm && (
+        <Card>
+          <CardContent className="pt-4 flex flex-col gap-5">
             <div>
-              <span className="text-sm font-medium">{edu.institution || '기관 없음'}</span>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-muted-foreground">{edu.period}</span>
-                <span className="text-xs text-muted-foreground">{edu.degree}</span>
-              </div>
+              <AdminLabel>Period</AdminLabel>
+              <AdminInput placeholder="2018 - 2022" value={period} onChange={e => setPeriod(e.target.value)} />
             </div>
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={() => startEdit(edu)}
-                aria-label="수정"
-              >
-                <Pencil className="size-3.5" />
+
+            <LocaleTabs activeLocale={activeLocale} onChange={setActiveLocale} />
+
+            {currentTranslation && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <AdminLabel>Institution</AdminLabel>
+                  <AdminInput
+                    value={currentTranslation.institution}
+                    onChange={e => updateTranslationField(activeLocale, 'institution', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <AdminLabel>Degree</AdminLabel>
+                  <AdminInput
+                    value={currentTranslation.degree}
+                    onChange={e => updateTranslationField(activeLocale, 'degree', e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 justify-end">
+              <Button type="button" variant="outline" size="sm" onClick={resetForm}>
+                취소
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8 text-destructive hover:text-destructive"
-                onClick={() => handleDelete(edu.id)}
-                disabled={deleteEducation.isPending}
-                aria-label="삭제"
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
+              <EducationSaveButton
+                editingId={editingId}
+                period={period}
+                translations={translations}
+                createIsPending={createEducation.isPending}
+                onCreate={handleCreate}
+                onSuccess={resetForm}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {educationList?.map(edu => (
+        <div
+          key={edu.id}
+          className={`flex items-center justify-between px-3 py-3 rounded-md border ${editingId === edu.id ? 'border-primary bg-primary/5' : ''}`}
+        >
+          <div>
+            <span className="text-sm font-medium">{edu.institution || '기관 없음'}</span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-muted-foreground">{edu.period}</span>
+              <span className="text-xs text-muted-foreground">{edu.degree}</span>
             </div>
           </div>
-        ))}
-      </div>
-    </>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => startEdit(edu)}
+              aria-label="수정"
+            >
+              <Pencil className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 text-destructive hover:text-destructive"
+              onClick={() => handleDelete(edu.id)}
+              disabled={deleteEducation.isPending}
+              aria-label="삭제"
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -830,7 +814,7 @@ function LocalesSection() {
   const { data: locales, isLoading } = useLocales()
   const createLocale = useCreateLocale()
   const deleteLocale = useDeleteLocale()
-  const { confirm, ConfirmDialog } = useConfirm()
+  const confirm = useConfirmStore(state => state.confirm)
   const [code, setCode] = useState('')
   const [label, setLabel] = useState('')
 
@@ -867,44 +851,41 @@ function LocalesSection() {
   }
 
   return (
-    <>
-      {ConfirmDialog}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <AdminInput placeholder="code (ko)" value={code} onChange={e => setCode(e.target.value)} className="w-32" />
-          <AdminInput
-            placeholder="label (한국어)"
-            value={label}
-            onChange={e => setLabel(e.target.value)}
-            className="flex-1"
-          />
-          <Button type="button" size="sm" onClick={handleCreate} disabled={createLocale.isPending}>
-            {createLocale.isPending && <Loader2 className="size-3 animate-spin" />}
-            저장
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <AdminInput placeholder="code (ko)" value={code} onChange={e => setCode(e.target.value)} className="w-32" />
+        <AdminInput
+          placeholder="label (한국어)"
+          value={label}
+          onChange={e => setLabel(e.target.value)}
+          className="flex-1"
+        />
+        <Button type="button" size="sm" onClick={handleCreate} disabled={createLocale.isPending}>
+          {createLocale.isPending && <Loader2 className="size-3 animate-spin" />}
+          저장
+        </Button>
+      </div>
+
+      {locales?.map(locale => (
+        <div key={locale.id} className="flex items-center justify-between px-3 py-2.5 rounded-md border">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{locale.code}</Badge>
+            <span className="text-sm">{locale.label}</span>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 text-destructive hover:text-destructive"
+            onClick={() => handleDelete(locale.id, locale.code)}
+            disabled={deleteLocale.isPending}
+            aria-label="삭제"
+          >
+            <Trash2 className="size-4" />
           </Button>
         </div>
-
-        {locales?.map(locale => (
-          <div key={locale.id} className="flex items-center justify-between px-3 py-2.5 rounded-md border">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{locale.code}</Badge>
-              <span className="text-sm">{locale.label}</span>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8 text-destructive hover:text-destructive"
-              onClick={() => handleDelete(locale.id, locale.code)}
-              disabled={deleteLocale.isPending}
-              aria-label="삭제"
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
-    </>
+      ))}
+    </div>
   )
 }
 

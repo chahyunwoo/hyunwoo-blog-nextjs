@@ -1,6 +1,6 @@
 import { formatDate } from '@hyunwoo/shared/lib'
 import { Badge, Progress, Table, TableBody, TableCell, TableRow } from '@hyunwoo/ui'
-import { Clock, Database, Eye, FileCheck, FileText, LayoutGrid, Link2, Loader2, Server, Users } from 'lucide-react'
+import { Clock, Database, Eye, FileCheck, FileText, LayoutGrid, Link2, Server, Users } from 'lucide-react'
 import {
   useAdminLogs,
   useDashboard,
@@ -22,7 +22,7 @@ export function DashboardPage() {
   const { data: system } = useSystemInfo()
 
   const stats = dashboard.postStats
-  const memoryPercent = system ? Math.round((system.memory.heapUsed / system.memory.heapTotal) * 100) : 0
+  const memoryPercent = Math.round((system.memory.heapUsed / system.memory.heapTotal) * 100)
 
   return (
     <div className="flex flex-col gap-5">
@@ -64,36 +64,30 @@ export function DashboardPage() {
 
         <div className="col-span-12 md:col-span-4">
           <DashboardCard icon={<Server size={16} />} title="서버 상태" iconColor="cyan">
-            {system ? (
-              <div className="flex flex-col items-center gap-3">
-                <RingProgress
-                  value={memoryPercent}
-                  size={100}
-                  thickness={10}
-                  color={memoryPercent > 80 ? 'text-red-500' : 'text-cyan-500'}
-                  label={<span className="text-base font-bold">{memoryPercent}%</span>}
-                />
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-xs text-muted-foreground">
-                    힙: {system.memory.heapUsed}MB / {system.memory.heapTotal}MB
-                  </span>
-                  <span className="text-xs text-muted-foreground">RSS: {system.memory.rss}MB</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={system.database === 'ok' ? 'secondary' : 'destructive'} className="gap-1 text-xs">
-                    <Database size={10} />
-                    DB {system.database}
-                  </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    {system.uptimeFormatted}
-                  </Badge>
-                </div>
+            <div className="flex flex-col items-center gap-3">
+              <RingProgress
+                value={memoryPercent}
+                size={100}
+                thickness={10}
+                color={memoryPercent > 80 ? 'text-red-500' : 'text-cyan-500'}
+                label={<span className="text-base font-bold">{memoryPercent}%</span>}
+              />
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-xs text-muted-foreground">
+                  힙: {system.memory.heapUsed}MB / {system.memory.heapTotal}MB
+                </span>
+                <span className="text-xs text-muted-foreground">RSS: {system.memory.rss}MB</span>
               </div>
-            ) : (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="size-5 animate-spin" />
+              <div className="flex items-center gap-2">
+                <Badge variant={system.database === 'ok' ? 'secondary' : 'destructive'} className="gap-1 text-xs">
+                  <Database size={10} />
+                  DB {system.database}
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {system.uptimeFormatted}
+                </Badge>
               </div>
-            )}
+            </div>
           </DashboardCard>
         </div>
       </div>

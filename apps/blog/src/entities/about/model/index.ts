@@ -5,5 +5,6 @@ export type {
   ApiProfileResponse,
   ApiProject,
   ApiSkillGroup,
+  ApiSkillItem,
   ApiSocialLink,
 } from './about.model'

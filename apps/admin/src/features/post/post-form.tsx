@@ -32,6 +32,7 @@ import {
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { getPreviewToken } from '@/entities/auth'
 import { useCategories, useTags } from '@/entities/category'
 import { uploadFile } from '@/shared/api'
 import { BLOG_URL } from '@/shared/config'
@@ -39,19 +40,17 @@ import { monokaiWinterNight } from '@/shared/lib'
 import { type PostFormValues, postSchema } from '@/shared/schemas'
 import { AdminInput, AdminLabel, DatePicker, FileInput, TagsInput } from '@/shared/ui'
 
-interface CategoryModalProps {
-  opened: boolean
-  onClose: () => void
-  onSelect: (category: string) => void
-}
-
 interface PostFormProps {
   defaultValues?: Partial<PostFormValues>
   onSubmit: (values: PostFormValues) => void
   isPending: boolean
   mode: 'create' | 'edit'
   slug?: string
-  renderCategoryModal: (props: CategoryModalProps) => ReactNode
+  renderCategoryModal: (props: {
+    opened: boolean
+    onClose: () => void
+    onSelect: (category: string) => void
+  }) => ReactNode
 }
 
 export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, renderCategoryModal }: PostFormProps) {
@@ -60,9 +59,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
   const [previewToken, setPreviewToken] = useState<string | null>(null)
 
   useEffect(() => {
-    import('@/entities/auth').then(({ getPreviewToken }) => {
-      getPreviewToken().then(setPreviewToken)
-    })
+    getPreviewToken().then(setPreviewToken)
   }, [])
 
   const [categoryModalOpened, setCategoryModalOpened] = useState(false)
