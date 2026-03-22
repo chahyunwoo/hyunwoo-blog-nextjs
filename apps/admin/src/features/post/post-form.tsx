@@ -1,39 +1,37 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Accordion,
-  Box,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Button,
   Card,
-  Code,
-  Divider,
-  FileInput,
-  Grid,
-  Group,
-  Image,
+  CardContent,
+  Input,
+  Label,
   Select,
-  Stack,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
   Switch,
-  TagsInput,
-  Text,
-  TextInput,
-  ThemeIcon,
-} from '@mantine/core'
-import { DateInput } from '@mantine/dates'
-import '@mantine/dates/styles.css'
-import { notifications } from '@mantine/notifications'
+  toast,
+} from '@hyunwoo/ui'
 import Editor, { type Monaco } from '@monaco-editor/react'
-import {
-  IconAlertCircle,
-  IconCalendar,
-  IconCode,
-  IconExternalLink,
-  IconHighlight,
-  IconInfoCircle,
-  IconPhoto,
-  IconPlus,
-  IconUpload,
-} from '@tabler/icons-react'
 import { useNavigate } from '@tanstack/react-router'
+import {
+  AlertCircle,
+  Code,
+  ExternalLink,
+  Highlighter,
+  Image as ImageIcon,
+  Info,
+  Loader2,
+  Plus,
+  Upload,
+  X,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -42,6 +40,7 @@ import { uploadFile } from '@/shared/api'
 import { BLOG_URL } from '@/shared/config'
 import { monokaiWinterNight } from '@/shared/lib'
 import { type PostFormValues, postSchema } from '@/shared/schemas'
+import { FileInput, TagsInput } from '@/shared/ui'
 
 interface CategoryModalProps {
   opened: boolean
@@ -108,7 +107,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
       const result = await uploadFile<{ url: string }>('api/blog/images', formData)
       return result.url
     } catch {
-      notifications.show({ title: '업로드 실패', message: '10MB 이하 이미지만 가능합니다.', color: 'red' })
+      toast.error('10MB 이하 이미지만 가능합니다.')
       return null
     }
   }
@@ -120,39 +119,34 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Grid gutter="xl">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
-          <Stack gap="xl">
-            <TextInput
-              label="제목"
-              size="md"
-              placeholder="포스트 제목을 입력하세요"
-              error={errors.title?.message}
-              styles={{ input: { fontSize: 18, fontWeight: 600 } }}
-              {...register('title')}
-            />
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-8">
+          <div className="flex flex-col gap-6">
+            <div>
+              <Label htmlFor="title">제목</Label>
+              <Input
+                id="title"
+                placeholder="포스트 제목을 입력하세요"
+                className="text-lg font-semibold h-11"
+                {...register('title')}
+              />
+              {errors.title && <p className="text-xs text-destructive mt-1">{errors.title.message}</p>}
+            </div>
 
-            <TextInput
-              label="설명"
-              size="md"
-              placeholder="미입력 시 본문에서 자동 추출됩니다"
-              error={errors.description?.message}
-              {...register('description')}
-            />
+            <div>
+              <Label htmlFor="description">설명</Label>
+              <Input
+                id="description"
+                placeholder="미입력 시 본문에서 자동 추출됩니다"
+                className="h-11"
+                {...register('description')}
+              />
+              {errors.description && <p className="text-xs text-destructive mt-1">{errors.description.message}</p>}
+            </div>
 
-            <Box>
-              {errors.content && (
-                <Text size="xs" c="red" mb={4}>
-                  {errors.content.message}
-                </Text>
-              )}
-              <Box
-                style={{
-                  borderRadius: 'var(--mantine-radius-md)',
-                  overflow: 'hidden',
-                  border: '1px solid var(--mantine-color-default-border)',
-                }}
-              >
+            <div>
+              {errors.content && <p className="text-xs text-destructive mb-1">{errors.content.message}</p>}
+              <div className="rounded-md overflow-hidden border border-border">
                 <Controller
                   name="content"
                   control={control}
@@ -240,320 +234,319 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                     />
                   )}
                 />
-              </Box>
-            </Box>
-          </Stack>
-        </Grid.Col>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Grid.Col span={{ base: 12, lg: 4 }}>
-          <Stack gap="lg">
-            <Card padding="lg" radius="md" withBorder>
-              <Group justify="space-between" mb="lg">
-                <Text size="sm" fw={600}>
-                  설정
-                </Text>
-                <Controller
-                  name="published"
-                  control={control}
-                  render={({ field }) => (
-                    <Switch
-                      label={field.value ? '발행' : '임시저장'}
-                      checked={field.value}
-                      onChange={field.onChange}
-                      color="teal"
-                    />
-                  )}
-                />
-              </Group>
-
-              <Stack gap="lg">
-                <div>
-                  <Group justify="space-between" mb={8}>
-                    <Text size="sm" fw={500}>
-                      카테고리
-                    </Text>
-                    <Button
-                      variant="subtle"
-                      size="compact-xs"
-                      leftSection={<IconPlus size={12} />}
-                      onClick={() => setCategoryModalOpened(true)}
-                    >
-                      관리
-                    </Button>
-                  </Group>
+        <div className="col-span-12 lg:col-span-4">
+          <div className="flex flex-col gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-semibold">설정</span>
                   <Controller
-                    name="category"
+                    name="published"
                     control={control}
                     render={({ field }) => (
-                      <Select
-                        placeholder="카테고리 선택"
-                        data={categoryOptions}
-                        error={errors.category?.message}
-                        value={field.value || null}
-                        onChange={(v: string | null) => field.onChange(v ?? '')}
-                        searchable
-                        clearable
-                      />
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{field.value ? '발행' : '임시저장'}</span>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </div>
                     )}
                   />
                 </div>
 
-                {renderCategoryModal({
-                  opened: categoryModalOpened,
-                  onClose: () => setCategoryModalOpened(false),
-                  onSelect: (v: string) => setValue('category', v),
-                })}
-
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <TagsInput
-                      label="태그"
-                      placeholder="Enter로 추가"
-                      data={tagOptions}
-                      error={errors.tags?.message}
-                      value={field.value}
-                      onChange={field.onChange}
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">카테고리</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setCategoryModalOpened(true)}
+                      >
+                        <Plus className="size-3" />
+                        관리
+                      </Button>
+                    </div>
+                    <Controller
+                      name="category"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="relative">
+                          <Select value={field.value || undefined} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="카테고리 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categoryOptions.map(cat => (
+                                <SelectItem key={cat} value={cat}>
+                                  {cat}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {field.value && (
+                            <button
+                              type="button"
+                              onClick={() => field.onChange('')}
+                              className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              aria-label="카테고리 선택 해제"
+                            >
+                              <X className="size-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     />
-                  )}
-                />
+                    {errors.category && <p className="text-xs text-destructive mt-1">{errors.category.message}</p>}
+                  </div>
 
-                <Controller
-                  name="publishedAt"
-                  control={control}
-                  render={({ field }) => (
-                    <DateInput
-                      label="발행일"
-                      placeholder="미입력 시 발행 시점 자동"
-                      leftSection={<IconCalendar size={16} />}
-                      clearable
-                      highlightToday
-                      firstDayOfWeek={0}
-                      maxDate={new Date()}
-                      value={field.value || null}
-                      onChange={date => field.onChange(date ?? '')}
-                    />
-                  )}
-                />
-              </Stack>
-            </Card>
+                  {renderCategoryModal({
+                    opened: categoryModalOpened,
+                    onClose: () => setCategoryModalOpened(false),
+                    onSelect: (v: string) => setValue('category', v),
+                  })}
 
-            <Card padding="lg" radius="md" withBorder>
-              <Text size="sm" fw={600} mb="md">
-                썸네일
-              </Text>
-              {thumbnailUrl ? (
-                <Stack gap="xs">
-                  <Image src={thumbnailUrl} alt="썸네일" radius="md" h={180} fit="cover" />
-                  <Button variant="subtle" size="xs" color="red" onClick={() => setValue('thumbnailUrl', '')}>
-                    제거
-                  </Button>
-                </Stack>
-              ) : (
-                <Stack gap="xs">
-                  <FileInput
-                    placeholder={thumbnailUploading ? '업로드 중...' : '이미지를 선택하면 자동 업로드됩니다'}
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    leftSection={thumbnailUploading ? <IconUpload size={16} /> : <IconPhoto size={16} />}
-                    disabled={thumbnailUploading}
-                    onChange={async file => {
-                      if (!file) return
-                      setThumbnailUploading(true)
-                      const url = await handleImageUpload(file)
-                      if (url) {
-                        setValue('thumbnailUrl', url)
-                        notifications.show({ title: '썸네일 업로드', message: '업로드 완료', color: 'teal' })
-                      }
-                      setThumbnailUploading(false)
-                    }}
+                  <Controller
+                    name="tags"
+                    control={control}
+                    render={({ field }) => (
+                      <TagsInput
+                        label="태그"
+                        placeholder="Enter로 추가"
+                        data={tagOptions}
+                        error={errors.tags?.message}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
                   />
-                  <Text size="xs" c="dimmed">
-                    1200x630 권장 (OG 이미지), 10MB 제한
-                  </Text>
-                </Stack>
-              )}
+
+                  <Controller
+                    name="publishedAt"
+                    control={control}
+                    render={({ field }) => (
+                      <div>
+                        <Label htmlFor="publishedAt">발행일</Label>
+                        <Input
+                          id="publishedAt"
+                          type="date"
+                          placeholder="미입력 시 발행 시점 자동"
+                          max={new Date().toISOString().split('T')[0]}
+                          value={field.value || ''}
+                          onChange={e => field.onChange(e.target.value)}
+                        />
+                      </div>
+                    )}
+                  />
+                </div>
+              </CardContent>
             </Card>
 
-            <Card padding="lg" radius="md" withBorder>
-              <Text size="sm" fw={600} mb="md">
-                MDX 컴포넌트
-              </Text>
-              <Accordion variant="separated" radius="md">
-                <Accordion.Item value="callout">
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon variant="light" color="blue" size="sm">
-                        <IconInfoCircle size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Text size="sm">Callout</Text>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>
-                      type: tip | info | warning | error | success | default
-                    </Text>
-                    <Stack gap={6}>
-                      <Code block>{`<Callout type="tip">팁 내용</Callout>`}</Code>
-                      <Code block>{`<Callout type="info">정보</Callout>`}</Code>
-                      <Code block>{`<Callout type="warning">경고</Callout>`}</Code>
-                      <Code block>{`<Callout type="error">에러</Callout>`}</Code>
-                      <Code block>{`<Callout type="success">성공</Callout>`}</Code>
-                    </Stack>
-                  </Accordion.Panel>
-                </Accordion.Item>
-
-                <Accordion.Item value="highlight">
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon variant="light" color="pink" size="sm">
-                        <IconHighlight size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Text size="sm">Highlight</Text>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>
-                      color: fuchsia (기본) | blue | green | yellow | red
-                    </Text>
-                    <Stack gap={6}>
-                      <Code block>{`<Highlight>기본 강조 (fuchsia)</Highlight>`}</Code>
-                      <Code block>{`<Highlight color="blue">파란색</Highlight>`}</Code>
-                      <Code block>{`<Highlight color="green">초록색</Highlight>`}</Code>
-                      <Code block>{`<Highlight color="yellow">노란색</Highlight>`}</Code>
-                      <Code block>{`<Highlight color="red">빨간색</Highlight>`}</Code>
-                    </Stack>
-                  </Accordion.Panel>
-                </Accordion.Item>
-
-                <Accordion.Item value="image">
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon variant="light" color="green" size="sm">
-                        <IconPhoto size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Text size="sm">MdxImage</Text>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>
-                      src (필수), alt, caption, width, height, priority
-                    </Text>
-                    <Stack gap={6}>
-                      <Code block>{`<MdxImage src="https://..." alt="설명" />`}</Code>
-                      <Code block>{`<MdxImage\n  src="https://..."\n  alt="설명"\n  caption="이미지 캡션"\n/>`}</Code>
-                      <Code
-                        block
-                      >{`<MdxImage\n  src="https://..."\n  alt="설명"\n  width={800}\n  height={400}\n  priority\n/>`}</Code>
-                    </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>
-                      에디터에 이미지를 드래그/붙여넣기하면 자동 업로드됩니다.
-                    </Text>
-                  </Accordion.Panel>
-                </Accordion.Item>
-
-                <Accordion.Item value="link">
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon variant="light" color="cyan" size="sm">
-                        <IconExternalLink size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Text size="sm">MdxLink</Text>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>
-                      외부 링크 자동 감지 (새 탭 + 아이콘)
-                    </Text>
-                    <Stack gap={6}>
-                      <Code block>{`[링크 텍스트](https://example.com)`}</Code>
-                      <Code block>{`[내부 링크](/blog/post-slug)`}</Code>
-                    </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>
-                      마크다운 링크 문법 그대로 사용. 외부 URL은 자동으로 새 탭 + 아이콘 표시.
-                    </Text>
-                  </Accordion.Panel>
-                </Accordion.Item>
-
-                <Accordion.Item value="code">
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon variant="light" color="violet" size="sm">
-                        <IconCode size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Text size="sm">코드 블록</Text>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>
-                      title: 파일명 표시, 라인 하이라이팅 지원
-                    </Text>
-                    <Stack gap={6}>
-                      <Code block>{`\`\`\`ts title="파일명.ts"\nconst x = 1;\n\`\`\``}</Code>
-                      <Code
-                        block
-                      >{`\`\`\`tsx title="Component.tsx" {3-5}\nimport { useState } from 'react'\n\nfunction App() {\n  const [count, setCount] = useState(0)\n  return <div>{count}</div>\n}\n\`\`\``}</Code>
-                    </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>
-                      지원 언어: ts, tsx, js, jsx, css, html, json, bash, yaml, python, go, rust, sql 등
-                    </Text>
-                  </Accordion.Panel>
-                </Accordion.Item>
-
-                <Accordion.Item value="icon">
-                  <Accordion.Control
-                    icon={
-                      <ThemeIcon variant="light" color="orange" size="sm">
-                        <IconAlertCircle size={14} />
-                      </ThemeIcon>
-                    }
-                  >
-                    <Text size="sm">Icon</Text>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="xs" c="dimmed" mb={8}>
-                      name (필수), size (기본 24), color, className
-                    </Text>
-                    <Stack gap={6}>
-                      <Code block>{`<Icon name="AlertCircle" />`}</Code>
-                      <Code block>{`<Icon name="AlertCircle" size={16} color="red" />`}</Code>
-                    </Stack>
-                    <Text size="xs" c="dimmed" mt={8}>
-                      lucide-react 아이콘 이름 사용
-                    </Text>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
+            <Card>
+              <CardContent className="pt-6">
+                <span className="text-sm font-semibold block mb-3">썸네일</span>
+                {thumbnailUrl ? (
+                  <div className="flex flex-col gap-2">
+                    <img src={thumbnailUrl} alt="썸네일" className="rounded-md h-[180px] w-full object-cover" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => setValue('thumbnailUrl', '')}
+                    >
+                      제거
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <FileInput
+                      placeholder={thumbnailUploading ? '업로드 중...' : '이미지를 선택하면 자동 업로드됩니다'}
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      leftSection={thumbnailUploading ? <Upload size={16} /> : <ImageIcon size={16} />}
+                      disabled={thumbnailUploading}
+                      onChange={async file => {
+                        if (!file) return
+                        setThumbnailUploading(true)
+                        const url = await handleImageUpload(file)
+                        if (url) {
+                          setValue('thumbnailUrl', url)
+                          toast.success('썸네일 업로드 완료')
+                        }
+                        setThumbnailUploading(false)
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">1200x630 권장 (OG 이미지), 10MB 제한</span>
+                  </div>
+                )}
+              </CardContent>
             </Card>
-          </Stack>
-        </Grid.Col>
-      </Grid>
 
-      <Divider my="xl" />
+            <Card>
+              <CardContent className="pt-6">
+                <span className="text-sm font-semibold block mb-3">MDX 컴포넌트</span>
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="callout">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-6 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                          <Info size={14} />
+                        </div>
+                        <span className="text-sm">Callout</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        type: tip | info | warning | error | success | default
+                      </p>
+                      <div className="flex flex-col gap-1.5">
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Callout type="tip">팁 내용</Callout>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Callout type="info">정보</Callout>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Callout type="warning">경고</Callout>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Callout type="error">에러</Callout>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Callout type="success">성공</Callout>`}</pre>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
 
-      <Group justify="flex-end" gap="sm">
+                  <AccordionItem value="highlight">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-6 rounded bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400">
+                          <Highlighter size={14} />
+                        </div>
+                        <span className="text-sm">Highlight</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        color: fuchsia (기본) | blue | green | yellow | red
+                      </p>
+                      <div className="flex flex-col gap-1.5">
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Highlight>기본 강조 (fuchsia)</Highlight>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Highlight color="blue">파란색</Highlight>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Highlight color="green">초록색</Highlight>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Highlight color="yellow">노란색</Highlight>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Highlight color="red">빨간색</Highlight>`}</pre>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="image">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-6 rounded bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                          <ImageIcon size={14} />
+                        </div>
+                        <span className="text-sm">MdxImage</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        src (필수), alt, caption, width, height, priority
+                      </p>
+                      <div className="flex flex-col gap-1.5">
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<MdxImage src="https://..." alt="설명" />`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<MdxImage\n  src="https://..."\n  alt="설명"\n  caption="이미지 캡션"\n/>`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<MdxImage\n  src="https://..."\n  alt="설명"\n  width={800}\n  height={400}\n  priority\n/>`}</pre>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        에디터에 이미지를 드래그/붙여넣기하면 자동 업로드됩니다.
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="link">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-6 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400">
+                          <ExternalLink size={14} />
+                        </div>
+                        <span className="text-sm">MdxLink</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-xs text-muted-foreground mb-2">외부 링크 자동 감지 (새 탭 + 아이콘)</p>
+                      <div className="flex flex-col gap-1.5">
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`[링크 텍스트](https://example.com)`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`[내부 링크](/blog/post-slug)`}</pre>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        마크다운 링크 문법 그대로 사용. 외부 URL은 자동으로 새 탭 + 아이콘 표시.
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="code">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-6 rounded bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+                          <Code size={14} />
+                        </div>
+                        <span className="text-sm">코드 블록</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-xs text-muted-foreground mb-2">title: 파일명 표시, 라인 하이라이팅 지원</p>
+                      <div className="flex flex-col gap-1.5">
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`\`\`\`ts title="파일명.ts"\nconst x = 1;\n\`\`\``}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`\`\`\`tsx title="Component.tsx" {3-5}\nimport { useState } from 'react'\n\nfunction App() {\n  const [count, setCount] = useState(0)\n  return <div>{count}</div>\n}\n\`\`\``}</pre>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        지원 언어: ts, tsx, js, jsx, css, html, json, bash, yaml, python, go, rust, sql 등
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="icon">
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-6 rounded bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+                          <AlertCircle size={14} />
+                        </div>
+                        <span className="text-sm">Icon</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        name (필수), size (기본 24), color, className
+                      </p>
+                      <div className="flex flex-col gap-1.5">
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Icon name="AlertCircle" />`}</pre>
+                        <pre className="rounded-md bg-muted p-3 text-xs font-mono overflow-x-auto">{`<Icon name="AlertCircle" size={16} color="red" />`}</pre>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">lucide-react 아이콘 이름 사용</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      <Separator className="my-6" />
+
+      <div className="flex items-center justify-end gap-2">
         {mode === 'edit' && slug && (
-          <Button
-            variant="light"
-            leftSection={<IconExternalLink size={14} />}
-            onClick={openPreview}
-            disabled={!previewToken}
-          >
+          <Button type="button" variant="secondary" onClick={openPreview} disabled={!previewToken}>
+            <ExternalLink className="size-3.5" />
             프리뷰
           </Button>
         )}
-        <Button variant="subtle" onClick={() => navigate({ to: '/posts' })}>
+        <Button type="button" variant="outline" onClick={() => navigate({ to: '/posts' })}>
           취소
         </Button>
-        <Button type="submit" loading={isPending}>
+        <Button type="submit" disabled={isPending}>
+          {isPending && <Loader2 className="size-4 animate-spin" />}
           {mode === 'create' ? '생성' : '저장'}
         </Button>
-      </Group>
+      </div>
     </form>
   )
 }

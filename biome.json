@@ -90,6 +90,17 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/ui/src/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noLabelWithoutControl": "off",
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
     }
   ]
 }
