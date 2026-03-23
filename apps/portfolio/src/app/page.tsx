@@ -1,9 +1,8 @@
 import { getProfile, getRecentPosts, getSkills, getWorks } from '@/entities/portfolio'
+import { SUPPORTED_LOCALES } from '@/shared/config'
 import { HeroSection } from '@/widgets/hero'
 import { WorkMdxContent } from '@/widgets/works'
 import { PortfolioClient } from './portfolio-client'
-
-const LOCALES = ['ko', 'en', 'jp'] as const
 
 export default async function Page() {
   const [profile, worksKo, skills, worksEn, worksJp, recentPosts] = await Promise.all([
@@ -26,7 +25,7 @@ export default async function Page() {
   const allWorks: Record<string, typeof worksKo> = { ko: worksKo, en: worksEn, jp: worksJp }
 
   const renderedContents: Record<string, Record<number, React.ReactNode>> = {}
-  for (const locale of LOCALES) {
+  for (const locale of SUPPORTED_LOCALES) {
     renderedContents[locale] = {}
     for (const work of allWorks[locale]) {
       if (work.content) {

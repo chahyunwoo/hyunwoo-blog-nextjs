@@ -4,6 +4,16 @@ import { useEffect, useRef } from 'react'
 
 const STAR_COUNT = 120
 
+function generateStars(width: number, height: number) {
+  return Array.from({ length: STAR_COUNT }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    size: Math.random() * 1.8 + 0.5,
+    speed: Math.random() * 0.5 + 0.3,
+    offset: Math.random() * Math.PI * 2,
+  }))
+}
+
 export function StarsBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -13,23 +23,19 @@ export function StarsBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    let resizeTimer: ReturnType<typeof setTimeout>
+    let stars = generateStars(window.innerWidth, window.innerHeight)
+
     const resize = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        stars = generateStars(canvas.width, canvas.height)
+      }, 150)
     }
     resize()
     window.addEventListener('resize', resize)
-
-    const stars = Array.from({ length: STAR_COUNT }, () => {
-      const y = Math.random() * canvas.height
-      return {
-        x: Math.random() * canvas.width,
-        y,
-        size: Math.random() * 1.8 + 0.5,
-        speed: Math.random() * 0.5 + 0.3,
-        offset: Math.random() * Math.PI * 2,
-      }
-    })
 
     let raf: number
     const draw = (time: number) => {
@@ -56,6 +62,7 @@ export function StarsBackground() {
 
     return () => {
       cancelAnimationFrame(raf)
+      clearTimeout(resizeTimer)
       window.removeEventListener('resize', resize)
     }
   }, [])

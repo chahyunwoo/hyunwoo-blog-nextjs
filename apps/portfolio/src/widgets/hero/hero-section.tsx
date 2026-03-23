@@ -8,7 +8,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ profile }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen">
+    <section aria-label="Hero" className="relative min-h-screen">
       <div className="absolute inset-0 h-screen">
         <HeroCanvas />
       </div>

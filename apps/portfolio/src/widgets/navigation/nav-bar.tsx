@@ -2,8 +2,9 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { Download } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { PDF_LOCALES } from '@/shared/config'
+import { useActiveSection, useClickOutside, useScrollVisibility } from '@/shared/hooks'
 
 const NAV_ITEMS = [
   { label: 'Works', href: '#works' },
@@ -16,52 +17,14 @@ interface NavBarProps {
 }
 
 export function NavBar({ hasBanner = false }: NavBarProps) {
-  const [isVisible, setIsVisible] = useState(false)
-  const [activeSection, setActiveSection] = useState('')
+  const isVisible = useScrollVisibility(window.innerHeight * 0.5)
+  const activeSection = useActiveSection('section[id]')
   const [isGenerating, setIsGenerating] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef<HTMLLIElement>(null)
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > window.innerHeight * 0.5)
-    }
-
-    const observer = new IntersectionObserver(
-      entries => {
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-        if (visible.length > 0) {
-          setActiveSection(visible[0].target.id)
-        }
-      },
-      { threshold: 0.1, rootMargin: '-20% 0px -70% 0px' },
-    )
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-
-    const sections = document.querySelectorAll('section[id]')
-    for (const section of sections) {
-      observer.observe(section)
-    }
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      observer.disconnect()
-    }
-  }, [])
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  const closeDropdown = useCallback(() => setShowDropdown(false), [])
+  useClickOutside(dropdownRef, closeDropdown)
 
   const handleClick = (href: string) => {
     const id = href.replace('#', '')
@@ -87,6 +50,7 @@ export function NavBar({ hasBanner = false }: NavBarProps) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -80, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          aria-label="Site navigation"
           className={`fixed left-1/2 -translate-x-1/2 z-50 glass rounded-full px-2 py-1.5 ${hasBanner ? 'top-12' : 'top-4'}`}
         >
           <ul className="flex items-center gap-1">

@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ExternalLink, Github, Lock, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { Work } from '@/entities/portfolio'
@@ -94,17 +94,19 @@ export function WorkDetailPanel({ work, renderedContent, onClose }: WorkDetailPa
           )}
         </div>
 
-        {privateNotice && (
-          <motion.p
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="text-xs text-muted-foreground flex items-center gap-1.5"
-          >
-            <Lock className="size-3" />
-            {privateNotice}
-          </motion.p>
-        )}
+        <AnimatePresence>
+          {privateNotice && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-xs text-muted-foreground flex items-center gap-1.5"
+            >
+              <Lock className="size-3" />
+              {privateNotice}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         {renderedContent && <div>{renderedContent}</div>}
       </div>

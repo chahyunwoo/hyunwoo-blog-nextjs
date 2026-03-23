@@ -4,10 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
 const MIN_DISPLAY = 1800
+const PROGRESS_UPDATE_INTERVAL = 100
 
 export function LoadingScreen() {
   const [done, setDone] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const progressRef = useRef<HTMLParagraphElement>(null)
   const loaded = useRef(false)
   const timerPassed = useRef(false)
 
@@ -29,12 +30,22 @@ export function LoadingScreen() {
 
     const start = performance.now()
     let rafId: number
+    let lastUpdate = 0
     const tick = () => {
       const elapsed = performance.now() - start
-      setProgress(Math.min(Math.round((elapsed / MIN_DISPLAY) * 100), 100))
+      if (elapsed - lastUpdate >= PROGRESS_UPDATE_INTERVAL) {
+        lastUpdate = elapsed
+        const pct = Math.min(Math.round((elapsed / MIN_DISPLAY) * 100), 100)
+        if (progressRef.current) {
+          progressRef.current.textContent = `${pct}%`
+        }
+      }
       if (elapsed < MIN_DISPLAY) {
         rafId = requestAnimationFrame(tick)
       } else {
+        if (progressRef.current) {
+          progressRef.current.textContent = '100%'
+        }
         timerPassed.current = true
         tryFinish()
       }
@@ -64,7 +75,9 @@ export function LoadingScreen() {
               transition={{ duration: MIN_DISPLAY / 1000, ease: 'easeInOut' }}
             />
           </div>
-          <p className="text-xs text-muted-foreground tabular-nums">{progress}%</p>
+          <p ref={progressRef} className="text-xs text-muted-foreground tabular-nums">
+            0%
+          </p>
         </motion.div>
       )}
     </AnimatePresence>

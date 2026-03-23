@@ -18,7 +18,7 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
   const doubled = [...posts, ...posts]
 
   return (
-    <section className="py-16 overflow-hidden">
+    <section aria-label="Recent blog posts" className="py-16 overflow-hidden">
       <p className="text-sm text-muted-foreground text-center mb-8">
         Latest from my{' '}
         <a href={BASE_URL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">

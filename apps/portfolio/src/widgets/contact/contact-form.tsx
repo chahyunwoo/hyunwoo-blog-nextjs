@@ -92,6 +92,7 @@ export function ContactForm() {
             name="email"
             type="email"
             required
+            maxLength={254}
             value={form.email}
             onChange={handleChange}
             placeholder="your@email.com"

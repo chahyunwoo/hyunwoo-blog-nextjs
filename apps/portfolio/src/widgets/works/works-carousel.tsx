@@ -139,9 +139,19 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
                     opacity: { duration: 0.3 },
                     y: isCenter ? { duration: 3, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' } : undefined,
                   }}
+                  role="button"
+                  tabIndex={inRange ? 0 : -1}
+                  aria-label={work.title}
                   onClick={() => {
                     if (isCenter) onSelect(work.id)
                     else goTo(i)
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      if (isCenter) onSelect(work.id)
+                      else goTo(i)
+                    }
                   }}
                 >
                   <div className="h-2.5" style={{ background: getGradient(work) }} />

@@ -1,8 +1,9 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { SkillGroup, SkillItem } from '@/entities/portfolio'
+import { useSkillOrbitAnimation } from '@/shared/hooks'
 
 interface SkillOrbitProps {
   group: SkillGroup
@@ -23,63 +24,15 @@ export function SkillOrbit({ group }: SkillOrbitProps) {
   const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null)
   const orbits = useMemo(() => distributeToOrbits(group.items), [group.items])
   const containerRef = useRef<HTMLDivElement>(null)
-  const pausedOrbits = useRef<Set<number>>(new Set())
-  const anglesRef = useRef<number[]>(orbits.map(() => 0))
 
-  useEffect(() => {
-    let raf: number
-    let last = performance.now()
-
-    const tick = (now: number) => {
-      const dt = (now - last) / 1000
-      last = now
-
-      orbits.forEach((_, orbitIndex) => {
-        if (pausedOrbits.current.has(orbitIndex)) return
-        const speed = (360 / (25 + orbitIndex * 12)) * (orbitIndex % 2 === 0 ? 1 : -1)
-        anglesRef.current[orbitIndex] += speed * dt
-      })
-
-      const container = containerRef.current
-      if (!container) {
-        raf = requestAnimationFrame(tick)
-        return
-      }
-
-      let idx = 0
-      for (let o = 0; o < orbits.length; o++) {
-        const orbit = orbits[o]
-        const radiusX = 200 + o * 120
-        const radiusY = 150 + o * 95
-        const baseAngle = anglesRef.current[o] * (Math.PI / 180)
-
-        for (let i = 0; i < orbit.length; i++) {
-          const angle = baseAngle + (i / orbit.length) * Math.PI * 2
-          const x = Math.cos(angle) * radiusX + 400
-          const y = Math.sin(angle) * radiusY + 325
-          const el = container.children[idx] as HTMLElement
-          if (el) {
-            const size = getSkillSize(orbit[i].proficiency)
-            el.style.left = `${x - size / 2}px`
-            el.style.top = `${y - size / 2}px`
-          }
-          idx++
-        }
-      }
-
-      raf = requestAnimationFrame(tick)
-    }
-
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [orbits])
+  const { pausedOrbits } = useSkillOrbitAnimation({ containerRef, orbits })
 
   const allItems = orbits.flatMap((orbit, orbitIndex) =>
     orbit.map((skill, i) => ({ skill, orbitIndex, indexInOrbit: i })),
   )
 
   return (
-    <div className="relative" style={{ width: '800px', height: '650px' }}>
+    <div className="relative overflow-hidden" style={{ width: '800px', height: '650px' }}>
       {orbits.map((_, orbitIndex) => {
         const radiusX = 200 + orbitIndex * 120
         const radiusY = 150 + orbitIndex * 95

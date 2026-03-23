@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Globe } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import type { Work, WorkType } from '@/entities/portfolio'
-import { SectionHeader } from '@/shared/ui/section-header'
+import { WORKS_LOCALES } from '@/shared/config'
+import { SectionHeader } from '@/shared/ui'
 import { WorkDetailPanel } from './work-detail-panel'
 import { WorksCarousel } from './works-carousel'
 
@@ -14,12 +15,6 @@ const TABS: { label: string; value: TabValue }[] = [
   { label: 'All', value: 'all' },
   { label: 'Business', value: 'business' },
   { label: 'Personal', value: 'personal' },
-]
-
-const LOCALES = [
-  { code: 'ko', label: 'KO' },
-  { code: 'en', label: 'EN' },
-  { code: 'jp', label: 'JP' },
 ]
 
 interface WorksSectionProps {
@@ -81,7 +76,7 @@ export function WorksSection({ allWorks, renderedContents }: WorksSectionProps) 
 
         <div className="ml-auto flex items-center gap-1.5">
           <Globe className="size-3.5 text-muted-foreground" />
-          {LOCALES.map(l => (
+          {WORKS_LOCALES.map(l => (
             <button
               key={l.code}
               type="button"

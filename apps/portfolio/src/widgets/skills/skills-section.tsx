@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import type { SkillGroup } from '@/entities/portfolio'
-import { SectionHeader } from '@/shared/ui/section-header'
+import { SectionHeader } from '@/shared/ui'
 import { SkillOrbit } from './skill-orbit'
 
 interface SkillsSectionProps {
