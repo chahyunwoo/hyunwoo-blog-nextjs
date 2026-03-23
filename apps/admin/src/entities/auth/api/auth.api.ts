@@ -30,13 +30,28 @@ export async function verifyTwoFactor(twoFactorToken: string, code: string) {
 }
 
 export interface TwoFactorSetupResponse {
-  secret: string
   qrCode: string
   uri: string
 }
 
+export interface TwoFactorStatusResponse {
+  enabled: boolean
+}
+
+export async function getTwoFactorStatus(): Promise<TwoFactorStatusResponse> {
+  return adminApi.get('api/auth/2fa/status').json<TwoFactorStatusResponse>()
+}
+
 export async function setupTwoFactor(): Promise<TwoFactorSetupResponse> {
   return adminApi.post('api/auth/2fa/setup').json<TwoFactorSetupResponse>()
+}
+
+export async function enableTwoFactor(code: string) {
+  await adminApi.post('api/auth/2fa/enable', { json: { code } })
+}
+
+export async function disableTwoFactor(code: string) {
+  await adminApi.post('api/auth/2fa/disable', { json: { code } })
 }
 
 export async function refreshSession() {

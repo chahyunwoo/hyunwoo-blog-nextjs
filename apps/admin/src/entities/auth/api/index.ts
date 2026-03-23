@@ -1,7 +1,10 @@
-export type { TwoFactorRequired, TwoFactorSetupResponse } from './auth.api'
+export type { TwoFactorRequired, TwoFactorSetupResponse, TwoFactorStatusResponse } from './auth.api'
 export {
+  disableTwoFactor,
+  enableTwoFactor,
   extendSession,
   getPreviewToken,
+  getTwoFactorStatus,
   login,
   logout,
   refreshSession,
