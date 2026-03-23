@@ -1,14 +1,11 @@
 import { Github } from 'lucide-react'
 import Link from 'next/link'
-import { getCategoriesWithTags } from '@/entities/post/api/post.api'
-import DesktopMenu from '@/features/navigation/desktop-menu'
-import MobileMenu from '@/features/navigation/mobile-menu'
-import { SearchCommand } from '@/features/search/search-command'
-import ThemeSwitch from '@/features/theme/theme-switch'
-import { MENU_ITEMS } from '@/shared/config/constants'
-import { IconButton } from '@/shared/ui/button'
-import { InnerContainer } from '@/shared/ui/inner-container'
-import Logo from '@/shared/ui/logo'
+import { getCategoriesWithTags } from '@/entities/post'
+import { DesktopMenu, MobileMenu } from '@/features/navigation'
+import { SearchCommand } from '@/features/search'
+import { ThemeSwitch } from '@/features/theme'
+import { MENU_ITEMS } from '@/shared/config'
+import { IconButton, InnerContainer, Logo } from '@/shared/ui'
 
 export async function Header() {
   const categories = await getCategoriesWithTags().catch(() => [])

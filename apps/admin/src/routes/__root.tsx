@@ -1,37 +1,125 @@
-import { AppShell, Burger, Group, NavLink, Text } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@hyunwoo/ui'
+import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Outlet, useMatchRoute } from '@tanstack/react-router'
+import { Briefcase, Clock, FileText, FolderOpen, LayoutDashboard, Loader2, LogOut, Menu, User, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { logout, refreshSession, setAuthenticated, useAuth, useSessionTimer } from '@/entities/auth'
+import { LOGIN_PATH } from '@/shared/config'
+import { NavItem } from '@/shared/ui'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   component: RootLayout,
 })
 
 function RootLayout() {
-  const [opened, { toggle }] = useDisclosure()
+  const matchRoute = useMatchRoute()
+  const isLoginPage = matchRoute({ to: LOGIN_PATH })
+  const { initialized } = useAuth()
+
+  useEffect(() => {
+    if (initialized) return
+    if (isLoginPage) {
+      setAuthenticated(false)
+    } else {
+      refreshSession()
+    }
+  }, [initialized, isLoginPage])
+
+  if (!initialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="size-6 animate-spin" />
+      </div>
+    )
+  }
+
+  if (isLoginPage) {
+    return <Outlet />
+  }
+
+  return <AuthenticatedLayout />
+}
+
+function AuthenticatedLayout() {
+  const [opened, setOpened] = useState(false)
+  const { isAuthenticated } = useAuth()
+  const { display, showWarning, extend } = useSessionTimer()
+
+  if (!isAuthenticated) {
+    window.location.href = LOGIN_PATH
+    return null
+  }
 
   return (
-    <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Text fw={700} size="lg">
-            hyunwoo.dev Admin
-          </Text>
-        </Group>
-      </AppShell.Header>
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-50 flex h-[60px] items-center justify-between border-b bg-background px-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setOpened(prev => !prev)}>
+            {opened ? <X className="size-5" /> : <Menu className="size-5" />}
+          </Button>
+          <span className="text-lg font-bold">hyunwoo.dev</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" onClick={extend} className="flex items-center gap-1.5 cursor-pointer px-2">
+                  <Clock className={`size-4 ${showWarning ? 'text-red-500' : 'text-blue-400'}`} />
+                  <span
+                    className={`text-xs font-mono ${showWarning ? 'text-red-500 font-bold' : 'text-blue-400 font-medium'}`}
+                  >
+                    {display}
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>세션 연장</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={logout}>
+                  <LogOut className="size-[18px]" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>로그아웃</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </header>
 
-      <AppShell.Navbar p="md">
-        <NavLink component={Link} to="/" label="Dashboard" />
-        <NavLink component={Link} to="/posts" label="Posts" />
-      </AppShell.Navbar>
+      <div className="flex">
+        <nav
+          className={`${
+            opened ? 'block' : 'hidden'
+          } sm:block fixed sm:sticky top-[60px] left-0 z-40 w-60 shrink-0 border-r bg-background p-4 h-[calc(100vh-60px)] overflow-y-auto`}
+        >
+          <div className="flex flex-col gap-1">
+            <NavItem to="/" label="Dashboard" icon={<LayoutDashboard className="size-4" />} />
+            <NavItem to="/posts" label="Posts" icon={<FileText className="size-4" />} />
+          </div>
+          <div className="mt-4">
+            <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Portfolio</p>
+            <div className="flex flex-col gap-1">
+              <NavItem to="/portfolio/works" label="Works" icon={<Briefcase className="size-4" />} />
+              <NavItem to="/portfolio/content" label="Career" icon={<FolderOpen className="size-4" />} />
+              <NavItem to="/portfolio/manage" label="Settings" icon={<User className="size-4" />} />
+            </div>
+          </div>
+        </nav>
 
-      <AppShell.Main>
-        <Outlet />
-      </AppShell.Main>
-    </AppShell>
+        {opened && (
+          <div
+            className="fixed inset-0 z-30 bg-black/50 sm:hidden"
+            onClick={() => setOpened(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        <main className="flex-1 p-6 md:p-8 min-h-[calc(100vh-60px)]">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   )
 }

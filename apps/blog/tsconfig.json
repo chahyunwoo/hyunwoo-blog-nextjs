@@ -21,7 +21,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@hyunwoo/shared": ["../../packages/shared/src"],
-      "@hyunwoo/shared/*": ["../../packages/shared/src/*"]
+      "@hyunwoo/shared/*": ["../../packages/shared/src/*"],
+      "@hyunwoo/mdx": ["../../packages/mdx/src"],
+      "@hyunwoo/mdx/*": ["../../packages/mdx/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],

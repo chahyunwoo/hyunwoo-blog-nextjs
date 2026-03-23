@@ -3,8 +3,8 @@
 import { cn } from '@hyunwoo/shared/lib'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Badge } from '@/shared/ui/badge'
-import { useSearchStore } from '@/stores/search.store'
+import { useSearchStore } from '@/features/search'
+import { Badge } from '@/shared/ui'
 
 interface SidebarTagCloudProps {
   tags: [string, number][]

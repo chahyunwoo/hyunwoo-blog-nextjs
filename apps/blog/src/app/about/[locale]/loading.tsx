@@ -1,5 +1,4 @@
-import { InnerContainer } from '@/shared/ui/inner-container'
-import { AboutSkeleton } from '@/shared/ui/skeletons'
+import { AboutSkeleton, InnerContainer } from '@/shared/ui'
 
 export default function Loading() {
   return (

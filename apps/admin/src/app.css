@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@source "../../../packages/ui/src/**/*.tsx";
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground/85;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-foreground;
+  }
+
+  label {
+    @apply text-foreground/95;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  color-scheme: dark;
+  --radius: 0.625rem;
+  --background: oklch(0.13 0.02 270);
+  --foreground: oklch(0.93 0.005 270);
+  --card: oklch(0.18 0.025 270);
+  --card-foreground: oklch(0.93 0.005 270);
+  --popover: oklch(0.18 0.025 270);
+  --popover-foreground: oklch(0.93 0.005 270);
+  --primary: oklch(0.7 0.18 280);
+  --primary-foreground: oklch(0.13 0.02 270);
+  --secondary: oklch(0.22 0.03 270);
+  --secondary-foreground: oklch(0.9 0.005 270);
+  --muted: oklch(0.22 0.03 270);
+  --muted-foreground: oklch(0.63 0.015 270);
+  --accent: oklch(0.22 0.04 280);
+  --accent-foreground: oklch(0.9 0.005 270);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.7 0.18 280);
+}

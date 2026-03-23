@@ -1,11 +1,9 @@
 import { formatDate } from '@hyunwoo/shared/lib'
 import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { BlogCategoryNavigator } from '@/entities/category/ui/blog-category-navigator'
-import { SidebarTagCloud } from '@/entities/category/ui/sidebar-tag-cloud'
-import { getCategoriesWithTags, getRecentPosts, getTagCloud } from '@/entities/post/api/post.api'
-import { Badge } from '@/shared/ui/badge'
-import { SidebarError } from '@/shared/ui/error'
+import { BlogCategoryNavigator, SidebarTagCloud } from '@/entities/category'
+import { getCategoriesWithTags, getRecentPosts, getTagCloud } from '@/entities/post'
+import { Badge, SidebarError } from '@/shared/ui'
 
 export async function BlogSidebar() {
   const [categories, recentPosts, tagData] = await Promise.all([
@@ -18,7 +16,7 @@ export async function BlogSidebar() {
 
   if (!hasData) {
     return (
-      <aside className="w-full max-w-[240px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col items-center justify-center gap-3 sticky top-14 h-[calc(100vh-3.5rem)] text-muted-foreground">
+      <aside className="w-full max-w-[240px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col items-center justify-center gap-3 sticky top-14 text-muted-foreground">
         <AlertCircle className="h-5 w-5 opacity-40" />
         <p className="text-xs">데이터를 불러올 수 없습니다</p>
       </aside>
@@ -26,7 +24,7 @@ export async function BlogSidebar() {
   }
 
   return (
-    <aside className="w-full max-w-[240px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col gap-6 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <aside className="w-full max-w-[240px] border-r pt-6 pb-12 pr-4 hidden md:flex md:flex-col gap-6 sticky top-14 overflow-y-auto">
       {categories === null ? (
         <SidebarError label="카테고리" />
       ) : (

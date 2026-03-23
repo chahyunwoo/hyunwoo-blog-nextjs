@@ -1,1 +1,1 @@
-export { MENU_ITEMS, SOCIAL_ICON_MAP, THEME_TYPES } from './constants'
+export { CONTACT_EMAIL, GISCUS_CONFIG, MENU_ITEMS, SOCIAL_ICON_MAP, THEME_TYPES } from './constants'

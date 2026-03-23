@@ -3,7 +3,7 @@
 import { cn } from '@hyunwoo/shared/lib'
 import { List, X } from 'lucide-react'
 import type React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface Heading {
   id: string
@@ -53,16 +53,16 @@ export function MobileTOC({ skipFirstHeading = true }: { skipFirstHeading?: bool
     }
   }, [skipFirstHeading])
 
-  const handleLinkClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
     setIsOpen(false)
     const element = document.getElementById(id)
     if (element) {
       window.scrollTo({ top: element.offsetTop - 100, behavior: 'smooth' })
     }
-  }, [])
+  }
 
-  const minLevel = useMemo(() => Math.min(...headings.map(h => h.level)), [headings])
+  const minLevel = Math.min(...headings.map(h => h.level))
 
   if (headings.length === 0) return null
 

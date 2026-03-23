@@ -1,0 +1,284 @@
+import { Document, Font, Link, Page, pdf, StyleSheet, Text, View } from '@react-pdf/renderer'
+
+Font.register({
+  family: 'NotoSans',
+  fonts: [
+    {
+      src: 'https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-kr@latest/korean-400-normal.ttf',
+      fontWeight: 'normal',
+    },
+    {
+      src: 'https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-kr@latest/korean-700-normal.ttf',
+      fontWeight: 'bold',
+    },
+  ],
+})
+
+Font.register({
+  family: 'NotoSansJP',
+  fonts: [
+    {
+      src: 'https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-jp@latest/japanese-400-normal.ttf',
+      fontWeight: 'normal',
+    },
+    {
+      src: 'https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-jp@latest/japanese-700-normal.ttf',
+      fontWeight: 'bold',
+    },
+  ],
+})
+
+function getFontFamily(locale: string) {
+  if (locale === 'jp') return 'NotoSansJP'
+  if (locale === 'ko') return 'NotoSans'
+  return 'Helvetica'
+}
+
+function getSectionLabels(locale: string) {
+  if (locale === 'ko') return { work: '경력', skills: '기술', education: '학력' }
+  if (locale === 'jp') return { work: '職歴', skills: 'スキル', education: '学歴' }
+  return { work: 'Work Experience', skills: 'Skills', education: 'Education' }
+}
+
+const createStyles = (locale: string) =>
+  StyleSheet.create({
+    page: {
+      padding: 40,
+      fontSize: 10,
+      fontFamily: getFontFamily(locale),
+      color: '#1a1a2e',
+    },
+    header: {
+      marginBottom: 20,
+      borderBottomWidth: 2,
+      borderBottomColor: '#6c63ff',
+      paddingBottom: 12,
+    },
+    name: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 4,
+    },
+    jobTitle: {
+      fontSize: 12,
+      color: '#6c63ff',
+      marginBottom: 8,
+    },
+    contactRow: {
+      flexDirection: 'row',
+      gap: 16,
+      fontSize: 9,
+      color: '#666',
+    },
+    sectionTitle: {
+      fontSize: 13,
+      fontWeight: 'bold',
+      color: '#6c63ff',
+      marginTop: 16,
+      marginBottom: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: '#e0e0e0',
+      paddingBottom: 4,
+    },
+    workItem: {
+      marginBottom: 12,
+    },
+    workHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 2,
+    },
+    workTitle: {
+      fontSize: 11,
+      fontWeight: 'bold',
+    },
+    workPeriod: {
+      fontSize: 9,
+      color: '#888',
+    },
+    workRole: {
+      fontSize: 9,
+      color: '#666',
+      marginBottom: 4,
+    },
+    highlight: {
+      fontSize: 9,
+      color: '#444',
+      marginBottom: 2,
+      paddingLeft: 8,
+    },
+    techStack: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+      marginTop: 4,
+    },
+    techBadge: {
+      fontSize: 7,
+      backgroundColor: '#f0f0ff',
+      color: '#6c63ff',
+      padding: '2 6',
+      borderRadius: 3,
+    },
+    skillCategory: {
+      marginBottom: 8,
+    },
+    skillCategoryName: {
+      fontSize: 10,
+      fontWeight: 'bold',
+      marginBottom: 3,
+    },
+    skillRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+    },
+    skillName: {
+      fontSize: 9,
+      color: '#444',
+    },
+    educationItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 6,
+    },
+    link: {
+      fontSize: 9,
+      color: '#6c63ff',
+    },
+  })
+
+interface ResumeData {
+  name: string
+  jobTitle: string
+  location: string
+  socialLinks: { name: string; href: string }[]
+  works: {
+    title: string
+    role: string | null
+    startDate: string | null
+    endDate: string | null
+    isCurrent: boolean
+    techStack: string[]
+    highlights: string[]
+  }[]
+  skills: { category: string; items: { name: string; proficiency: number }[] }[]
+  education: { institution: string; degree: string; period: string }[]
+}
+
+function ResumeDocument({ data, locale }: { data: ResumeData; locale: string }) {
+  const styles = createStyles(locale)
+  const labels = getSectionLabels(locale)
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.name}>{data.name}</Text>
+          <Text style={styles.jobTitle}>{data.jobTitle}</Text>
+          <View style={styles.contactRow}>
+            <Text>{data.location}</Text>
+            {data.socialLinks.map(link => (
+              <Link key={link.name} src={link.href} style={styles.link}>
+                {link.name}
+              </Link>
+            ))}
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>{labels.work}</Text>
+        {data.works.map(work => {
+          const period = work.startDate
+            ? `${work.startDate.slice(0, 7)} - ${work.isCurrent ? 'Present' : (work.endDate?.slice(0, 7) ?? '')}`
+            : ''
+
+          return (
+            <View key={work.title} style={styles.workItem}>
+              <View style={styles.workHeader}>
+                <Text style={styles.workTitle}>{work.title}</Text>
+                <Text style={styles.workPeriod}>{period}</Text>
+              </View>
+              {work.role && <Text style={styles.workRole}>{work.role}</Text>}
+              {work.highlights.map(h => (
+                <Text key={h} style={styles.highlight}>
+                  - {h}
+                </Text>
+              ))}
+              <View style={styles.techStack}>
+                {work.techStack.map(tech => (
+                  <Text key={tech} style={styles.techBadge}>
+                    {tech}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          )
+        })}
+
+        <Text style={styles.sectionTitle}>{labels.skills}</Text>
+        {data.skills.map(group => (
+          <View key={group.category} style={styles.skillCategory}>
+            <Text style={styles.skillCategoryName}>{group.category}</Text>
+            <View style={styles.skillRow}>
+              {group.items.map(skill => (
+                <Text key={skill.name} style={styles.skillName}>
+                  {skill.name}
+                </Text>
+              ))}
+            </View>
+          </View>
+        ))}
+
+        <Text style={styles.sectionTitle}>{labels.education}</Text>
+        {data.education.map(edu => (
+          <View key={edu.institution} style={styles.educationItem}>
+            <View>
+              <Text style={styles.workTitle}>{edu.institution}</Text>
+              <Text style={styles.workRole}>{edu.degree}</Text>
+            </View>
+            <Text style={styles.workPeriod}>{edu.period}</Text>
+          </View>
+        ))}
+      </Page>
+    </Document>
+  )
+}
+
+export async function generateResumePdf(locale = 'ko') {
+  const { apiFetch, ENDPOINTS } = await import('@hyunwoo/shared/api')
+  const { CACHE_TAGS } = await import('@hyunwoo/shared/config')
+
+  const [profile, works, skills, education] = await Promise.all([
+    apiFetch<{ name: string; jobTitle: string; location: string; socialLinks: { name: string; href: string }[] }>(
+      `${ENDPOINTS.portfolio.profile}?locale=${locale}`,
+      { tags: [CACHE_TAGS.PORTFOLIO_PROFILE] },
+    ),
+    apiFetch<ResumeData['works']>(`${ENDPOINTS.portfolio.works}?locale=${locale}`, {
+      tags: [CACHE_TAGS.PORTFOLIO_WORKS],
+    }),
+    apiFetch<ResumeData['skills']>(ENDPOINTS.portfolio.skills, { tags: [CACHE_TAGS.PORTFOLIO_SKILLS] }),
+    apiFetch<ResumeData['education']>(`${ENDPOINTS.portfolio.education}?locale=${locale}`, {
+      tags: [CACHE_TAGS.PORTFOLIO_EDUCATION],
+    }),
+  ])
+
+  if (!profile) return
+
+  const data: ResumeData = {
+    name: profile.name,
+    jobTitle: profile.jobTitle,
+    location: profile.location,
+    socialLinks: profile.socialLinks ?? [],
+    works: works ?? [],
+    skills: skills ?? [],
+    education: education ?? [],
+  }
+
+  const blob = await pdf(<ResumeDocument data={data} locale={locale} />).toBlob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `resume-cha-hyunwoo-${locale}.pdf`
+  a.click()
+  URL.revokeObjectURL(url)
+}

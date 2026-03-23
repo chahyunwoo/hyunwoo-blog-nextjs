@@ -1,4 +1,4 @@
-import { Skeleton } from '@/shared/ui/skeleton'
+import { Skeleton } from '@hyunwoo/ui'
 
 interface PostSkeletonProps {
   count?: number

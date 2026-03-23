@@ -1,4 +1,4 @@
-export default function Logo() {
+export function Logo() {
   return (
     <span className="font-mono text-base font-semibold select-none tracking-tight">
       <span className="dark:hidden">

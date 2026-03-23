@@ -1,9 +1,9 @@
 'use client'
 
+import { Button } from '@hyunwoo/ui'
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/shared/ui/button'
-import { InnerContainer } from '@/shared/ui/inner-container'
+import { InnerContainer } from '../inner-container'
 
 interface ErrorFallbackProps {
   title: string

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@source "../../../../packages/mdx/src";
+@source "../../../../packages/ui/src";
+
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));

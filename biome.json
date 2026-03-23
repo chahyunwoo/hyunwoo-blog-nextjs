@@ -48,7 +48,7 @@
         "noDangerouslySetInnerHtml": "off"
       },
       "suspicious": {
-        "noExplicitAny": "warn",
+        "noExplicitAny": "error",
         "noArrayIndexKey": "warn"
       }
     }
@@ -87,6 +87,17 @@
         "rules": {
           "suspicious": {
             "noShadowRestrictedNames": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/ui/src/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noLabelWithoutControl": "off",
+            "noSvgWithoutTitle": "off"
           }
         }
       }

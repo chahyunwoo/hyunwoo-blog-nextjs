@@ -1,14 +1,18 @@
 import { BASE_URL } from '@hyunwoo/shared/config'
 import type { Locale, Params, Profile } from '@hyunwoo/shared/types'
 import { notFound } from 'next/navigation'
-import { getLocales, getProfile } from '@/entities/about'
-import BriefIntroduction from '@/entities/about/ui/brief-introduction'
-import Education from '@/entities/about/ui/education'
-import PersonalProjects from '@/entities/about/ui/personal-projects'
-import ProfileHeader from '@/entities/about/ui/profile-header'
-import RecentExperience from '@/entities/about/ui/recent-experience'
-import Skills from '@/entities/about/ui/skills'
-import { InnerContainer } from '@/shared/ui/inner-container'
+import {
+  BriefIntroduction,
+  Education,
+  getLocales,
+  getProfile,
+  PersonalProjects,
+  ProfileHeader,
+  RecentExperience,
+  Skills,
+} from '@/entities/about'
+import { LanguageSwitch } from '@/features/navigation'
+import { InnerContainer } from '@/shared/ui'
 
 export async function generateStaticParams() {
   const locales = await getLocales()
@@ -85,7 +89,10 @@ export default async function Page({ params }: Params<{ locale: Locale }>) {
         }}
       />
       <div className="max-w-3xl mx-auto">
-        <ProfileHeader profile={profile} locales={locales} />
+        <ProfileHeader
+          profile={profile}
+          languageSwitch={<LanguageSwitch locales={locales.map(l => ({ code: l.code, label: l.label }))} />}
+        />
         <BriefIntroduction profile={profile} />
         <Skills profile={profile} />
         <Education profile={profile} />

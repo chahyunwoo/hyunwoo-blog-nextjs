@@ -2,7 +2,7 @@ import { apiFetch, ENDPOINTS } from '@hyunwoo/shared/api'
 import { CACHE_TAGS } from '@hyunwoo/shared/config'
 import type { CategoryData, Post, PostMeta } from '@hyunwoo/shared/types'
 import { cache } from 'react'
-import type { ApiCategory, ApiPost, ApiPostsResponse, ApiRelatedResponse, ApiTagsResponse } from '@/entities/post/model'
+import type { ApiCategory, ApiPost, ApiPostsResponse, ApiRelatedResponse, ApiTagsResponse } from '../model'
 
 function toPost(api: ApiPost): Post {
   const meta: PostMeta = {
@@ -95,6 +95,7 @@ export const getCategoriesWithTags = cache(async (): Promise<CategoryData[]> => 
 
   return data.map(cat => ({
     category: cat.category,
+    icon: cat.icon,
     subCategory: cat.tags.map(t => ({ name: t.name, count: t.count })),
     postCount: cat.count,
     recent: cat.recent,

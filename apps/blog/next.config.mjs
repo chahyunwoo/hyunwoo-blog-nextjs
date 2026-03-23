@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  transpilePackages: ['@hyunwoo/shared'],
+  transpilePackages: ['@hyunwoo/shared', '@hyunwoo/mdx'],
   reactStrictMode: false,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
@@ -16,7 +16,7 @@ const nextConfig = {
     ],
   },
   experimental: {
-    optimizeCss: true,
+    reactCompiler: true,
   },
   headers: async () => [
     {

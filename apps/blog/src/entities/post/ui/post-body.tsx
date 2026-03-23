@@ -1,42 +1,6 @@
+import { MdxRenderer } from '@hyunwoo/mdx/renderer'
 import type { Post } from '@hyunwoo/shared/types'
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode, { type Options } from 'rehype-pretty-code'
-import rehypeSlug from 'rehype-slug'
-import remarkBreaks from 'remark-breaks'
-import remarkGfm from 'remark-gfm'
-import { MdxComponents } from '@/shared/mdx'
-
-const prettyCodeOptions: Options = {
-  keepBackground: true,
-  theme: {
-    dark: 'ayu-dark',
-    light: 'snazzy-light',
-  },
-}
 
 export function PostBody({ post }: { post: Post }) {
-  return (
-    <div className="pt-4 md:pt-8 pb-12">
-      <MDXRemote
-        source={post.content}
-        options={{
-          mdxOptions: {
-            remarkPlugins: [remarkGfm, remarkBreaks],
-            rehypePlugins: [
-              [rehypePrettyCode, prettyCodeOptions],
-              [rehypeSlug],
-              [
-                rehypeAutolinkHeadings,
-                {
-                  behavior: 'append',
-                },
-              ],
-            ],
-          },
-        }}
-        components={MdxComponents}
-      />
-    </div>
-  )
+  return <MdxRenderer source={post.content} className="pt-4 md:pt-8 pb-12" />
 }

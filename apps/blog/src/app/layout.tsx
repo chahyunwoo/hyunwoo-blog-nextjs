@@ -3,8 +3,8 @@ import NextTopLoader from 'nextjs-toploader'
 import '@/styles/globals.css'
 import { BASE_URL } from '@hyunwoo/shared/config'
 import { ThemeProvider } from '@/providers/theme-provider'
-import Footer from '@/widgets/header/footer'
-import { Header } from '@/widgets/header/header'
+import { PageviewTracker } from '@/shared/lib'
+import { Footer, Header } from '@/widgets/header'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -102,6 +102,7 @@ export default function RootLayout({
       <body className={`font-pretendard antialiased min-h-screen flex flex-col`}>
         <ThemeProvider>
           <NextTopLoader color="#3b82f6" height={2} showSpinner={false} shadow={false} />
+          <PageviewTracker />
           <Header />
           <main className="flex-1 flex mt-14">{children}</main>
           <Footer />

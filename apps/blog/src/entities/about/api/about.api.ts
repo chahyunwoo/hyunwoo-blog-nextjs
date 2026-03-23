@@ -1,14 +1,7 @@
 import { apiFetch, ENDPOINTS } from '@hyunwoo/shared/api'
 import { CACHE_TAGS } from '@hyunwoo/shared/config'
 import type { Locale, Profile } from '@hyunwoo/shared/types'
-import type {
-  ApiEducation,
-  ApiExperience,
-  ApiLocale,
-  ApiProfileResponse,
-  ApiProject,
-  ApiSkillGroup,
-} from '@/entities/about/model'
+import type { ApiEducation, ApiExperience, ApiLocale, ApiProfileResponse, ApiProject, ApiSkillGroup } from '../model'
 
 export async function getProfile(locale: Locale): Promise<Profile | null> {
   const [profile, experiences, projects, skills, education] = await Promise.all([

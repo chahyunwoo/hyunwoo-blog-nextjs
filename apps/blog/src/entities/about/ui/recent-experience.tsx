@@ -1,9 +1,7 @@
 import type { Profile } from '@hyunwoo/shared/types'
-import AboutContainer from '@/shared/ui/about-container'
-import { Badge } from '@/shared/ui/badge'
-import { SectionError } from '@/shared/ui/error'
+import { AboutContainer, Badge, SectionError } from '@/shared/ui'
 
-export default function RecentExperience({ profile }: { profile: Profile }) {
+export function RecentExperience({ profile }: { profile: Profile }) {
   return (
     <AboutContainer title="EXPERIENCE">
       {profile.experience === null ? (

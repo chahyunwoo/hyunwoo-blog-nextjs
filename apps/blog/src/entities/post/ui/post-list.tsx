@@ -4,7 +4,7 @@ import type { Post } from '@hyunwoo/shared/types'
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Button } from '@/shared/ui/button'
+import { Button } from '@/shared/ui'
 import { PostCard } from './post-card'
 
 const SIBLING_COUNT = 1

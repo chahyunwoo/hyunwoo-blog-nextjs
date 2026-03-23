@@ -3,10 +3,9 @@
 import { formatDate } from '@hyunwoo/shared/lib'
 import { ArrowRight, FileText, Loader2, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect } from 'react'
-import { Badge } from '@/shared/ui/badge'
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/shared/ui/command'
-import { useSearchStore } from '@/stores/search.store'
+import { useEffect } from 'react'
+import { Badge, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/shared/ui'
+import { useSearchStore } from './search.store'
 import { useSearch } from './use-search.hook'
 
 export function SearchCommand() {
@@ -29,21 +28,15 @@ export function SearchCommand() {
     if (!isOpen) reset()
   }, [isOpen, reset])
 
-  const handleSelect = useCallback(
-    (slug: string) => {
-      closeSearch()
-      router.push(`/blog/${slug}`)
-    },
-    [router, closeSearch],
-  )
+  const handleSelect = (slug: string) => {
+    closeSearch()
+    router.push(`/blog/${slug}`)
+  }
 
-  const handleOpenChange = useCallback(
-    (value: boolean) => {
-      if (value) openSearch()
-      else closeSearch()
-    },
-    [openSearch, closeSearch],
-  )
+  const handleOpenChange = (value: boolean) => {
+    if (value) openSearch()
+    else closeSearch()
+  }
 
   return (
     <>

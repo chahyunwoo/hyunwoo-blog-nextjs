@@ -4,17 +4,14 @@ import { LINK_TYPES } from '@hyunwoo/shared/config'
 import { getParamFromHref } from '@hyunwoo/shared/lib'
 import type { CategoryData, LinkType } from '@hyunwoo/shared/types'
 import type { LucideIcon } from 'lucide-react'
-import { Briefcase, Code, Container, LayoutGrid, Monitor, Server } from 'lucide-react'
+import * as icons from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
-import ActiveLink from './active-link'
+import { ActiveLink } from './active-link'
 
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  Frontend: Monitor,
-  Backend: Server,
-  Programming: Code,
-  Career: Briefcase,
-  DevOps: Container,
+function getIcon(name?: string): LucideIcon {
+  if (!name) return icons.Folder
+  const icon = (icons as unknown as Record<string, LucideIcon>)[name]
+  return icon ?? icons.Folder
 }
 
 interface BlogCategoryNavigatorProps {
@@ -27,44 +24,37 @@ export function BlogCategoryNavigator({ categories, variant, closeMenu = () => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const urlParams = useMemo(() => {
-    return {
-      category: searchParams.get('category') || '',
-      tag: searchParams.get('tag') || '',
-      parentCategory: searchParams.get('parentCategory') || '',
-    }
-  }, [searchParams])
+  const urlParams = {
+    category: searchParams.get('category') || '',
+    tag: searchParams.get('tag') || '',
+    parentCategory: searchParams.get('parentCategory') || '',
+  }
 
-  const totalPostCount = useMemo(() => {
-    return categories.reduce((sum, cat) => sum + cat.postCount, 0)
-  }, [categories])
+  const totalPostCount = categories.reduce((sum, cat) => sum + cat.postCount, 0)
 
-  const checkIsActive = useCallback(
-    (href: string, title: string, type: LinkType) => {
-      switch (type) {
-        case LINK_TYPES.ALL: {
-          const hasNoParams = !urlParams.category && !urlParams.tag && !urlParams.parentCategory
-          return pathname === '/' && hasNoParams
-        }
-
-        case LINK_TYPES.CATEGORY: {
-          const categoryName = getParamFromHref('category', href)
-          return urlParams.category === categoryName || urlParams.parentCategory === title
-        }
-
-        default:
-          return pathname === href || (href === '/' && pathname.startsWith('/blog/'))
+  const checkIsActive = (href: string, title: string, type: LinkType) => {
+    switch (type) {
+      case LINK_TYPES.ALL: {
+        const hasNoParams = !urlParams.category && !urlParams.tag && !urlParams.parentCategory
+        return pathname === '/' && hasNoParams
       }
-    },
-    [pathname, urlParams],
-  )
+
+      case LINK_TYPES.CATEGORY: {
+        const categoryName = getParamFromHref('category', href)
+        return urlParams.category === categoryName || urlParams.parentCategory === title
+      }
+
+      default:
+        return pathname === href || (href === '/' && pathname.startsWith('/blog/'))
+    }
+  }
 
   const categoriesContent = (
     <div className="space-y-0.5">
       <ActiveLink
         href="/"
         title="ALL"
-        icon={LayoutGrid}
+        icon={icons.LayoutGrid}
         className="w-full justify-between px-3 py-1.5"
         count={totalPostCount}
         onClick={closeMenu}
@@ -77,7 +67,7 @@ export function BlogCategoryNavigator({ categories, variant, closeMenu = () => {
           key={item.category}
           href={`/?category=${item.category}`}
           title={item.category}
-          icon={CATEGORY_ICONS[item.category]}
+          icon={getIcon(item.icon)}
           className="w-full justify-between px-3 py-1.5"
           count={item.postCount}
           newBadge={item.recent}

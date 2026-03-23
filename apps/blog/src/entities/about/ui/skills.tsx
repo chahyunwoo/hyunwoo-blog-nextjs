@@ -1,9 +1,7 @@
 import type { Profile } from '@hyunwoo/shared/types'
-import AboutContainer from '@/shared/ui/about-container'
-import { Badge } from '@/shared/ui/badge'
-import { SectionError } from '@/shared/ui/error'
+import { AboutContainer, Badge, SectionError } from '@/shared/ui'
 
-export default function Skills({ profile }: { profile: Profile }) {
+export function Skills({ profile }: { profile: Profile }) {
   return (
     <AboutContainer title="SKILLS">
       {profile.skills === null ? (
@@ -15,8 +13,8 @@ export default function Skills({ profile }: { profile: Profile }) {
               <p className="text-xs text-muted-foreground mb-2">{group.category}</p>
               <div className="flex flex-wrap gap-2">
                 {group.items.map(skill => (
-                  <Badge key={skill} variant="outline">
-                    {skill}
+                  <Badge key={skill.name} variant="outline">
+                    {skill.name}
                   </Badge>
                 ))}
               </div>

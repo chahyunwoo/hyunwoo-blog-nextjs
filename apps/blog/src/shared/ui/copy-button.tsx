@@ -1,10 +1,10 @@
 'use client'
 
+import { Alert, AlertDescription } from '@hyunwoo/ui'
 import type { LucideProps } from 'lucide-react'
 import { Check, icons } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, AlertDescription } from '../ui/alert'
-import { IconButton } from '../ui/button'
+import { useEffect, useState } from 'react'
+import { IconButton } from './icon-button'
 
 interface CopyButtonProps {
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
@@ -18,7 +18,7 @@ interface CopyButtonProps {
   getContent?: () => string
 }
 
-export default function CopyButton({
+export function CopyButton({
   variant = 'ghost',
   size = 'icon',
   className = '',
@@ -32,7 +32,8 @@ export default function CopyButton({
   const [copied, setCopied] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
   const [currentTarget, setCurrentTarget] = useState(target)
-  const [iconExists, setIconExists] = useState(true)
+
+  const iconExists = icon in icons
 
   useEffect(() => {
     if (useCurrentUrl && typeof window !== 'undefined') {
@@ -60,15 +61,13 @@ export default function CopyButton({
     }
   }, [showAlert])
 
-  useEffect(() => {
-    if (!(icon in icons)) {
-      setIconExists(false)
-    } else {
-      setIconExists(true)
-    }
-  }, [icon])
+  if (!iconExists) {
+    return null
+  }
 
-  const handleCopy = useCallback(async () => {
+  const LucideIcon = icons[icon] as React.ComponentType<LucideProps>
+
+  const handleCopy = async () => {
     try {
       const contentToCopy = getContent ? getContent() : currentTarget
       await navigator.clipboard.writeText(contentToCopy)
@@ -77,13 +76,7 @@ export default function CopyButton({
     } catch (_error) {
       // clipboard write failed
     }
-  }, [currentTarget, getContent])
-
-  if (!iconExists) {
-    return null
   }
-
-  const LucideIcon = icons[icon] as React.ComponentType<LucideProps>
 
   return (
     <>
