@@ -11,12 +11,23 @@
     "lint": "turbo lint",
     "lint:ci": "turbo lint:ci",
     "test": "turbo test",
-    "test:run": "turbo test:run"
+    "test:run": "turbo test:run",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "turbo": "^2",
     "typescript": "^5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "biome check --write --no-errors-on-unmatched"
+    ],
+    "*.{json,css}": [
+      "biome format --write --no-errors-on-unmatched"
+    ]
   },
   "pnpm": {
     "onlyBuiltDependencies": [

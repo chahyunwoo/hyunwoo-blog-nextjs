@@ -1,7 +1,6 @@
-import { BASE_URL } from '@hyunwoo/shared/config'
 import type { MetadataRoute } from 'next'
 
-const PORTFOLIO_URL = `${BASE_URL}/portfolio`
+const PORTFOLIO_URL = 'https://portfolio.chahyunwoo.dev'
 
 export default function robots(): MetadataRoute.Robots {
   return {
