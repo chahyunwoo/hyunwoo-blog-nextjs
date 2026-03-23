@@ -4,6 +4,24 @@ import { HeroSection } from '@/widgets/hero'
 import { WorkMdxContent } from '@/widgets/works'
 import { PortfolioClient } from './portfolio-client'
 
+const PORTFOLIO_URL = 'https://portfolio.chahyunwoo.dev'
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Cha Hyunwoo Portfolio',
+  url: PORTFOLIO_URL,
+  description:
+    'Frontend Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.',
+  author: {
+    '@type': 'Person',
+    name: 'Cha Hyunwoo',
+    url: PORTFOLIO_URL,
+    jobTitle: 'Frontend Developer',
+    sameAs: ['https://github.com/chahyunwoo', 'https://www.linkedin.com/in/chahyunwoo', 'https://chahyunwoo.dev'],
+  },
+}
+
 export default async function Page() {
   const [profile, worksKo, skills, worksEn, worksJp, recentPosts] = await Promise.all([
     getProfile(),
@@ -36,6 +54,7 @@ export default async function Page() {
 
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <HeroSection profile={profile} />
       <PortfolioClient
         profile={profile}
