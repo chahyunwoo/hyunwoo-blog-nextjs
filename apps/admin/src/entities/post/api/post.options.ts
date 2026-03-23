@@ -21,5 +21,6 @@ export function postDetailOptions(slug: string) {
   return queryOptions({
     queryKey: queryKeys.posts.detail(slug),
     queryFn: () => adminApi.get(stripLeadingSlash(ENDPOINTS.blog.postBySlug(slug))).json<Post>(),
+    staleTime: 0,
   })
 }
