@@ -28,19 +28,23 @@ export function LoadingScreen() {
     }
 
     const start = performance.now()
+    let rafId: number
     const tick = () => {
       const elapsed = performance.now() - start
       setProgress(Math.min(Math.round((elapsed / MIN_DISPLAY) * 100), 100))
       if (elapsed < MIN_DISPLAY) {
-        requestAnimationFrame(tick)
+        rafId = requestAnimationFrame(tick)
       } else {
         timerPassed.current = true
         tryFinish()
       }
     }
-    requestAnimationFrame(tick)
+    rafId = requestAnimationFrame(tick)
 
-    return () => window.removeEventListener('load', onLoad)
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('load', onLoad)
+    }
   }, [])
 
   return (

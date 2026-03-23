@@ -348,7 +348,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                   <div className="flex flex-col gap-2">
                     <FileInput
                       placeholder={thumbnailUploading ? '업로드 중...' : '이미지를 선택하면 자동 업로드됩니다'}
-                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
                       leftSection={thumbnailUploading ? <Upload size={16} /> : <ImageIcon size={16} />}
                       disabled={thumbnailUploading}
                       onChange={async file => {

@@ -155,12 +155,22 @@ export function MorphingSphere() {
     const handleClick = () => {
       if (window.scrollY < window.innerHeight * 0.3) {
         uniforms.uClick.value = 1.0
-        window.dispatchEvent(new Event('hero-explode'))
       }
     }
     window.addEventListener('click', handleClick)
     return () => window.removeEventListener('click', handleClick)
   }, [uniforms])
+
+  useEffect(() => {
+    return () => {
+      const mesh = meshRef.current
+      if (!mesh) return
+      mesh.geometry.dispose()
+      if (mesh.material instanceof THREE.Material) {
+        mesh.material.dispose()
+      }
+    }
+  }, [])
 
   useFrame(({ clock, pointer }) => {
     if (!meshRef.current) return

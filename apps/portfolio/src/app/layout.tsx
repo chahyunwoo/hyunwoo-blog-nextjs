@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
-import { LoadingScreen } from '@/shared/ui/loading-screen'
-import { ScrollBackground } from '@/shared/ui/scroll-background'
-import { StarsBackground } from '@/shared/ui/stars-background'
-import { ResolutionNotice } from '@/widgets/hero/resolution-notice'
+import { LoadingScreen, ScrollBackground, StarsBackground } from '@/shared/ui'
+import { ResolutionNotice } from '@/widgets/hero'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -11,12 +9,23 @@ export const metadata: Metadata = {
     default: 'Portfolio | Cha Hyunwoo',
     template: '%s | Cha Hyunwoo',
   },
-  description: 'Frontend Developer Portfolio - Cha Hyunwoo',
+  description:
+    'Frontend Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.',
+  keywords: ['Frontend Developer', 'Portfolio', 'React', 'Next.js', 'TypeScript', 'Cha Hyunwoo'],
+  authors: [{ name: 'Cha Hyunwoo' }],
   openGraph: {
     title: 'Portfolio | Cha Hyunwoo',
-    description: 'Frontend Developer Portfolio - Cha Hyunwoo',
+    description:
+      'Frontend Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.',
     siteName: 'hyunwoo.dev',
     type: 'website',
+    locale: 'ko_KR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Portfolio | Cha Hyunwoo',
+    description:
+      'Frontend Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.',
   },
 }
 

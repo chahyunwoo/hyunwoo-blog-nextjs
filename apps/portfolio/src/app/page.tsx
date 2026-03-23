@@ -1,6 +1,6 @@
 import { getProfile, getRecentPosts, getSkills, getWorks } from '@/entities/portfolio'
 import { HeroSection } from '@/widgets/hero'
-import { WorkMdxContent } from '@/widgets/works/work-mdx-content'
+import { WorkMdxContent } from '@/widgets/works'
 import { PortfolioClient } from './portfolio-client'
 
 const LOCALES = ['ko', 'en', 'jp'] as const

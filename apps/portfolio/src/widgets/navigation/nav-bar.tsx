@@ -3,17 +3,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Download } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { PDF_LOCALES } from '@/shared/config'
 
 const NAV_ITEMS = [
   { label: 'Works', href: '#works' },
   { label: 'Skills', href: '#skills' },
   { label: 'Contact', href: '#contact' },
-]
-
-const PDF_LOCALES = [
-  { code: 'ko', label: '한국어' },
-  { code: 'en', label: 'English' },
-  { code: 'jp', label: '日本語' },
 ]
 
 interface NavBarProps {

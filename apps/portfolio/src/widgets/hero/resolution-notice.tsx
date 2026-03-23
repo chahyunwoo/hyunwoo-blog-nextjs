@@ -36,6 +36,7 @@ export function ResolutionNotice() {
           <button
             type="button"
             onClick={dismiss}
+            aria-label="Dismiss notice"
             className="p-0.5 rounded-full hover:bg-white/20 transition-colors cursor-pointer shrink-0"
           >
             <X className="size-3.5 text-white/80" />

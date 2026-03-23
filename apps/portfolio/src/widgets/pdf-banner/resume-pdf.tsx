@@ -249,8 +249,13 @@ export async function generateResumePdf(locale = 'ko') {
   const { CACHE_TAGS } = await import('@hyunwoo/shared/config')
 
   const [profile, works, skills, education] = await Promise.all([
-    apiFetch<ResumeData>(`${ENDPOINTS.portfolio.profile}?locale=${locale}`, { tags: [CACHE_TAGS.PORTFOLIO_PROFILE] }),
-    apiFetch<ResumeData['works']>(`${ENDPOINTS.portfolio.works}?locale=${locale}`, { tags: ['portfolio-works'] }),
+    apiFetch<{ name: string; jobTitle: string; location: string; socialLinks: { name: string; href: string }[] }>(
+      `${ENDPOINTS.portfolio.profile}?locale=${locale}`,
+      { tags: [CACHE_TAGS.PORTFOLIO_PROFILE] },
+    ),
+    apiFetch<ResumeData['works']>(`${ENDPOINTS.portfolio.works}?locale=${locale}`, {
+      tags: [CACHE_TAGS.PORTFOLIO_WORKS],
+    }),
     apiFetch<ResumeData['skills']>(ENDPOINTS.portfolio.skills, { tags: [CACHE_TAGS.PORTFOLIO_SKILLS] }),
     apiFetch<ResumeData['education']>(`${ENDPOINTS.portfolio.education}?locale=${locale}`, {
       tags: [CACHE_TAGS.PORTFOLIO_EDUCATION],
@@ -261,9 +266,9 @@ export async function generateResumePdf(locale = 'ko') {
 
   const data: ResumeData = {
     name: profile.name,
-    jobTitle: (profile as unknown as { jobTitle: string }).jobTitle,
-    location: (profile as unknown as { location: string }).location,
-    socialLinks: (profile as unknown as { socialLinks: { name: string; href: string }[] }).socialLinks ?? [],
+    jobTitle: profile.jobTitle,
+    location: profile.location,
+    socialLinks: profile.socialLinks ?? [],
     works: works ?? [],
     skills: skills ?? [],
     education: education ?? [],

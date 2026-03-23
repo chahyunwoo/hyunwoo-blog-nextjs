@@ -19,6 +19,8 @@ export const CACHE_TAGS = {
   PORTFOLIO_SKILLS: 'portfolio-skills',
   PORTFOLIO_EDUCATION: 'portfolio-education',
   PORTFOLIO_LOCALES: 'portfolio-locales',
+  PORTFOLIO_WORKS: 'portfolio-works',
+  BLOG_RECENT: 'blog-recent',
 } as const
 
 export const ABOUT_PATHS = ['/about/ko', '/about/en', '/about/jp'] as const

@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SkillGroup, SkillItem } from '@/entities/portfolio'
 
 interface SkillOrbitProps {
@@ -21,7 +21,7 @@ function getSkillSize(proficiency: number): number {
 
 export function SkillOrbit({ group }: SkillOrbitProps) {
   const [selectedSkill, setSelectedSkill] = useState<SkillItem | null>(null)
-  const orbits = distributeToOrbits(group.items)
+  const orbits = useMemo(() => distributeToOrbits(group.items), [group.items])
   const containerRef = useRef<HTMLDivElement>(null)
   const pausedOrbits = useRef<Set<number>>(new Set())
   const anglesRef = useRef<number[]>(orbits.map(() => 0))
@@ -105,7 +105,8 @@ export function SkillOrbit({ group }: SkillOrbitProps) {
           const isSelected = selectedSkill?.name === skill.name
 
           return (
-            <div
+            <button
+              type="button"
               key={skill.name}
               className="absolute"
               style={{
@@ -118,6 +119,14 @@ export function SkillOrbit({ group }: SkillOrbitProps) {
                 setSelectedSkill(skill)
               }}
               onMouseLeave={() => {
+                pausedOrbits.current.delete(orbitIndex)
+                setSelectedSkill(null)
+              }}
+              onFocus={() => {
+                pausedOrbits.current.add(orbitIndex)
+                setSelectedSkill(skill)
+              }}
+              onBlur={() => {
                 pausedOrbits.current.delete(orbitIndex)
                 setSelectedSkill(null)
               }}
@@ -151,7 +160,7 @@ export function SkillOrbit({ group }: SkillOrbitProps) {
                   {skill.name}
                 </span>
               </div>
-            </div>
+            </button>
           )
         })}
       </div>

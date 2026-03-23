@@ -60,5 +60,9 @@ export function StarsBackground() {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
+  return (
+    <div aria-hidden="true">
+      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
+    </div>
+  )
 }

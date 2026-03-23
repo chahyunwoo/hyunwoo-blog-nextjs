@@ -214,7 +214,7 @@ function ProfileSection() {
           ) : (
             <FileInput
               placeholder="이미지 선택"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
               leftSection={<ImageIcon className="size-4" />}
               disabled={uploadImage.isPending}
               onChange={async file => {
@@ -237,7 +237,7 @@ function ProfileSection() {
           ) : (
             <FileInput
               placeholder="아이콘 선택"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
               leftSection={<ImageIcon className="size-4" />}
               disabled={uploadIcon.isPending}
               onChange={async file => {

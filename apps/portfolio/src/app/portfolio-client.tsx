@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import type { ProfileResponse, SkillGroup, Work } from '@/entities/portfolio'
-import type { RecentPost } from '@/entities/portfolio/api/portfolio.api'
-import { ContactSection } from '@/widgets/contact'
-import { DawnSkyline } from '@/widgets/contact/dawn-skyline'
+import type { ProfileResponse, RecentPost, SkillGroup, Work } from '@/entities/portfolio'
+import { ContactSection, DawnSkyline } from '@/widgets/contact'
 import { NavBar } from '@/widgets/navigation'
 import { PdfBanner } from '@/widgets/pdf-banner'
 import { PostMarquee } from '@/widgets/posts'
@@ -30,9 +28,9 @@ export function PortfolioClient({ profile, allWorks, skills, renderedContents, r
       <SkillsSection skills={skills} />
       <ContactSection socialLinks={profile.socialLinks} />
       <PostMarquee posts={recentPosts} />
-      <p className="text-sm text-muted-foreground text-center py-6">
+      <footer className="text-sm text-muted-foreground text-center py-6">
         &copy; {new Date().getFullYear()} Cha Hyunwoo. All rights reserved.
-      </p>
+      </footer>
       <DawnSkyline />
     </>
   )

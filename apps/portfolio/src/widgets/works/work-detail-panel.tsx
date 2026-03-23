@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion'
 import { ExternalLink, Github, Lock, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Work } from '@/entities/portfolio'
+
+const PRIVATE_NOTICE_DURATION_MS = 2500
 
 interface WorkDetailPanelProps {
   work: Work
@@ -13,10 +15,18 @@ interface WorkDetailPanelProps {
 
 export function WorkDetailPanel({ work, renderedContent, onClose }: WorkDetailPanelProps) {
   const [privateNotice, setPrivateNotice] = useState<string | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
 
   const handlePrivateClick = (type: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current)
     setPrivateNotice(`${type} is not available for this private project.`)
-    setTimeout(() => setPrivateNotice(null), 2500)
+    timerRef.current = setTimeout(() => setPrivateNotice(null), PRIVATE_NOTICE_DURATION_MS)
   }
 
   return (
@@ -32,6 +42,7 @@ export function WorkDetailPanel({ work, renderedContent, onClose }: WorkDetailPa
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close detail panel"
           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
         >
           <X className="size-5" />

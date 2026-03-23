@@ -1,6 +1,6 @@
 import { apiFetch, ENDPOINTS } from '@hyunwoo/shared/api'
 import { CACHE_TAGS } from '@hyunwoo/shared/config'
-import type { ProfileResponse, SkillGroup, Work } from '../model'
+import type { ProfileResponse, SkillGroup, Work } from '@/entities/portfolio/model'
 
 export interface RecentPost {
   id: number
@@ -22,7 +22,7 @@ export async function getWorks(locale = 'ko', type?: string): Promise<Work[]> {
   const params = new URLSearchParams({ locale })
   if (type) params.set('type', type)
   const data = await apiFetch<Work[]>(`${ENDPOINTS.portfolio.works}?${params}`, {
-    tags: ['portfolio-works'],
+    tags: [CACHE_TAGS.PORTFOLIO_WORKS],
   })
   return data ?? []
 }
@@ -36,7 +36,7 @@ export async function getSkills(): Promise<SkillGroup[]> {
 
 export async function getRecentPosts(): Promise<RecentPost[]> {
   const data = await apiFetch<RecentPost[]>(ENDPOINTS.blog.recentPosts, {
-    tags: ['blog-recent'],
+    tags: [CACHE_TAGS.BLOG_RECENT],
   })
   return data ?? []
 }

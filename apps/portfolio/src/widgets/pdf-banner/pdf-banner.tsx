@@ -3,12 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Download, X } from 'lucide-react'
 import { useState } from 'react'
-
-const LOCALES = [
-  { code: 'ko', label: '한국어' },
-  { code: 'en', label: 'English' },
-  { code: 'jp', label: '日本語' },
-]
+import { PDF_LOCALES } from '@/shared/config'
 
 interface PdfBannerProps {
   visible: boolean
@@ -44,7 +39,7 @@ export function PdfBanner({ visible, onDismiss }: PdfBannerProps) {
           <div className="flex items-center justify-center gap-3 px-4 py-2.5 text-sm">
             <span className="text-primary-foreground font-medium">Download Portfolio PDF</span>
             <div className="flex gap-1.5">
-              {LOCALES.map(l => (
+              {PDF_LOCALES.map(l => (
                 <button
                   key={l.code}
                   type="button"
@@ -60,6 +55,7 @@ export function PdfBanner({ visible, onDismiss }: PdfBannerProps) {
             <button
               type="button"
               onClick={onDismiss}
+              aria-label="Dismiss PDF banner"
               className="absolute right-4 p-1 text-primary-foreground/80 hover:text-primary-foreground cursor-pointer"
             >
               <X className="size-4" />

@@ -203,6 +203,7 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
           <button
             type="button"
             onClick={prev}
+            aria-label="Previous work"
             className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full glass hover:bg-white/10 transition-colors cursor-pointer z-200"
           >
             <ChevronLeft className="size-5" />
@@ -210,6 +211,7 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
           <button
             type="button"
             onClick={next}
+            aria-label="Next work"
             className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full glass hover:bg-white/10 transition-colors cursor-pointer z-200"
           >
             <ChevronRight className="size-5" />
@@ -240,18 +242,22 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
             )}
           </div>
 
-          {(activeWork.role || formatPeriod(activeWork)) && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {activeWork.role && <span>{activeWork.role}</span>}
-              {activeWork.role && formatPeriod(activeWork) && <span>·</span>}
-              {formatPeriod(activeWork) && (
-                <span className="inline-flex items-center gap-1">
-                  <Calendar className="size-3.5" />
-                  {formatPeriod(activeWork)}
-                </span>
-              )}
-            </div>
-          )}
+          {(() => {
+            const period = formatPeriod(activeWork)
+            if (!activeWork.role && !period) return null
+            return (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                {activeWork.role && <span>{activeWork.role}</span>}
+                {activeWork.role && period && <span>·</span>}
+                {period && (
+                  <span className="inline-flex items-center gap-1">
+                    <Calendar className="size-3.5" />
+                    {period}
+                  </span>
+                )}
+              </div>
+            )
+          })()}
 
           <p className="text-sm text-muted-foreground leading-relaxed">{activeWork.summary}</p>
 

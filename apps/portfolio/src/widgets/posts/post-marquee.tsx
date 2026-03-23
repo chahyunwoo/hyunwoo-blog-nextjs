@@ -1,7 +1,8 @@
 'use client'
 
+import { BASE_URL } from '@hyunwoo/shared/config'
 import { ArrowUpRight } from 'lucide-react'
-import type { RecentPost } from '@/entities/portfolio/api/portfolio.api'
+import type { RecentPost } from '@/entities/portfolio'
 
 interface PostMarqueeProps {
   posts: RecentPost[]
@@ -20,12 +21,7 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
     <section className="py-16 overflow-hidden">
       <p className="text-sm text-muted-foreground text-center mb-8">
         Latest from my{' '}
-        <a
-          href="https://chahyunwoo.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
+        <a href={BASE_URL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
           blog
         </a>
       </p>
@@ -35,7 +31,7 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
           {doubled.map((post, i) => (
             <a
               key={`${post.id}-${i}`}
-              href={`https://chahyunwoo.dev/blog/${post.slug}`}
+              href={`${BASE_URL}/blog/${post.slug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-4 shrink-0 px-8 py-4 mx-3 rounded-xl glass hover:bg-white/10 transition-colors group/item"

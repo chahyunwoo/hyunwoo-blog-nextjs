@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface HeroContentProps {
   name: string
@@ -14,12 +14,11 @@ const TITLE = 'Portfolio'
 function MagneticLetter({
   char,
   index,
-  mousePos,
+  mousePosRef,
 }: {
   char: string
   index: number
-  mousePos: { x: number; y: number }
-  explode: number
+  mousePosRef: React.RefObject<{ x: number; y: number }>
 }) {
   const ref = useRef<HTMLSpanElement>(null)
   const x = useMotionValue(0)
@@ -30,38 +29,50 @@ function MagneticLetter({
   const rotate = useSpring(0, { stiffness: 80, damping: 12 })
 
   useEffect(() => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
+    let rafId: number
 
-    const dx = mousePos.x - centerX
-    const dy = mousePos.y - centerY
-    const dist = Math.sqrt(dx * dx + dy * dy)
-    const radius = 350
+    const tick = () => {
+      if (!ref.current) {
+        rafId = requestAnimationFrame(tick)
+        return
+      }
 
-    const time = Date.now() * 0.001
-    const floatX = Math.sin(time * 0.8 + index * 1.2) * 2
-    const floatY = Math.cos(time * 0.6 + index * 0.9) * 1.5
+      const mousePos = mousePosRef.current
+      const rect = ref.current.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
 
-    if (dist < radius) {
-      // close: repel
-      const strength = 1 - dist / radius
-      const force = strength * 60
-      x.set((-dx / dist) * force + floatX)
-      y.set((-dy / dist) * force + floatY)
-      scale.set(1 + strength * 0.4)
-      rotate.set((dx / dist) * strength * 20)
-    } else {
-      // far: attract toward mouse (always active, closer = stronger)
-      const maxDist = Math.max(window.innerWidth, window.innerHeight)
-      const pull = (1 - dist / maxDist) * 45
-      x.set((dx / dist) * pull + floatX)
-      y.set((dy / dist) * pull + floatY)
-      scale.set(1)
-      rotate.set(0)
+      const dx = mousePos.x - centerX
+      const dy = mousePos.y - centerY
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const radius = 350
+
+      const time = Date.now() * 0.001
+      const floatX = Math.sin(time * 0.8 + index * 1.2) * 2
+      const floatY = Math.cos(time * 0.6 + index * 0.9) * 1.5
+
+      if (dist < radius) {
+        const strength = 1 - dist / radius
+        const force = strength * 60
+        x.set((-dx / dist) * force + floatX)
+        y.set((-dy / dist) * force + floatY)
+        scale.set(1 + strength * 0.4)
+        rotate.set((dx / dist) * strength * 20)
+      } else {
+        const maxDist = Math.max(window.innerWidth, window.innerHeight)
+        const pull = (1 - dist / maxDist) * 45
+        x.set((dx / dist) * pull + floatX)
+        y.set((dy / dist) * pull + floatY)
+        scale.set(1)
+        rotate.set(0)
+      }
+
+      rafId = requestAnimationFrame(tick)
     }
-  }, [mousePos, x, y, scale, rotate, index])
+
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [x, y, scale, rotate, index, mousePosRef])
 
   return (
     <motion.span
@@ -83,7 +94,7 @@ function MagneticLetter({
 }
 
 export function HeroContent({ name, jobTitle }: HeroContentProps) {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const mousePosRef = useRef({ x: 0, y: 0 })
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -92,8 +103,6 @@ export function HeroContent({ name, jobTitle }: HeroContentProps) {
 
   const subtitleX = useTransform(springX, v => v * -6)
   const subtitleY = useTransform(springY, v => v * -4)
-  const titleX = useTransform(springX, v => v * 0)
-  const titleY = useTransform(springY, v => v * 0)
   const nameX = useTransform(springX, v => v * 8)
   const nameY = useTransform(springY, v => v * 5)
 
@@ -103,7 +112,7 @@ export function HeroContent({ name, jobTitle }: HeroContentProps) {
       const ny = (e.clientY / window.innerHeight - 0.5) * 2
       mouseX.set(nx)
       mouseY.set(ny)
-      setMousePos({ x: e.clientX, y: e.clientY })
+      mousePosRef.current = { x: e.clientX, y: e.clientY }
     }
 
     window.addEventListener('mousemove', handleMouseMove)
@@ -132,10 +141,10 @@ export function HeroContent({ name, jobTitle }: HeroContentProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.6 }}
         className="text-6xl md:text-8xl lg:text-9xl font-bold"
-        style={{ x: titleX, y: titleY, filter: 'drop-shadow(0 4px 20px rgba(108,60,224,0.4))' }}
+        style={{ filter: 'drop-shadow(0 4px 20px rgba(108,60,224,0.4))' }}
       >
         {TITLE.split('').map((char, i) => (
-          <MagneticLetter key={`${char}-${i}`} char={char} index={i} mousePos={mousePos} explode={0} />
+          <MagneticLetter key={`${char}-${i}`} char={char} index={i} mousePosRef={mousePosRef} />
         ))}
       </motion.h1>
 
