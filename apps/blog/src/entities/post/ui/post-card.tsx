@@ -1,5 +1,5 @@
 import { BLUR_DATA_URL } from '@hyunwoo/shared/config'
-import { estimateReadingTime, formatDate } from '@hyunwoo/shared/lib'
+import { formatDate } from '@hyunwoo/shared/lib'
 import type { Post } from '@hyunwoo/shared/types'
 import { Calendar, Clock } from 'lucide-react'
 import Image from 'next/image'
@@ -13,7 +13,6 @@ interface PostCardProps {
 export function PostCard({ post, index }: PostCardProps) {
   const isLCP = index === 0
   const isAboveTheFold = index < 6
-  const readTime = estimateReadingTime(post.content)
 
   return (
     <article className="group h-full flex flex-col overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/20">
@@ -73,7 +72,7 @@ export function PostCard({ post, index }: PostCardProps) {
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            읽는 데 약 {readTime}분
+            {post.meta.readingTime} min read
           </div>
         </div>
       </div>

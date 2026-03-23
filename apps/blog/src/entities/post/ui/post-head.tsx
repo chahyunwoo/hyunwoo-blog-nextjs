@@ -1,11 +1,9 @@
-import { estimateReadingTime, formatDate } from '@hyunwoo/shared/lib'
+import { formatDate } from '@hyunwoo/shared/lib'
 import type { Post } from '@hyunwoo/shared/types'
 import { Calendar, Clock } from 'lucide-react'
 import { Badge } from '@/shared/ui'
 
 export function PostHead({ post }: { post: Post }) {
-  const readTime = estimateReadingTime(post.content)
-
   return (
     <header className="mt-4 md:mt-12 mb-6 md:mb-10 text-center">
       <Badge variant="secondary" className="text-primary mb-3">
@@ -21,7 +19,7 @@ export function PostHead({ post }: { post: Post }) {
         <span className="text-border">|</span>
         <div className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5" />
-          읽는 데 약 {readTime}분
+          {post.meta.readingTime} min read
         </div>
       </div>
     </header>

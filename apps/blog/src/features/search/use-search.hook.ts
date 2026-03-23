@@ -9,6 +9,7 @@ interface ApiSearchPost {
   title: string
   description: string
   category: string
+  readingTime?: number
   createdAt: string
   tags: { name: string }[]
   thumbnailUrl?: string
@@ -25,6 +26,7 @@ function toPost(p: ApiSearchPost): Post {
       thumbnail: p.thumbnailUrl || '',
       published: true,
       slug: p.slug,
+      readingTime: p.readingTime ?? 1,
     },
     content: '',
   }
