@@ -17,7 +17,8 @@ interface NavBarProps {
 }
 
 export function NavBar({ hasBanner = false }: NavBarProps) {
-  const isVisible = useScrollVisibility(window.innerHeight * 0.5)
+  const getThreshold = useCallback(() => window.innerHeight * 0.5, [])
+  const isVisible = useScrollVisibility(getThreshold)
   const activeSection = useActiveSection('section[id]')
   const [isGenerating, setIsGenerating] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export function useScrollVisibility(threshold: number): boolean {
+export function useScrollVisibility(getThreshold: () => number): boolean {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -10,7 +10,7 @@ export function useScrollVisibility(threshold: number): boolean {
       if (ticking) return
       ticking = true
       requestAnimationFrame(() => {
-        setIsVisible(window.scrollY > threshold)
+        setIsVisible(window.scrollY > getThreshold())
         ticking = false
       })
     }
@@ -19,7 +19,7 @@ export function useScrollVisibility(threshold: number): boolean {
     handleScroll()
 
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [threshold])
+  }, [getThreshold])
 
   return isVisible
 }
