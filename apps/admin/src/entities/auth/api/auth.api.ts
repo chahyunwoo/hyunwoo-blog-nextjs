@@ -2,9 +2,41 @@ import { adminApi } from '@/shared/api'
 import { LOGIN_PATH } from '@/shared/config'
 import { setAuthenticated } from '../model/auth.store'
 
-export async function login(username: string, password: string) {
-  await adminApi.post('api/auth/login', { json: { username, password } })
+interface LoginResponse {
+  message?: string
+  requiresTwoFactor?: boolean
+  twoFactorToken?: string
+}
+
+export interface TwoFactorRequired {
+  requiresTwoFactor: true
+  twoFactorToken: string
+}
+
+export async function login(username: string, password: string): Promise<TwoFactorRequired | null> {
+  const data = await adminApi.post('api/auth/login', { json: { username, password } }).json<LoginResponse>()
+
+  if (data.requiresTwoFactor && data.twoFactorToken) {
+    return { requiresTwoFactor: true, twoFactorToken: data.twoFactorToken }
+  }
+
   setAuthenticated(true)
+  return null
+}
+
+export async function verifyTwoFactor(twoFactorToken: string, code: string) {
+  await adminApi.post('api/auth/2fa/verify', { json: { twoFactorToken, code } })
+  setAuthenticated(true)
+}
+
+export interface TwoFactorSetupResponse {
+  secret: string
+  qrCode: string
+  uri: string
+}
+
+export async function setupTwoFactor(): Promise<TwoFactorSetupResponse> {
+  return adminApi.post('api/auth/2fa/setup').json<TwoFactorSetupResponse>()
 }
 
 export async function refreshSession() {

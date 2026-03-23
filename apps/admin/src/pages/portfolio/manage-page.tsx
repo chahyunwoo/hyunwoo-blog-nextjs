@@ -42,6 +42,7 @@ import {
   useUploadProfileIcon,
   useUploadProfileImage,
 } from '@/entities/portfolio'
+import { TwoFactorSetup } from '@/pages/settings/two-factor-setup'
 import { adminApi } from '@/shared/api'
 import type { LocaleCode } from '@/shared/config'
 import { LOCALE_TABS } from '@/shared/config'
@@ -110,6 +111,10 @@ export function ManagePage() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      <Separator />
+
+      <TwoFactorSetup />
     </div>
   )
 }
