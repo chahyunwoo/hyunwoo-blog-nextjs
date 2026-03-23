@@ -15,9 +15,7 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    reactCompiler: true,
-  },
+  reactCompiler: true,
   headers: async () => [
     {
       source: '/(.*)',
