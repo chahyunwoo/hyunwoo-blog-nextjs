@@ -211,7 +211,7 @@ function ProfileSection() {
           <AdminLabel>Profile Image</AdminLabel>
           {imageUrl ? (
             <div className="flex flex-col gap-2">
-              <img src={imageUrl} alt="Profile" className="size-24 rounded-full object-cover" />
+              <img src={`${imageUrl}?v=${Date.now()}`} alt="Profile" className="size-24 rounded-full object-cover" />
               <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl('')}>
                 제거
               </Button>
@@ -234,7 +234,7 @@ function ProfileSection() {
           <AdminLabel>Icon</AdminLabel>
           {iconUrl ? (
             <div className="flex flex-col gap-2">
-              <img src={iconUrl} alt="Icon" className="size-24 rounded-md object-cover" />
+              <img src={`${iconUrl}?v=${Date.now()}`} alt="Icon" className="size-24 rounded-md object-cover" />
               <Button type="button" variant="outline" size="sm" onClick={() => setIconUrl('')}>
                 제거
               </Button>

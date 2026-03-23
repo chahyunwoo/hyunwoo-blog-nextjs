@@ -333,7 +333,11 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                 <span className="text-sm font-semibold block mb-3">썸네일</span>
                 {thumbnailUrl ? (
                   <div className="flex flex-col gap-2">
-                    <img src={thumbnailUrl} alt="썸네일" className="rounded-md h-[180px] w-full object-cover" />
+                    <img
+                      src={`${thumbnailUrl}?v=${Date.now()}`}
+                      alt="썸네일"
+                      className="rounded-md h-[180px] w-full object-cover"
+                    />
                     <Button
                       type="button"
                       variant="ghost"
