@@ -10,7 +10,7 @@ export const REVALIDATE_TYPES = {
 
 export const CACHE_TAGS = {
   BLOG_POSTS: 'blog-posts',
-  BLOG_POST: (slug: string) => `blog-post-${slug}`,
+  BLOG_POST: (slug: string) => `blog-post-${encodeURIComponent(slug)}`,
   BLOG_CATEGORIES: 'blog-categories',
   BLOG_TAGS: 'blog-tags',
   PORTFOLIO_PROFILE: 'portfolio-profile',

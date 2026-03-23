@@ -7,6 +7,7 @@ export interface ApiPost {
   category: string
   thumbnailUrl: string | null
   published: boolean
+  publishedAt: string | null
   readingTime: number
   createdAt: string
   updatedAt: string

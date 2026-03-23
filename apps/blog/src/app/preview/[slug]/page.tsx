@@ -13,6 +13,7 @@ interface PreviewPost {
   tags: { id: number; name: string }[]
   thumbnailUrl: string | null
   published: boolean
+  publishedAt: string | null
   readingTime: number
   createdAt: string
 }
@@ -46,7 +47,7 @@ export default async function PreviewSlugPage({
               meta: {
                 title: post.title,
                 description: post.description,
-                date: post.createdAt,
+                date: post.publishedAt ?? post.createdAt,
                 tags: post.tags.map(t => t.name),
                 mainTag: post.category,
                 thumbnail: post.thumbnailUrl ?? '',
