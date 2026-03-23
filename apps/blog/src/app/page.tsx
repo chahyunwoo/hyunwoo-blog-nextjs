@@ -51,7 +51,7 @@ const jsonLd = {
   name: 'hyunwoo.dev',
   url: BASE_URL,
   description:
-    '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
+    '풀스택 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
   author: {
     '@type': 'Person',
     name: 'Hyunwoo Cha',

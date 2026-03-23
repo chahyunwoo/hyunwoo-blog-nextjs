@@ -12,12 +12,12 @@ const jsonLd = {
   name: 'Cha Hyunwoo Portfolio',
   url: PORTFOLIO_URL,
   description:
-    'Frontend Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.',
+    'Full-Stack Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.',
   author: {
     '@type': 'Person',
     name: 'Cha Hyunwoo',
     url: PORTFOLIO_URL,
-    jobTitle: 'Frontend Developer',
+    jobTitle: 'Full-Stack Developer',
     sameAs: ['https://github.com/chahyunwoo', 'https://www.linkedin.com/in/chahyunwoo', 'https://chahyunwoo.dev'],
   },
 }
