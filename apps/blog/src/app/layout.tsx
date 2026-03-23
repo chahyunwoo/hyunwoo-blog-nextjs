@@ -9,12 +9,14 @@ import { Footer, Header } from '@/widgets/header'
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'hyunwoo.dev | 프론트엔드 개발 블로그',
+    default: 'hyunwoo.dev | 풀스택 개발 블로그',
     template: '%s | hyunwoo.dev',
   },
   description:
-    '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
+    '풀스택 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
   keywords: [
+    '풀스택',
+    'Full-Stack',
     '프론트엔드',
     'Frontend',
     'React',
@@ -38,9 +40,9 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     url: BASE_URL,
     siteName: 'hyunwoo.dev',
-    title: 'hyunwoo.dev | 프론트엔드 개발 블로그',
+    title: 'hyunwoo.dev | 풀스택 개발 블로그',
     description:
-      '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
+      '풀스택 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
     images: [
       {
         url: '/images/og-image.png',
@@ -53,9 +55,9 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: '@chahyunwoo_dev',
-    title: 'hyunwoo.dev | 프론트엔드 개발 블로그',
+    title: 'hyunwoo.dev | 풀스택 개발 블로그',
     description:
-      '프론트엔드 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
+      '풀스택 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
     images: ['/images/og-image.png'],
   },
   robots: {

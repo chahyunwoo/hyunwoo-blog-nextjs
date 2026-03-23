@@ -5,7 +5,7 @@ import './globals.css'
 
 const PORTFOLIO_URL = 'https://portfolio.chahyunwoo.dev'
 const DESCRIPTION =
-  'Frontend Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.'
+  'Full-Stack Developer Cha Hyunwoo - Interactive portfolio showcasing projects, skills, and career experience.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(PORTFOLIO_URL),
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: '%s | Cha Hyunwoo',
   },
   description: DESCRIPTION,
-  keywords: ['Frontend Developer', 'Portfolio', 'React', 'Next.js', 'TypeScript', 'Three.js', 'Cha Hyunwoo'],
+  keywords: ['Full-Stack Developer', 'Portfolio', 'React', 'Next.js', 'TypeScript', 'Three.js', 'Cha Hyunwoo'],
   authors: [{ name: 'Cha Hyunwoo', url: PORTFOLIO_URL }],
   creator: 'Cha Hyunwoo',
   publisher: 'Cha Hyunwoo',
