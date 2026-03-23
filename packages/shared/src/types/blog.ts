@@ -8,6 +8,7 @@ export interface PostMeta {
   published: boolean
   slug: string
   readingTime: number
+  updatedAt: string
 }
 
 export interface Post {

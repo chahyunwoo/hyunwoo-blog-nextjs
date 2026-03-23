@@ -19,7 +19,7 @@ export function PostCard({ post, index }: PostCardProps) {
       {post.meta.thumbnail && (
         <div className="relative w-full aspect-video overflow-hidden bg-muted">
           <Image
-            src={post.meta.thumbnail}
+            src={`${post.meta.thumbnail}?v=${post.meta.updatedAt}`}
             alt={post.meta.title}
             fill
             sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 350px"
