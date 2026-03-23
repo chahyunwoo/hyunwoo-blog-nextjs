@@ -1,8 +1,7 @@
 'use client'
 
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import { useEffect, useRef } from 'react'
 import { useMagneticLetter } from '@/shared/hooks'
 
 interface HeroContentProps {
@@ -12,16 +11,8 @@ interface HeroContentProps {
 
 const TITLE = 'Portfolio'
 
-function MagneticLetter({
-  char,
-  index,
-  mousePosRef,
-}: {
-  char: string
-  index: number
-  mousePosRef: React.RefObject<{ x: number; y: number }>
-}) {
-  const { ref, springX, springY, scale, rotate } = useMagneticLetter({ mousePosRef, index })
+function MagneticLetter({ char }: { char: string }) {
+  const { ref, springX, springY, scale, rotate, handlers } = useMagneticLetter()
 
   return (
     <motion.span
@@ -35,7 +26,8 @@ function MagneticLetter({
         filter:
           'drop-shadow(0 3px 4px rgba(108,60,224,0.7)) drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 1px 0px rgba(255,255,255,0.15))',
       }}
-      className="text-shimmer"
+      className="text-shimmer pointer-events-auto cursor-default"
+      {...handlers}
     >
       {char}
     </motion.span>
@@ -43,31 +35,6 @@ function MagneticLetter({
 }
 
 export function HeroContent({ name, jobTitle }: HeroContentProps) {
-  const mousePosRef = useRef({ x: 0, y: 0 })
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 15 })
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 15 })
-
-  const subtitleX = useTransform(springX, v => v * -6)
-  const subtitleY = useTransform(springY, v => v * -4)
-  const nameX = useTransform(springX, v => v * 8)
-  const nameY = useTransform(springY, v => v * 5)
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const nx = (e.clientX / window.innerWidth - 0.5) * 2
-      const ny = (e.clientY / window.innerHeight - 0.5) * 2
-      mouseX.set(nx)
-      mouseY.set(ny)
-      mousePosRef.current = { x: e.clientX, y: e.clientY }
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [mouseX, mouseY])
-
   return (
     <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6 pointer-events-none">
       <motion.p
@@ -75,8 +42,6 @@ export function HeroContent({ name, jobTitle }: HeroContentProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         style={{
-          x: subtitleX,
-          y: subtitleY,
           filter:
             'drop-shadow(0 3px 6px rgba(108,60,224,0.6)) drop-shadow(0 8px 18px rgba(0,0,0,0.5)) drop-shadow(0 1px 0px rgba(255,255,255,0.12))',
         }}
@@ -93,7 +58,7 @@ export function HeroContent({ name, jobTitle }: HeroContentProps) {
         style={{ filter: 'drop-shadow(0 4px 20px rgba(108,60,224,0.4))' }}
       >
         {TITLE.split('').map((char, i) => (
-          <MagneticLetter key={i} char={char} index={i} mousePosRef={mousePosRef} />
+          <MagneticLetter key={i} char={char} />
         ))}
       </motion.h1>
 
@@ -102,8 +67,6 @@ export function HeroContent({ name, jobTitle }: HeroContentProps) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.0 }}
         style={{
-          x: nameX,
-          y: nameY,
           filter:
             'drop-shadow(0 3px 6px rgba(108,60,224,0.6)) drop-shadow(0 8px 18px rgba(0,0,0,0.5)) drop-shadow(0 1px 0px rgba(255,255,255,0.12))',
         }}
