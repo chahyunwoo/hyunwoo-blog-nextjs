@@ -14,6 +14,7 @@ function toPost(api: ApiPost): Post {
     thumbnail: api.thumbnailUrl || '',
     published: api.published,
     slug: api.slug,
+    readingTime: api.readingTime,
   }
 
   return { meta, content: api.content || '' }

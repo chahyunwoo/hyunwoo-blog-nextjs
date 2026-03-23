@@ -7,6 +7,7 @@ export interface PostMeta {
   thumbnail: string
   published: boolean
   slug: string
+  readingTime: number
 }
 
 export interface Post {
