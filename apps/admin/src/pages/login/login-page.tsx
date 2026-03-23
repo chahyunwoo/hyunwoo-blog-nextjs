@@ -4,13 +4,18 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { HTTPError } from 'ky'
 import { Loader2 } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import type { TwoFactorRequired } from '@/entities/auth'
 import { login } from '@/entities/auth'
 import { type LoginForm, loginSchema } from '@/shared/schemas'
 import { AdminInput, AdminLabel } from '@/shared/ui'
+import { TotpForm } from './totp-form'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [twoFactor, setTwoFactor] = useState<TwoFactorRequired | null>(null)
+
   const {
     register,
     handleSubmit,
@@ -21,7 +26,13 @@ export function LoginPage() {
 
   const loginMutation = useMutation({
     mutationFn: (values: LoginForm) => login(values.username, values.password),
-    onSuccess: () => navigate({ to: '/' }),
+    onSuccess: result => {
+      if (result) {
+        setTwoFactor(result)
+      } else {
+        navigate({ to: '/' })
+      }
+    },
     onError: async (e: Error) => {
       let message = '알 수 없는 오류가 발생했습니다'
       if (e instanceof HTTPError) {
@@ -31,6 +42,12 @@ export function LoginPage() {
       toast.error(message)
     },
   })
+
+  const handleBack = useCallback(() => setTwoFactor(null), [])
+
+  if (twoFactor) {
+    return <TotpForm twoFactorToken={twoFactor.twoFactorToken} onBack={handleBack} />
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
