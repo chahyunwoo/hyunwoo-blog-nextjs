@@ -46,8 +46,8 @@ packages/
 | App | Stack | Domain | Status |
 |:------|:------|:-------|:-------|
 | [Blog](apps/blog) | Next.js 16, Tailwind 4, MDX, shadcn/ui | [chahyunwoo.dev](https://chahyunwoo.dev) | ![Live](https://img.shields.io/badge/Live-00C853?style=flat-square) |
-| [Admin](apps/admin) | Vite, React 19, TanStack Router/Query/Form | admin.chahyunwoo.dev | ![Development](https://img.shields.io/badge/Dev-FF9800?style=flat-square) |
-| [Portfolio](apps/portfolio) | Next.js 16, Three.js, Framer Motion, @react-pdf/renderer | portfolio.chahyunwoo.dev | ![Development](https://img.shields.io/badge/Dev-FF9800?style=flat-square) |
+| [Admin](apps/admin) | Vite, React 19, TanStack Router/Query/Form | admin.chahyunwoo.dev | ![Live](https://img.shields.io/badge/Live-00C853?style=flat-square) |
+| [Portfolio](apps/portfolio) | Next.js 16, Three.js, Framer Motion, @react-pdf/renderer | portfolio.chahyunwoo.dev | ![Live](https://img.shields.io/badge/Live-00C853?style=flat-square) |
 
 <br />
 
