@@ -15,6 +15,7 @@ function toPost(api: ApiPost): Post {
     published: api.published,
     slug: api.slug,
     readingTime: api.readingTime,
+    updatedAt: api.updatedAt,
   }
 
   return { meta, content: api.content || '' }

@@ -15,6 +15,7 @@ interface PreviewPost {
   published: boolean
   publishedAt: string | null
   readingTime: number
+  updatedAt: string
   createdAt: string
 }
 
@@ -54,6 +55,7 @@ export default async function PreviewSlugPage({
                 published: post.published,
                 slug: post.slug,
                 readingTime: post.readingTime,
+                updatedAt: post.updatedAt,
               },
               content: post.content,
             }}
