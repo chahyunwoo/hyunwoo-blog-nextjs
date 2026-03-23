@@ -32,7 +32,7 @@ import {
 import { adminApi } from '@/shared/api'
 import type { LocaleCode } from '@/shared/config'
 import { LOCALE_TABS } from '@/shared/config'
-import { AdminInput, AdminLabel, AdminTextarea, DatePicker, TagsInput, useConfirmStore } from '@/shared/ui'
+import { AdminInput, AdminLabel, AdminTextarea, TagsInput, useConfirmStore, YearPicker } from '@/shared/ui'
 
 export function ContentPage() {
   return (
@@ -163,11 +163,11 @@ function ExperiencesSection() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="space-y-1">
                 <AdminLabel>Start Date</AdminLabel>
-                <DatePicker value={startDate} onChange={setStartDate} />
+                <YearPicker value={startDate} onChange={setStartDate} />
               </div>
               <div className="space-y-1">
                 <AdminLabel>End Date</AdminLabel>
-                <DatePicker value={endDate} onChange={setEndDate} disabled={isCurrent} />
+                <YearPicker value={endDate} onChange={setEndDate} disabled={isCurrent} />
               </div>
               <div className="flex items-center gap-2 pt-6">
                 <AdminLabel htmlFor="exp-isCurrent">현재 재직중</AdminLabel>
