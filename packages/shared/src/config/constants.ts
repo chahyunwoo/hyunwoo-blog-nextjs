@@ -10,7 +10,13 @@ export const REVALIDATE_TYPES = {
 
 export const CACHE_TAGS = {
   BLOG_POSTS: 'blog-posts',
-  BLOG_POST: (slug: string) => `blog-post-${encodeURIComponent(slug)}`,
+  BLOG_POST: (slug: string) => {
+    let hash = 0
+    for (let i = 0; i < slug.length; i++) {
+      hash = ((hash << 5) - hash + slug.charCodeAt(i)) | 0
+    }
+    return `blog-post-${Math.abs(hash).toString(36)}`
+  },
   BLOG_CATEGORIES: 'blog-categories',
   BLOG_TAGS: 'blog-tags',
   PORTFOLIO_PROFILE: 'portfolio-profile',
