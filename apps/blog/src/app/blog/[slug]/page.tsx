@@ -86,7 +86,7 @@ export default async function Page({ params }: Params<{ slug: string }>) {
       '@type': 'BlogPosting',
       headline: post.meta.title,
       description: post.meta.description,
-      image: `${BASE_URL}${post.meta.thumbnail}`,
+      image: post.meta.thumbnail,
       datePublished: post.meta.date,
       dateModified: post.meta.date,
       author: {
