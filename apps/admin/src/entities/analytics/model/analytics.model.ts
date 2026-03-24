@@ -19,9 +19,41 @@ export interface PopularPost {
   createdAt: string
 }
 
-export interface Referrer {
-  referrer: string
+export type ReferrerCategory = 'direct' | 'search' | 'social' | 'other'
+
+export interface ReferrerItem {
+  source: string
+  category: ReferrerCategory
   count: number
+  percentage: number
+}
+
+export interface ReferrerSummary {
+  total: number
+  direct: number
+  search: number
+  social: number
+  other: number
+}
+
+export interface ReferrerData {
+  summary: ReferrerSummary
+  referrers: ReferrerItem[]
+}
+
+export interface VisitorVisit {
+  path: string
+  referrer: string | null
+  visitedAt: string
+}
+
+export interface VisitorTimelineItem {
+  ipAddress: string
+  city: string
+  country: string
+  isBot: boolean
+  totalViews: number
+  visits: VisitorVisit[]
 }
 
 export interface SystemInfo {

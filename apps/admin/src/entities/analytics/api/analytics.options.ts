@@ -1,7 +1,15 @@
 import { queryOptions } from '@tanstack/react-query'
 import { adminApi } from '@/shared/api'
 import { queryKeys } from '@/shared/config'
-import type { AdminLog, DashboardData, PopularPost, Referrer, SystemInfo, VisitorData } from '../model'
+import type {
+  AdminLog,
+  DashboardData,
+  PopularPost,
+  ReferrerData,
+  SystemInfo,
+  VisitorData,
+  VisitorTimelineItem,
+} from '../model'
 
 export function dashboardOptions() {
   return queryOptions({
@@ -20,17 +28,28 @@ export function visitorsOptions(days?: number, app = 'blog') {
   })
 }
 
-export function popularPostsOptions(limit = 10) {
+export function popularPostsOptions(limit = 10, days?: number) {
+  const params = new URLSearchParams({ limit: String(limit) })
+  if (days !== undefined) params.set('days', String(days))
+
   return queryOptions({
-    queryKey: queryKeys.analytics.popularPosts(limit),
-    queryFn: () => adminApi.get(`api/analytics/popular-posts?limit=${limit}`).json<PopularPost[]>(),
+    queryKey: queryKeys.analytics.popularPosts(limit, days),
+    queryFn: () => adminApi.get(`api/analytics/popular-posts?${params}`).json<PopularPost[]>(),
   })
 }
 
 export function referrersOptions(days = 30, app = 'blog') {
   return queryOptions({
     queryKey: queryKeys.analytics.referrers(days, app),
-    queryFn: () => adminApi.get(`api/analytics/referrers?days=${days}&app=${app}`).json<Referrer[]>(),
+    queryFn: () => adminApi.get(`api/analytics/referrers?days=${days}&app=${app}`).json<ReferrerData>(),
+  })
+}
+
+export function visitorsTimelineOptions(days = 7, app = 'blog') {
+  return queryOptions({
+    queryKey: queryKeys.analytics.visitorsTimeline(days, app),
+    queryFn: () =>
+      adminApi.get(`api/analytics/visitors/timeline?days=${days}&app=${app}`).json<VisitorTimelineItem[]>(),
   })
 }
 

@@ -11,7 +11,7 @@ interface DashboardCardProps {
 
 export function DashboardCard({ icon, title, iconColor, children }: DashboardCardProps) {
   return (
-    <Card className="py-4">
+    <Card className="py-4 h-full">
       <CardHeader className="py-0">
         <div className="flex items-center gap-2">
           <div

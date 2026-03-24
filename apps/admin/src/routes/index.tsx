@@ -6,6 +6,7 @@ import {
   referrersOptions,
   systemOptions,
   visitorsOptions,
+  visitorsTimelineOptions,
 } from '@/entities/analytics'
 import { DashboardPage } from '@/pages/dashboard'
 import { PendingLoader } from '@/shared/ui'
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/')({
       queryClient.ensureQueryData(referrersOptions(30, 'blog')),
       queryClient.ensureQueryData(systemOptions()),
       queryClient.ensureQueryData(adminLogsOptions(5)),
+      queryClient.ensureQueryData(visitorsTimelineOptions(7, 'blog')),
     ]),
   pendingComponent: PendingLoader,
   component: DashboardPage,
