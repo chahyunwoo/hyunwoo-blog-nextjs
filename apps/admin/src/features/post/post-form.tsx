@@ -56,6 +56,7 @@ interface PostFormProps {
 export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, renderCategoryModal }: PostFormProps) {
   const navigate = useNavigate()
   const [thumbnailUploading, setThumbnailUploading] = useState(false)
+  const [thumbnailToken, setThumbnailToken] = useState('')
   const [previewToken, setPreviewToken] = useState<string | null>(null)
 
   useEffect(() => {
@@ -334,7 +335,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                 {thumbnailUrl ? (
                   <div className="flex flex-col gap-2">
                     <img
-                      src={`${thumbnailUrl}?v=${Date.now()}`}
+                      src={thumbnailToken ? `${thumbnailUrl}?v=${thumbnailToken}` : thumbnailUrl}
                       alt="썸네일"
                       className="rounded-md h-[180px] w-full object-cover"
                     />
@@ -361,6 +362,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                         const url = await handleImageUpload(file)
                         if (url) {
                           setValue('thumbnailUrl', url)
+                          setThumbnailToken(Date.now().toString())
                           toast.success('썸네일 업로드 완료')
                         }
                         setThumbnailUploading(false)
