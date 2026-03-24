@@ -1,9 +1,11 @@
 import { Callout } from './callout'
 import { CodeBlock } from './code-block'
-import { Highlight } from './Highlight'
+import { Highlight } from './highlight'
 import { Icon } from './icon'
 import { MdxImage } from './mdx-image'
 import { MdxLink } from './mdx-link'
+
+export { Callout, CodeBlock, Highlight, Icon, MdxImage, MdxLink }
 
 export const MdxComponents = {
   Callout,

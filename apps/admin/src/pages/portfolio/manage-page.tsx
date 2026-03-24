@@ -42,6 +42,7 @@ import {
   useUploadProfileIcon,
   useUploadProfileImage,
 } from '@/entities/portfolio'
+import { TwoFactorSetup } from '@/pages/settings/two-factor-setup'
 import { adminApi } from '@/shared/api'
 import type { LocaleCode } from '@/shared/config'
 import { LOCALE_TABS } from '@/shared/config'
@@ -110,6 +111,10 @@ export function ManagePage() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      <Separator />
+
+      <TwoFactorSetup />
     </div>
   )
 }
@@ -206,7 +211,7 @@ function ProfileSection() {
           <AdminLabel>Profile Image</AdminLabel>
           {imageUrl ? (
             <div className="flex flex-col gap-2">
-              <img src={imageUrl} alt="Profile" className="size-24 rounded-full object-cover" />
+              <img src={`${imageUrl}?v=${Date.now()}`} alt="Profile" className="size-24 rounded-full object-cover" />
               <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl('')}>
                 제거
               </Button>
@@ -214,7 +219,7 @@ function ProfileSection() {
           ) : (
             <FileInput
               placeholder="이미지 선택"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
               leftSection={<ImageIcon className="size-4" />}
               disabled={uploadImage.isPending}
               onChange={async file => {
@@ -229,7 +234,7 @@ function ProfileSection() {
           <AdminLabel>Icon</AdminLabel>
           {iconUrl ? (
             <div className="flex flex-col gap-2">
-              <img src={iconUrl} alt="Icon" className="size-24 rounded-md object-cover" />
+              <img src={`${iconUrl}?v=${Date.now()}`} alt="Icon" className="size-24 rounded-md object-cover" />
               <Button type="button" variant="outline" size="sm" onClick={() => setIconUrl('')}>
                 제거
               </Button>
@@ -237,7 +242,7 @@ function ProfileSection() {
           ) : (
             <FileInput
               placeholder="아이콘 선택"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
               leftSection={<ImageIcon className="size-4" />}
               disabled={uploadIcon.isPending}
               onChange={async file => {

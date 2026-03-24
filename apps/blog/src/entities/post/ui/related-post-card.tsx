@@ -14,7 +14,7 @@ export function RelatedPostCard({ post }: { post: Post }) {
       {post.meta.thumbnail ? (
         <div className="relative w-full h-[130px] shrink-0 overflow-hidden bg-muted hidden sm:block">
           <Image
-            src={post.meta.thumbnail}
+            src={`${post.meta.thumbnail}?v=${post.meta.updatedAt}`}
             alt={post.meta.title}
             fill
             sizes="33vw"
