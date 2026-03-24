@@ -211,6 +211,9 @@ importers:
 
   apps/portfolio:
     dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.71.2(react@19.2.4))
       '@hyunwoo/mdx':
         specifier: workspace:*
         version: link:../../packages/mdx
@@ -250,6 +253,9 @@ importers:
       react-dom:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
+      react-hook-form:
+        specifier: ^7.71.2
+        version: 7.71.2(react@19.2.4)
       rehype-autolink-headings:
         specifier: ^7.1.0
         version: 7.1.0
@@ -271,6 +277,9 @@ importers:
       three:
         specifier: ^0.183.2
         version: 0.183.2
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4

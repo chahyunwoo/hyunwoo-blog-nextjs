@@ -17,9 +17,9 @@ import { useState } from 'react'
 import type { CreateWorkBody, WorkDetail, WorkTranslation, WorkType } from '@/entities/portfolio'
 import { useCreateWork, useUpdateWork, useWorkDetail } from '@/entities/portfolio'
 import type { LocaleCode } from '@/shared/config'
-import { LOCALE_TABS } from '@/shared/config'
+import { useTranslationForm } from '@/shared/hooks'
 import { monokaiWinterNight } from '@/shared/lib'
-import { AdminInput, AdminLabel, MonthPicker, TagsInput } from '@/shared/ui'
+import { AdminInput, AdminLabel, LocaleTabs, MonthPicker, TagsInput } from '@/shared/ui'
 
 function createEmptyTranslation(locale: LocaleCode): WorkTranslation {
   return { locale, title: '', role: '', summary: '', content: '', highlights: [] }
@@ -62,33 +62,20 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
   const [repoUrl, setRepoUrl] = useState(initial?.repoUrl ?? '')
   const [featured, setFeatured] = useState(initial?.featured ?? false)
   const [sortOrder, setSortOrder] = useState(initial?.sortOrder ?? 0)
-  const [activeLocale, setActiveLocale] = useState<LocaleCode>('ko')
-  const [translations, setTranslations] = useState<WorkTranslation[]>(() => {
-    if (!initial) {
-      return LOCALE_TABS.map(l => createEmptyTranslation(l.code))
-    }
-    return LOCALE_TABS.map(l => {
-      const existing = initial.translations.find(t => t.locale === l.code)
-      return existing
-        ? {
-            locale: l.code,
-            title: existing.title,
-            role: existing.role ?? '',
-            summary: existing.summary,
-            content: existing.content,
-            highlights: existing.highlights ?? [],
-          }
-        : createEmptyTranslation(l.code)
-    })
+
+  const { activeLocale, setActiveLocale, translations, currentTranslation, updateField } = useTranslationForm({
+    emptyFactory: createEmptyTranslation,
+    initial: initial?.translations.map(t => ({
+      locale: t.locale as LocaleCode,
+      title: t.title,
+      role: t.role ?? '',
+      summary: t.summary,
+      content: t.content,
+      highlights: t.highlights ?? [],
+    })),
   })
 
   const isPending = createWork.isPending || updateWork.isPending
-
-  const currentTranslation = translations.find(t => t.locale === activeLocale)
-
-  const updateTranslation = (locale: LocaleCode, field: keyof WorkTranslation, value: unknown) => {
-    setTranslations(prev => prev.map(t => (t.locale === locale ? { ...t, [field]: value } : t)))
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,13 +94,9 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
     }
 
     if (mode === 'edit' && id) {
-      updateWork.mutate(body, {
-        onSuccess: () => navigate({ to: '/portfolio/works' }),
-      })
+      updateWork.mutate(body, { onSuccess: () => navigate({ to: '/portfolio/works' }) })
     } else {
-      createWork.mutate(body, {
-        onSuccess: () => navigate({ to: '/portfolio/works' }),
-      })
+      createWork.mutate(body, { onSuccess: () => navigate({ to: '/portfolio/works' }) })
     }
   }
 
@@ -122,22 +105,8 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
       <h2 className="text-2xl font-bold mb-6">{mode === 'create' ? '새 Work' : 'Work 수정'}</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-        {/* Left column — main content */}
         <div className="flex flex-col gap-5">
-          {/* Locale tabs */}
-          <div className="flex items-center gap-1">
-            {LOCALE_TABS.map(l => (
-              <Button
-                key={l.code}
-                type="button"
-                variant={activeLocale === l.code ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setActiveLocale(l.code)}
-              >
-                {l.label}
-              </Button>
-            ))}
-          </div>
+          <LocaleTabs activeLocale={activeLocale} onChange={setActiveLocale} />
 
           {currentTranslation && (
             <>
@@ -145,7 +114,7 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 <AdminLabel>Title</AdminLabel>
                 <AdminInput
                   value={currentTranslation.title}
-                  onChange={e => updateTranslation(activeLocale, 'title', e.target.value)}
+                  onChange={e => updateField(activeLocale, 'title', e.target.value)}
                 />
               </div>
 
@@ -153,7 +122,7 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 <AdminLabel>Role</AdminLabel>
                 <AdminInput
                   value={currentTranslation.role ?? ''}
-                  onChange={e => updateTranslation(activeLocale, 'role', e.target.value)}
+                  onChange={e => updateField(activeLocale, 'role', e.target.value)}
                 />
               </div>
 
@@ -161,11 +130,10 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                 <AdminLabel>Summary</AdminLabel>
                 <AdminInput
                   value={currentTranslation.summary}
-                  onChange={e => updateTranslation(activeLocale, 'summary', e.target.value)}
+                  onChange={e => updateField(activeLocale, 'summary', e.target.value)}
                 />
               </div>
 
-              {/* Monaco Editor for content */}
               <div>
                 <AdminLabel>Content (MDX)</AdminLabel>
                 <div className="rounded-md overflow-hidden border border-border">
@@ -173,7 +141,7 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
                     height="calc(100vh - 500px)"
                     defaultLanguage="markdown"
                     value={currentTranslation.content}
-                    onChange={value => updateTranslation(activeLocale, 'content', value ?? '')}
+                    onChange={value => updateField(activeLocale, 'content', value ?? '')}
                     beforeMount={(monaco: Monaco) => {
                       monaco.editor.defineTheme('monokai-winter-night', monokaiWinterNight)
                     }}
@@ -193,7 +161,6 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
           )}
         </div>
 
-        {/* Right column — settings */}
         <div className="flex flex-col gap-4">
           <Card>
             <CardContent className="pt-4 flex flex-col gap-4">
@@ -267,7 +234,7 @@ function WorkFormInner({ mode, id, initial }: WorkFormInnerProps) {
               {currentTranslation && (
                 <TagsInput
                   value={currentTranslation.highlights ?? []}
-                  onChange={v => updateTranslation(activeLocale, 'highlights', v)}
+                  onChange={v => updateField(activeLocale, 'highlights', v)}
                   placeholder="Enter로 추가"
                 />
               )}

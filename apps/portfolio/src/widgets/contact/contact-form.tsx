@@ -1,40 +1,36 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { API_URL, DEFAULT_HEADERS } from '@hyunwoo/shared/config'
 import { motion } from 'framer-motion'
 import { Loader2, Send } from 'lucide-react'
 import { useState } from 'react'
-
-interface ContactFormData {
-  name: string
-  email: string
-  subject: string
-  message: string
-}
-
-const INITIAL: ContactFormData = { name: '', email: '', subject: '', message: '' }
+import { useForm } from 'react-hook-form'
+import { contactSchema, type ContactForm as TContactForm } from '@/shared/schemas'
 
 export function ContactForm() {
-  const [form, setForm] = useState<ContactFormData>(INITIAL)
-  const [isPending, setIsPending] = useState(false)
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  }
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<TContactForm>({
+    resolver: zodResolver(contactSchema),
+    mode: 'onChange',
+  })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsPending(true)
+  const onSubmit = async (values: TContactForm) => {
     setResult(null)
 
     try {
       const body: Record<string, string> = {
-        name: form.name,
-        email: form.email,
-        message: form.message,
+        name: values.name,
+        email: values.email,
+        message: values.message,
       }
-      if (form.subject) body.subject = form.subject
+      if (values.subject) body.subject = values.subject
 
       const res = await fetch(`${API_URL}/api/portfolio/contact`, {
         method: 'POST',
@@ -44,7 +40,7 @@ export function ContactForm() {
 
       if (res.ok) {
         setResult({ success: true, message: 'Message sent successfully!' })
-        setForm(INITIAL)
+        reset()
       } else if (res.status === 429) {
         setResult({ success: false, message: 'Too many requests. Please try again later.' })
       } else {
@@ -52,14 +48,12 @@ export function ContactForm() {
       }
     } catch {
       setResult({ success: false, message: 'Something went wrong.' })
-    } finally {
-      setIsPending(false)
     }
   }
 
   return (
     <motion.form
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -73,15 +67,12 @@ export function ContactForm() {
           </label>
           <input
             id="name"
-            name="name"
             type="text"
-            required
-            maxLength={100}
-            value={form.name}
-            onChange={handleChange}
             placeholder="Your name"
             className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            {...register('name')}
           />
+          {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
         </div>
         <div className="space-y-1.5">
           <label htmlFor="email" className="block text-xs text-muted-foreground mb-2">
@@ -89,15 +80,12 @@ export function ContactForm() {
           </label>
           <input
             id="email"
-            name="email"
             type="email"
-            required
-            maxLength={254}
-            value={form.email}
-            onChange={handleChange}
             placeholder="your@email.com"
             className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            {...register('email')}
           />
+          {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
         </div>
       </div>
 
@@ -107,13 +95,10 @@ export function ContactForm() {
         </label>
         <input
           id="subject"
-          name="subject"
           type="text"
-          maxLength={200}
-          value={form.subject}
-          onChange={handleChange}
           placeholder="What's this about?"
           className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          {...register('subject')}
         />
       </div>
 
@@ -123,24 +108,21 @@ export function ContactForm() {
         </label>
         <textarea
           id="message"
-          name="message"
-          required
           rows={4}
-          maxLength={2000}
-          value={form.message}
-          onChange={handleChange}
           placeholder="Your message..."
           className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+          {...register('message')}
         />
+        {errors.message && <p className="text-xs text-red-400">{errors.message.message}</p>}
       </div>
 
       <button
         type="submit"
-        disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
+        disabled={isSubmitting || !isValid}
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
-        {isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-        {isPending ? 'Sending...' : 'Send Message'}
+        {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+        {isSubmitting ? 'Sending...' : 'Send Message'}
       </button>
 
       {result && (
