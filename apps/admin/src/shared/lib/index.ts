@@ -1,3 +1,4 @@
+export { countryFlag } from './country-flag'
 export { monokaiWinterNight } from './editor-theme'
 export { getErrorMessage } from './get-error-message'
 export { getIcon } from './get-icon'

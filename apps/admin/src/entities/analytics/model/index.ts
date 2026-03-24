@@ -2,7 +2,12 @@ export type {
   AdminLog,
   DashboardData,
   PopularPost,
-  Referrer,
+  ReferrerCategory,
+  ReferrerData,
+  ReferrerItem,
+  ReferrerSummary,
   SystemInfo,
   VisitorData,
+  VisitorTimelineItem,
+  VisitorVisit,
 } from './analytics.model'
