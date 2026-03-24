@@ -9,6 +9,9 @@ interface ApiSearchPost {
   title: string
   description: string
   category: string
+  readingTime?: number
+  publishedAt?: string | null
+  updatedAt?: string
   createdAt: string
   tags: { name: string }[]
   thumbnailUrl?: string
@@ -19,12 +22,14 @@ function toPost(p: ApiSearchPost): Post {
     meta: {
       title: p.title,
       description: p.description,
-      date: p.createdAt,
+      date: p.publishedAt ?? p.createdAt,
       mainTag: p.category,
       tags: p.tags.map(t => t.name),
       thumbnail: p.thumbnailUrl || '',
       published: true,
       slug: p.slug,
+      readingTime: p.readingTime ?? 1,
+      updatedAt: p.updatedAt ?? p.createdAt,
     },
     content: '',
   }

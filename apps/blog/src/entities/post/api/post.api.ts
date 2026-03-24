@@ -8,12 +8,14 @@ function toPost(api: ApiPost): Post {
   const meta: PostMeta = {
     title: api.title,
     description: api.description,
-    date: api.createdAt,
+    date: api.publishedAt ?? api.createdAt,
     mainTag: api.category,
     tags: api.tags.map(t => t.name),
     thumbnail: api.thumbnailUrl || '',
     published: api.published,
     slug: api.slug,
+    readingTime: api.readingTime,
+    updatedAt: api.updatedAt,
   }
 
   return { meta, content: api.content || '' }

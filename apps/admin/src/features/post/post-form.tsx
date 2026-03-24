@@ -56,6 +56,7 @@ interface PostFormProps {
 export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, renderCategoryModal }: PostFormProps) {
   const navigate = useNavigate()
   const [thumbnailUploading, setThumbnailUploading] = useState(false)
+  const [thumbnailToken, setThumbnailToken] = useState('')
   const [previewToken, setPreviewToken] = useState<string | null>(null)
 
   useEffect(() => {
@@ -333,7 +334,11 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                 <span className="text-sm font-semibold block mb-3">썸네일</span>
                 {thumbnailUrl ? (
                   <div className="flex flex-col gap-2">
-                    <img src={thumbnailUrl} alt="썸네일" className="rounded-md h-[180px] w-full object-cover" />
+                    <img
+                      src={thumbnailToken ? `${thumbnailUrl}?v=${thumbnailToken}` : thumbnailUrl}
+                      alt="썸네일"
+                      className="rounded-md h-[180px] w-full object-cover"
+                    />
                     <Button
                       type="button"
                       variant="ghost"
@@ -348,7 +353,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                   <div className="flex flex-col gap-2">
                     <FileInput
                       placeholder={thumbnailUploading ? '업로드 중...' : '이미지를 선택하면 자동 업로드됩니다'}
-                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
                       leftSection={thumbnailUploading ? <Upload size={16} /> : <ImageIcon size={16} />}
                       disabled={thumbnailUploading}
                       onChange={async file => {
@@ -357,6 +362,7 @@ export function PostForm({ defaultValues, onSubmit, isPending, mode, slug, rende
                         const url = await handleImageUpload(file)
                         if (url) {
                           setValue('thumbnailUrl', url)
+                          setThumbnailToken(Date.now().toString())
                           toast.success('썸네일 업로드 완료')
                         }
                         setThumbnailUploading(false)

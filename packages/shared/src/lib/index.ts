@@ -1,1 +1,1 @@
-export { cn, estimateReadingTime, formatDate, getParamFromHref } from './utils'
+export { cn, formatDate, getParamFromHref } from './utils'

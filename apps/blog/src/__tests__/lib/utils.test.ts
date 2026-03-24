@@ -1,4 +1,4 @@
-import { cn, estimateReadingTime, formatDate, getParamFromHref } from '@hyunwoo/shared/lib'
+import { cn, formatDate, getParamFromHref } from '@hyunwoo/shared/lib'
 import { describe, expect, it } from 'vitest'
 
 describe('cn', () => {
@@ -21,17 +21,6 @@ describe('formatDate', () => {
     expect(result).toContain('Jan')
     expect(result).toContain('15')
     expect(result).toContain('2025')
-  })
-})
-
-describe('estimateReadingTime', () => {
-  it('should return at least 1 minute', () => {
-    expect(estimateReadingTime('short')).toBe(1)
-  })
-
-  it('should estimate based on word count', () => {
-    const words = Array(400).fill('word').join(' ')
-    expect(estimateReadingTime(words)).toBe(2)
   })
 })
 

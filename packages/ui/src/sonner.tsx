@@ -5,7 +5,7 @@ function Toaster({ theme = 'system' }: { theme?: 'light' | 'dark' | 'system' }) 
   return (
     <SonnerToaster
       theme={theme}
-      position="bottom-right"
+      position="bottom-center"
       toastOptions={{
         classNames: {
           toast: 'group border-border bg-background text-foreground shadow-lg rounded-md',

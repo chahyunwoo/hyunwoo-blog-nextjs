@@ -13,6 +13,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@hyunwoo/mdx": "workspace:*",
     "@hyunwoo/shared": "workspace:*",
     "@hyunwoo/ui": "workspace:*",
     "class-variance-authority": "^0.7.1",

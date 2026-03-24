@@ -11,16 +11,36 @@
     "lint:ci": "biome check ."
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@hyunwoo/mdx": "workspace:*",
     "@hyunwoo/shared": "workspace:*",
+    "@hyunwoo/ui": "workspace:*",
+    "@react-pdf/renderer": "^4.3.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.482.0",
     "next": "^16.2.0",
+    "next-mdx-remote": "^6.0.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.71.2",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-pretty-code": "^0.14.3",
+    "rehype-slug": "^6.0.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "shiki": "^3.23.0",
+    "three": "^0.183.2",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^25",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.183.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
