@@ -4,6 +4,19 @@ import type { CategoryData, Post, PostMeta } from '@hyunwoo/shared/types'
 import { cache } from 'react'
 import type { ApiCategory, ApiPost, ApiPostsResponse, ApiRelatedResponse, ApiTagsResponse } from '../model'
 
+function encodeImageUrl(url: string): string {
+  try {
+    const u = new URL(url)
+    u.pathname = u.pathname
+      .split('/')
+      .map(seg => encodeURIComponent(decodeURIComponent(seg)))
+      .join('/')
+    return u.toString()
+  } catch {
+    return url
+  }
+}
+
 function toPost(api: ApiPost): Post {
   const meta: PostMeta = {
     title: api.title,
@@ -11,7 +24,7 @@ function toPost(api: ApiPost): Post {
     date: api.publishedAt ?? api.createdAt,
     mainTag: api.category,
     tags: api.tags.map(t => t.name),
-    thumbnail: api.thumbnailUrl || '',
+    thumbnail: api.thumbnailUrl ? encodeImageUrl(api.thumbnailUrl) : '',
     published: api.published,
     slug: api.slug,
     readingTime: api.readingTime,
