@@ -1,4 +1,4 @@
-import { ABOUT_PATHS, CACHE_TAGS, REVALIDATE_TYPES } from '@hyunwoo/shared/config'
+import { CACHE_TAGS, REVALIDATE_TYPES } from '@hyunwoo/shared/config'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 
@@ -32,16 +32,8 @@ export async function POST(request: NextRequest) {
   }
 
   if (body.type === REVALIDATE_TYPES.BLOG) {
-    revalidateTag(CACHE_TAGS.BLOG_POSTS, { expire: 0 })
-    revalidateTag(CACHE_TAGS.BLOG_CATEGORIES, { expire: 0 })
-    revalidateTag(CACHE_TAGS.BLOG_TAGS, { expire: 0 })
     revalidateTag(CACHE_TAGS.BLOG_RECENT, { expire: 0 })
     revalidatePath('/')
-
-    if (body.slug) {
-      revalidateTag(CACHE_TAGS.BLOG_POST(body.slug), { expire: 0 })
-      revalidatePath(`/blog/${body.slug}`)
-    }
   }
 
   if (body.type === REVALIDATE_TYPES.PORTFOLIO) {
@@ -51,11 +43,9 @@ export async function POST(request: NextRequest) {
     revalidateTag(CACHE_TAGS.PORTFOLIO_SKILLS, { expire: 0 })
     revalidateTag(CACHE_TAGS.PORTFOLIO_EDUCATION, { expire: 0 })
     revalidateTag(CACHE_TAGS.PORTFOLIO_LOCALES, { expire: 0 })
-
-    for (const path of ABOUT_PATHS) {
-      revalidatePath(path)
-    }
+    revalidateTag(CACHE_TAGS.PORTFOLIO_WORKS, { expire: 0 })
+    revalidatePath('/')
   }
 
-  return NextResponse.json({ revalidated: true, type: body.type, slug: body.slug ?? null })
+  return NextResponse.json({ revalidated: true, type: body.type })
 }
