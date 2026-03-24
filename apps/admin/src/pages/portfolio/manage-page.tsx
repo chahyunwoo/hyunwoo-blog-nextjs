@@ -131,6 +131,8 @@ function ProfileSection() {
   const [location, setLocation] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [iconUrl, setIconUrl] = useState('')
+  const [imageToken, setImageToken] = useState('')
+  const [iconToken, setIconToken] = useState('')
   const keyCounter = useRef(0)
   const [socialLinks, setSocialLinks] = useState<(SocialLink & { _key: number })[]>([])
   const [translations, setTranslations] = useState<ProfileTranslation[]>(
@@ -211,7 +213,11 @@ function ProfileSection() {
           <AdminLabel>Profile Image</AdminLabel>
           {imageUrl ? (
             <div className="flex flex-col gap-2">
-              <img src={`${imageUrl}?v=${Date.now()}`} alt="Profile" className="size-24 rounded-full object-cover" />
+              <img
+                src={imageToken ? `${imageUrl}?v=${imageToken}` : imageUrl}
+                alt="Profile"
+                className="size-24 rounded-full object-cover"
+              />
               <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl('')}>
                 제거
               </Button>
@@ -226,6 +232,7 @@ function ProfileSection() {
                 if (!file) return
                 const result = await uploadImage.mutateAsync(file)
                 setImageUrl(result.url)
+                setImageToken(Date.now().toString())
               }}
             />
           )}
@@ -234,7 +241,11 @@ function ProfileSection() {
           <AdminLabel>Icon</AdminLabel>
           {iconUrl ? (
             <div className="flex flex-col gap-2">
-              <img src={`${iconUrl}?v=${Date.now()}`} alt="Icon" className="size-24 rounded-md object-cover" />
+              <img
+                src={iconToken ? `${iconUrl}?v=${iconToken}` : iconUrl}
+                alt="Icon"
+                className="size-24 rounded-md object-cover"
+              />
               <Button type="button" variant="outline" size="sm" onClick={() => setIconUrl('')}>
                 제거
               </Button>
@@ -249,6 +260,7 @@ function ProfileSection() {
                 if (!file) return
                 const result = await uploadIcon.mutateAsync(file)
                 setIconUrl(result.url)
+                setIconToken(Date.now().toString())
               }}
             />
           )}
