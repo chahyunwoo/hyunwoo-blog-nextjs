@@ -24,7 +24,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Params<{ slug: string }>): Promise<Metadata> {
-  const slug = (await params).slug
+  const slug = decodeURIComponent((await params).slug)
   const post = await getPostBySlug(slug)
 
   if (!post) {
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: Params<{ slug: string }>): Pr
 }
 
 export default async function Page({ params }: Params<{ slug: string }>) {
-  const slug = (await params).slug
+  const slug = decodeURIComponent((await params).slug)
   const post = await getPostBySlug(slug)
 
   if (!post) {
