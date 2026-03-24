@@ -17,7 +17,6 @@ import {
 import { Image as ImageIcon, Loader2, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type {
-  CreateEducationBody,
   CreateSkillBody,
   EducationDetail,
   EducationTranslation,
@@ -46,8 +45,9 @@ import { TwoFactorSetup } from '@/pages/settings/two-factor-setup'
 import { adminApi } from '@/shared/api'
 import type { LocaleCode } from '@/shared/config'
 import { LOCALE_TABS } from '@/shared/config'
+import { useTranslationForm } from '@/shared/hooks'
 import { getIcon } from '@/shared/lib'
-import { AdminInput, AdminLabel, AdminTextarea, FileInput, useConfirmStore } from '@/shared/ui'
+import { AdminInput, AdminLabel, AdminTextarea, FileInput, LocaleTabs, useConfirmStore } from '@/shared/ui'
 
 const SOCIAL_ICONS = ['Github', 'Instagram', 'Linkedin', 'Twitter', 'Mail', 'Globe', 'Youtube', 'Facebook'] as const
 
@@ -606,6 +606,10 @@ function SkillRow({
 
 // ─── Education ───
 
+function createEmptyEducationTranslation(locale: LocaleCode): EducationTranslation {
+  return { locale, institution: '', degree: '' }
+}
+
 function EducationSection() {
   const { data: educationList, isLoading } = useEducation()
   const createEducation = useCreateEducation()
@@ -615,10 +619,16 @@ function EducationSection() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [period, setPeriod] = useState('')
-  const [activeLocale, setActiveLocale] = useState<LocaleCode>('ko')
-  const [translations, setTranslations] = useState<EducationTranslation[]>(
-    LOCALE_TABS.map(l => ({ locale: l.code, institution: '', degree: '' })),
-  )
+
+  const {
+    activeLocale,
+    setActiveLocale,
+    translations,
+    currentTranslation,
+    updateField,
+    resetTranslations,
+    setInitial,
+  } = useTranslationForm({ emptyFactory: createEmptyEducationTranslation })
 
   if (isLoading) {
     return (
@@ -630,19 +640,17 @@ function EducationSection() {
 
   const resetForm = () => {
     setPeriod('')
-    setTranslations(LOCALE_TABS.map(l => ({ locale: l.code, institution: '', degree: '' })))
-    setActiveLocale('ko')
+    resetTranslations()
     setShowForm(false)
     setEditingId(null)
   }
 
   const handleCreate = () => {
     if (!period.trim()) return
-    const body: CreateEducationBody = {
-      period,
-      translations: translations.filter(t => t.institution.trim()),
-    }
-    createEducation.mutate(body, { onSuccess: resetForm })
+    createEducation.mutate(
+      { period, translations: translations.filter(t => t.institution.trim()) },
+      { onSuccess: resetForm },
+    )
   }
 
   const handleDelete = async (id: number) => {
@@ -656,23 +664,17 @@ function EducationSection() {
     deleteEducation.mutate(id)
   }
 
-  const startEdit = async (edu: { id: number; period: string; institution: string; degree: string }) => {
+  const startEdit = async (edu: { id: number }) => {
     const detail = await adminApi.get(`api/portfolio/education/${edu.id}`).json<EducationDetail>()
     setEditingId(detail.id)
     setPeriod(detail.period)
-    setTranslations(
+    setInitial(
       LOCALE_TABS.map(l => {
         const existing = detail.translations.find(t => t.locale === l.code)
-        return existing ?? { locale: l.code as LocaleCode, institution: '', degree: '' }
+        return existing ?? createEmptyEducationTranslation(l.code as LocaleCode)
       }),
     )
     setShowForm(true)
-  }
-
-  const currentTranslation = translations.find(t => t.locale === activeLocale)
-
-  const updateTranslationField = (locale: LocaleCode, field: keyof EducationTranslation, value: string) => {
-    setTranslations(prev => prev.map(t => (t.locale === locale ? { ...t, [field]: value } : t)))
   }
 
   return (
@@ -707,14 +709,14 @@ function EducationSection() {
                   <AdminLabel>Institution</AdminLabel>
                   <AdminInput
                     value={currentTranslation.institution}
-                    onChange={e => updateTranslationField(activeLocale, 'institution', e.target.value)}
+                    onChange={e => updateField(activeLocale, 'institution', e.target.value)}
                   />
                 </div>
                 <div>
                   <AdminLabel>Degree</AdminLabel>
                   <AdminInput
                     value={currentTranslation.degree}
-                    onChange={e => updateTranslationField(activeLocale, 'degree', e.target.value)}
+                    onChange={e => updateField(activeLocale, 'degree', e.target.value)}
                   />
                 </div>
               </div>
@@ -778,15 +780,6 @@ function EducationSection() {
   )
 }
 
-interface EducationSaveButtonProps {
-  editingId: number | null
-  period: string
-  translations: EducationTranslation[]
-  createIsPending: boolean
-  onCreate: () => void
-  onSuccess: () => void
-}
-
 function EducationSaveButton({
   editingId,
   period,
@@ -794,7 +787,14 @@ function EducationSaveButton({
   createIsPending,
   onCreate,
   onSuccess,
-}: EducationSaveButtonProps) {
+}: {
+  editingId: number | null
+  period: string
+  translations: EducationTranslation[]
+  createIsPending: boolean
+  onCreate: () => void
+  onSuccess: () => void
+}) {
   const updateEducation = useUpdateEducation(editingId ?? 0)
 
   if (editingId) {
@@ -901,26 +901,6 @@ function LocalesSection() {
             <Trash2 className="size-4" />
           </Button>
         </div>
-      ))}
-    </div>
-  )
-}
-
-// ─── Shared UI ───
-
-function LocaleTabs({ activeLocale, onChange }: { activeLocale: LocaleCode; onChange: (locale: LocaleCode) => void }) {
-  return (
-    <div className="flex items-center gap-2">
-      {LOCALE_TABS.map(l => (
-        <Button
-          key={l.code}
-          type="button"
-          variant={activeLocale === l.code ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => onChange(l.code)}
-        >
-          {l.label}
-        </Button>
       ))}
     </div>
   )
