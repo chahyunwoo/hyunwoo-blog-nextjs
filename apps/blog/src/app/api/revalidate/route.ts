@@ -32,24 +32,24 @@ export async function POST(request: NextRequest) {
   }
 
   if (body.type === REVALIDATE_TYPES.BLOG) {
-    revalidateTag(CACHE_TAGS.BLOG_POSTS)
-    revalidateTag(CACHE_TAGS.BLOG_CATEGORIES)
-    revalidateTag(CACHE_TAGS.BLOG_TAGS)
+    revalidateTag(CACHE_TAGS.BLOG_POSTS, { expire: 0 })
+    revalidateTag(CACHE_TAGS.BLOG_CATEGORIES, { expire: 0 })
+    revalidateTag(CACHE_TAGS.BLOG_TAGS, { expire: 0 })
     revalidatePath('/')
 
     if (body.slug) {
-      revalidateTag(CACHE_TAGS.BLOG_POST(body.slug))
+      revalidateTag(CACHE_TAGS.BLOG_POST(body.slug), { expire: 0 })
       revalidatePath(`/blog/${body.slug}`)
     }
   }
 
   if (body.type === REVALIDATE_TYPES.PORTFOLIO) {
-    revalidateTag(CACHE_TAGS.PORTFOLIO_PROFILE)
-    revalidateTag(CACHE_TAGS.PORTFOLIO_EXPERIENCES)
-    revalidateTag(CACHE_TAGS.PORTFOLIO_PROJECTS)
-    revalidateTag(CACHE_TAGS.PORTFOLIO_SKILLS)
-    revalidateTag(CACHE_TAGS.PORTFOLIO_EDUCATION)
-    revalidateTag(CACHE_TAGS.PORTFOLIO_LOCALES)
+    revalidateTag(CACHE_TAGS.PORTFOLIO_PROFILE, { expire: 0 })
+    revalidateTag(CACHE_TAGS.PORTFOLIO_EXPERIENCES, { expire: 0 })
+    revalidateTag(CACHE_TAGS.PORTFOLIO_PROJECTS, { expire: 0 })
+    revalidateTag(CACHE_TAGS.PORTFOLIO_SKILLS, { expire: 0 })
+    revalidateTag(CACHE_TAGS.PORTFOLIO_EDUCATION, { expire: 0 })
+    revalidateTag(CACHE_TAGS.PORTFOLIO_LOCALES, { expire: 0 })
 
     for (const path of ABOUT_PATHS) {
       revalidatePath(path)
