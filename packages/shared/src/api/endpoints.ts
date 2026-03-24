@@ -1,10 +1,10 @@
 export const ENDPOINTS = {
   blog: {
     posts: '/api/blog/posts',
-    postBySlug: (slug: string) => `/api/blog/posts/${slug}`,
+    postBySlug: (slug: string) => `/api/blog/posts/${encodeURIComponent(slug)}`,
     recentPosts: '/api/blog/posts/recent',
     search: '/api/blog/posts/search',
-    relatedPosts: (slug: string) => `/api/blog/posts/${slug}/related`,
+    relatedPosts: (slug: string) => `/api/blog/posts/${encodeURIComponent(slug)}/related`,
     categories: '/api/blog/categories',
     tags: '/api/blog/tags',
   },

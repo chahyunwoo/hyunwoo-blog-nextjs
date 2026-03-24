@@ -61,7 +61,9 @@ export function PostListPage() {
                         />
                         {post.published ? '발행' : '임시저장'}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">{formatDate(post.createdAt)}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(post.publishedAt ?? post.createdAt)}
+                      </span>
                     </div>
                   </div>
                 </div>
