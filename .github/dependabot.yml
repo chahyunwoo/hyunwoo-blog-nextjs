@@ -5,18 +5,23 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    target-branch: "dependabot-staging"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
     commit-message:
       prefix: "chore"
       include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
+    target-branch: "dependabot-staging"
     labels:
       - "dependencies"
     commit-message:
