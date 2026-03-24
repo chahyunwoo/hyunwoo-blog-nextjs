@@ -20,7 +20,7 @@
     "@tanstack/react-table": "^8",
     "date-fns": "^4",
     "ky": "^1",
-    "lucide-react": "^0.482.0",
+    "lucide-react": "^1.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7",

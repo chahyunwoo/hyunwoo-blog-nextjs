@@ -20,7 +20,7 @@
     "@react-three/fiber": "^9.5.0",
     "@tailwindcss/typography": "^0.5.19",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^0.482.0",
+    "lucide-react": "^1.0.1",
     "next": "^16.2.1",
     "next-mdx-remote": "^6.0.0",
     "react": "^19.2.4",

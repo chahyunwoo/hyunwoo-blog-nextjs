@@ -11,7 +11,7 @@
   "dependencies": {
     "@hyunwoo/shared": "workspace:*",
     "@hyunwoo/ui": "workspace:*",
-    "lucide-react": "^0.482.0",
+    "lucide-react": "^1.0.1",
     "next": "^16.2.1",
     "next-mdx-remote": "^6.0.0",
     "rehype-autolink-headings": "^7.1.0",
