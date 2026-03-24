@@ -5,9 +5,18 @@ interface FetchOptions {
   tags?: string[]
 }
 
+function toSafeUrl(base: string, path: string): string {
+  const url = new URL(`${base}${path}`)
+  url.pathname = url.pathname
+    .split('/')
+    .map(seg => encodeURIComponent(decodeURIComponent(seg)))
+    .join('/')
+  return url.toString()
+}
+
 export async function apiFetch<T>(path: string, options?: FetchOptions): Promise<T | null> {
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(toSafeUrl(API_URL, path), {
       headers: DEFAULT_HEADERS,
       next: {
         revalidate: options?.revalidate ?? DEFAULT_REVALIDATE,
