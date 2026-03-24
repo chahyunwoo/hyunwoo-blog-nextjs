@@ -27,7 +27,7 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
       </p>
 
       <div className="relative group">
-        <div className="flex animate-marquee group-hover:[animation-play-state:paused]">
+        <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
           {doubled.map((post, i) => (
             <a
               key={`${post.id}-${i}`}
