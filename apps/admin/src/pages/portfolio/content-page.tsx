@@ -32,7 +32,8 @@ import {
 import { adminApi } from '@/shared/api'
 import type { LocaleCode } from '@/shared/config'
 import { LOCALE_TABS } from '@/shared/config'
-import { AdminInput, AdminLabel, AdminTextarea, TagsInput, useConfirmStore, YearPicker } from '@/shared/ui'
+import { useTranslationForm } from '@/shared/hooks'
+import { AdminInput, AdminLabel, AdminTextarea, LocaleTabs, TagsInput, useConfirmStore, YearPicker } from '@/shared/ui'
 
 export function ContentPage() {
   return (
@@ -56,6 +57,10 @@ export function ContentPage() {
   )
 }
 
+function createEmptyExperienceTranslation(locale: LocaleCode): ExperienceTranslation {
+  return { locale, title: '', role: '', responsibilities: [] }
+}
+
 function ExperiencesSection() {
   const { data: experiences, isLoading } = useExperiences()
   const createExperience = useCreateExperience()
@@ -67,10 +72,16 @@ function ExperiencesSection() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [isCurrent, setIsCurrent] = useState(false)
-  const [activeLocale, setActiveLocale] = useState<LocaleCode>('ko')
-  const [translations, setTranslations] = useState<ExperienceTranslation[]>(
-    LOCALE_TABS.map(l => ({ locale: l.code, title: '', role: '', responsibilities: [] })),
-  )
+
+  const {
+    activeLocale,
+    setActiveLocale,
+    translations,
+    currentTranslation,
+    updateField,
+    resetTranslations,
+    setInitial,
+  } = useTranslationForm({ emptyFactory: createEmptyExperienceTranslation })
 
   if (isLoading) {
     return (
@@ -84,21 +95,22 @@ function ExperiencesSection() {
     setStartDate('')
     setEndDate('')
     setIsCurrent(false)
-    setTranslations(LOCALE_TABS.map(l => ({ locale: l.code, title: '', role: '', responsibilities: [] })))
-    setActiveLocale('ko')
+    resetTranslations()
     setShowForm(false)
     setEditingId(null)
   }
 
   const handleCreate = () => {
     if (!startDate.trim()) return
-    const body: CreateExperienceBody = {
-      startDate,
-      endDate: endDate || undefined,
-      isCurrent,
-      translations: translations.filter(t => t.title.trim()),
-    }
-    createExperience.mutate(body, { onSuccess: resetForm })
+    createExperience.mutate(
+      {
+        startDate,
+        endDate: endDate || undefined,
+        isCurrent,
+        translations: translations.filter(t => t.title.trim()),
+      },
+      { onSuccess: resetForm },
+    )
   }
 
   const handleDelete = async (id: number, title: string) => {
@@ -112,33 +124,19 @@ function ExperiencesSection() {
     deleteExperience.mutate(id)
   }
 
-  const startEdit = async (exp: {
-    id: number
-    startDate: string
-    endDate: string | null
-    isCurrent: boolean
-    title: string
-    role: string
-    responsibilities: string[]
-  }) => {
+  const startEdit = async (exp: { id: number }) => {
     const detail = await adminApi.get(`api/portfolio/experiences/${exp.id}`).json<ExperienceDetail>()
     setEditingId(detail.id)
     setStartDate(detail.startDate)
     setEndDate(detail.endDate ?? '')
     setIsCurrent(detail.isCurrent)
-    setTranslations(
+    setInitial(
       LOCALE_TABS.map(l => {
         const existing = detail.translations.find(t => t.locale === l.code)
-        return existing ?? { locale: l.code as LocaleCode, title: '', role: '', responsibilities: [] }
+        return existing ?? createEmptyExperienceTranslation(l.code as LocaleCode)
       }),
     )
     setShowForm(true)
-  }
-
-  const currentTranslation = translations.find(t => t.locale === activeLocale)
-
-  const updateTranslationField = (locale: LocaleCode, field: keyof ExperienceTranslation, value: unknown) => {
-    setTranslations(prev => prev.map(t => (t.locale === locale ? { ...t, [field]: value } : t)))
   }
 
   return (
@@ -175,19 +173,7 @@ function ExperiencesSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {LOCALE_TABS.map(l => (
-                <Button
-                  key={l.code}
-                  type="button"
-                  variant={activeLocale === l.code ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveLocale(l.code)}
-                >
-                  {l.label}
-                </Button>
-              ))}
-            </div>
+            <LocaleTabs activeLocale={activeLocale} onChange={setActiveLocale} />
 
             {currentTranslation && (
               <div className="flex flex-col gap-5">
@@ -195,14 +181,14 @@ function ExperiencesSection() {
                   <AdminLabel>Title (회사명)</AdminLabel>
                   <AdminInput
                     value={currentTranslation.title}
-                    onChange={e => updateTranslationField(activeLocale, 'title', e.target.value)}
+                    onChange={e => updateField(activeLocale, 'title', e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
                   <AdminLabel>Role</AdminLabel>
                   <AdminInput
                     value={currentTranslation.role}
-                    onChange={e => updateTranslationField(activeLocale, 'role', e.target.value)}
+                    onChange={e => updateField(activeLocale, 'role', e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
@@ -210,7 +196,7 @@ function ExperiencesSection() {
                   <AdminTextarea
                     className="min-h-[100px]"
                     value={currentTranslation.responsibilities.join('\n')}
-                    onChange={e => updateTranslationField(activeLocale, 'responsibilities', e.target.value.split('\n'))}
+                    onChange={e => updateField(activeLocale, 'responsibilities', e.target.value.split('\n'))}
                   />
                 </div>
               </div>
@@ -302,17 +288,15 @@ function ExperienceSaveButton({
 
   if (editingId) {
     const handleUpdate = () => {
-      updateExperience.mutate(
-        {
-          startDate,
-          endDate: endDate || undefined,
-          isCurrent,
-          translations: translations
-            .filter(t => t.title.trim())
-            .map(({ locale, title, role, responsibilities }) => ({ locale, title, role, responsibilities })),
-        },
-        { onSuccess },
-      )
+      const body: CreateExperienceBody = {
+        startDate,
+        endDate: endDate || undefined,
+        isCurrent,
+        translations: translations
+          .filter(t => t.title.trim())
+          .map(({ locale, title, role, responsibilities }) => ({ locale, title, role, responsibilities })),
+      }
+      updateExperience.mutate(body, { onSuccess })
     }
     return (
       <Button type="button" size="sm" onClick={handleUpdate} disabled={updateExperience.isPending}>
@@ -330,6 +314,10 @@ function ExperienceSaveButton({
   )
 }
 
+function createEmptyProjectTranslation(locale: LocaleCode): ProjectTranslation {
+  return { locale, title: '', description: '' }
+}
+
 function ProjectsSection() {
   const { data: projects, isLoading } = useProjects()
   const createProject = useCreateProject()
@@ -342,10 +330,16 @@ function ProjectsSection() {
   const [demoUrl, setDemoUrl] = useState('')
   const [repoUrl, setRepoUrl] = useState('')
   const [featured, setFeatured] = useState(false)
-  const [activeLocale, setActiveLocale] = useState<LocaleCode>('ko')
-  const [translations, setTranslations] = useState<ProjectTranslation[]>(
-    LOCALE_TABS.map(l => ({ locale: l.code, title: '', description: '' })),
-  )
+
+  const {
+    activeLocale,
+    setActiveLocale,
+    translations,
+    currentTranslation,
+    updateField,
+    resetTranslations,
+    setInitial,
+  } = useTranslationForm({ emptyFactory: createEmptyProjectTranslation })
 
   if (isLoading) {
     return (
@@ -360,21 +354,22 @@ function ProjectsSection() {
     setDemoUrl('')
     setRepoUrl('')
     setFeatured(false)
-    setTranslations(LOCALE_TABS.map(l => ({ locale: l.code, title: '', description: '' })))
-    setActiveLocale('ko')
+    resetTranslations()
     setShowForm(false)
     setEditingId(null)
   }
 
   const handleCreate = () => {
-    const body: CreateProjectBody = {
-      techStack,
-      demoUrl: demoUrl || undefined,
-      repoUrl: repoUrl || undefined,
-      featured,
-      translations: translations.filter(t => t.title.trim()),
-    }
-    createProject.mutate(body, { onSuccess: resetForm })
+    createProject.mutate(
+      {
+        techStack,
+        demoUrl: demoUrl || undefined,
+        repoUrl: repoUrl || undefined,
+        featured,
+        translations: translations.filter(t => t.title.trim()),
+      },
+      { onSuccess: resetForm },
+    )
   }
 
   const handleDelete = async (id: number, title: string) => {
@@ -388,34 +383,20 @@ function ProjectsSection() {
     deleteProject.mutate(id)
   }
 
-  const startEdit = async (proj: {
-    id: number
-    techStack: string[]
-    demoUrl: string | null
-    repoUrl: string | null
-    featured: boolean
-    title: string
-    description: string | null
-  }) => {
+  const startEdit = async (proj: { id: number }) => {
     const detail = await adminApi.get(`api/portfolio/projects/${proj.id}`).json<ProjectDetail>()
     setEditingId(detail.id)
     setTechStack(detail.techStack)
     setDemoUrl(detail.demoUrl ?? '')
     setRepoUrl(detail.repoUrl ?? '')
     setFeatured(detail.featured)
-    setTranslations(
+    setInitial(
       LOCALE_TABS.map(l => {
         const existing = detail.translations.find(t => t.locale === l.code)
-        return existing ?? { locale: l.code as LocaleCode, title: '', description: '' }
+        return existing ?? createEmptyProjectTranslation(l.code as LocaleCode)
       }),
     )
     setShowForm(true)
-  }
-
-  const currentTranslation = translations.find(t => t.locale === activeLocale)
-
-  const updateTranslationField = (locale: LocaleCode, field: keyof ProjectTranslation, value: string) => {
-    setTranslations(prev => prev.map(t => (t.locale === locale ? { ...t, [field]: value } : t)))
   }
 
   return (
@@ -455,19 +436,7 @@ function ProjectsSection() {
               <Switch id="proj-featured" checked={featured} onCheckedChange={setFeatured} />
             </div>
 
-            <div className="flex items-center gap-2">
-              {LOCALE_TABS.map(l => (
-                <Button
-                  key={l.code}
-                  type="button"
-                  variant={activeLocale === l.code ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveLocale(l.code)}
-                >
-                  {l.label}
-                </Button>
-              ))}
-            </div>
+            <LocaleTabs activeLocale={activeLocale} onChange={setActiveLocale} />
 
             {currentTranslation && (
               <div className="flex flex-col gap-5">
@@ -475,7 +444,7 @@ function ProjectsSection() {
                   <AdminLabel>Title</AdminLabel>
                   <AdminInput
                     value={currentTranslation.title}
-                    onChange={e => updateTranslationField(activeLocale, 'title', e.target.value)}
+                    onChange={e => updateField(activeLocale, 'title', e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
@@ -483,7 +452,7 @@ function ProjectsSection() {
                   <AdminTextarea
                     className="min-h-[80px]"
                     value={currentTranslation.description ?? ''}
-                    onChange={e => updateTranslationField(activeLocale, 'description', e.target.value)}
+                    onChange={e => updateField(activeLocale, 'description', e.target.value)}
                   />
                 </div>
               </div>
@@ -582,18 +551,16 @@ function ProjectSaveButton({
 
   if (editingId) {
     const handleUpdate = () => {
-      updateProject.mutate(
-        {
-          techStack,
-          demoUrl: demoUrl || undefined,
-          repoUrl: repoUrl || undefined,
-          featured,
-          translations: translations
-            .filter(t => t.title.trim())
-            .map(({ locale, title, description }) => ({ locale, title, description })),
-        },
-        { onSuccess },
-      )
+      const body: CreateProjectBody = {
+        techStack,
+        demoUrl: demoUrl || undefined,
+        repoUrl: repoUrl || undefined,
+        featured,
+        translations: translations
+          .filter(t => t.title.trim())
+          .map(({ locale, title, description }) => ({ locale, title, description })),
+      }
+      updateProject.mutate(body, { onSuccess })
     }
     return (
       <Button type="button" size="sm" onClick={handleUpdate} disabled={updateProject.isPending}>
