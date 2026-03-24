@@ -34,5 +34,6 @@
       "sharp",
       "unrs-resolver"
     ]
-  }
+  },
+  "version": "2.1.0"
 }
