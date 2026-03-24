@@ -1,7 +1,7 @@
 import { API_URL, DEFAULT_HEADERS, DEFAULT_REVALIDATE } from '../config/api.config'
 
 interface FetchOptions {
-  revalidate?: number
+  revalidate?: number | false
   tags?: string[]
 }
 
