@@ -69,7 +69,7 @@ export const getRecentPosts = async (limit = 5): Promise<Post[]> => {
 
 export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   const data = await apiFetch<ApiPost>(ENDPOINTS.blog.postBySlug(slug), {
-    revalidate: 60,
+    tags: [CACHE_TAGS.BLOG_POST(slug)],
   })
   if (!data) return null
   return toPost(data)
