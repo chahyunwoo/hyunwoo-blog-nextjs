@@ -5,6 +5,7 @@ export {
   referrersOptions,
   systemOptions,
   visitorsOptions,
+  visitorsTimelineOptions,
 } from './analytics.options'
 export {
   useAdminLogs,
@@ -13,4 +14,5 @@ export {
   useReferrers,
   useSystemInfo,
   useVisitors,
+  useVisitorsTimeline,
 } from './analytics.queries'

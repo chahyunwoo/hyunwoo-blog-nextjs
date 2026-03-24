@@ -9,7 +9,9 @@ import {
   useSystemInfo,
   useVisitors,
 } from '@/entities/analytics'
-import { DashboardCard, EmptyState, RingProgress, StatCard } from '@/shared/ui'
+import { REFERRER_CATEGORY_COLORS, REFERRER_CATEGORY_LABELS } from '@/shared/config'
+import { DashboardCard, EmptyState, ReferrerPieChart, RingProgress, StatCard } from '@/shared/ui'
+import { VisitorsTimelineCard } from './visitors-timeline-card'
 
 export function DashboardPage() {
   const { data: dashboard } = useDashboard()
@@ -169,24 +171,62 @@ export function DashboardPage() {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 md:col-span-6">
           <DashboardCard icon={<Link2 size={16} />} title="유입 경로 (30일)" iconColor="orange">
-            {!referrers?.length ? (
+            {!referrers?.summary.total ? (
               <EmptyState />
             ) : (
-              <div className="max-h-[220px] overflow-y-auto -mx-6">
-                <Table>
-                  <TableBody>
-                    {referrers.map(ref => (
-                      <TableRow key={ref.referrer}>
-                        <TableCell>
-                          <span className="text-sm">{ref.referrer}</span>
-                        </TableCell>
-                        <TableCell className="w-[60px] text-right">
-                          <span className="text-xs text-muted-foreground font-mono">{ref.count}</span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="flex flex-col gap-4">
+                <ReferrerPieChart summary={referrers.summary} />
+                <div className="max-h-[140px] overflow-y-auto -mx-6">
+                  <Table>
+                    <TableBody>
+                      {referrers.referrers.map(ref => (
+                        <TableRow key={ref.source}>
+                          <TableCell className="w-[8px]">
+                            <span
+                              className="size-2 rounded-full block"
+                              style={{ backgroundColor: REFERRER_CATEGORY_COLORS[ref.category] }}
+                              aria-hidden="true"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm">{ref.source}</span>
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px] px-1.5 py-0"
+                                style={{
+                                  backgroundColor: `${REFERRER_CATEGORY_COLORS[ref.category]}20`,
+                                  color: REFERRER_CATEGORY_COLORS[ref.category],
+                                }}
+                              >
+                                {REFERRER_CATEGORY_LABELS[ref.category]}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell className="w-[50px] text-right">
+                            <span className="text-xs text-muted-foreground font-mono">{ref.count}</span>
+                          </TableCell>
+                          <TableCell className="w-[100px]">
+                            <div className="flex items-center gap-1.5">
+                              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${ref.percentage}%`,
+                                    backgroundColor: REFERRER_CATEGORY_COLORS[ref.category],
+                                  }}
+                                />
+                              </div>
+                              <span className="text-[10px] text-muted-foreground font-mono w-[32px] text-right">
+                                {ref.percentage}%
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             )}
           </DashboardCard>
@@ -197,7 +237,7 @@ export function DashboardPage() {
             {!adminLogs?.length ? (
               <EmptyState label="활동 없음" />
             ) : (
-              <div className="max-h-[220px] overflow-y-auto -mx-6">
+              <div className="max-h-[300px] overflow-y-auto -mx-6">
                 <Table>
                   <TableBody>
                     {adminLogs.map(log => (
@@ -233,6 +273,8 @@ export function DashboardPage() {
           </DashboardCard>
         </div>
       </div>
+
+      <VisitorsTimelineCard />
     </div>
   )
 }
