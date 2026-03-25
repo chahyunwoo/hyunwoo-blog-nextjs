@@ -131,7 +131,7 @@
   }
 
   pre {
-    @apply bg-shiki-light-bg text-shiki-light px-0 border-1;
+    @apply bg-shiki-light-bg text-shiki-light px-0 border-1 overflow-x-auto;
   }
 
   code span[data-highlighted-line] {
@@ -198,8 +198,14 @@
 
 @layer utilities {
   .prose {
+    @apply overflow-x-hidden;
+
     figure img {
       @apply m-0;
+    }
+
+    table {
+      @apply block overflow-x-auto;
     }
 
     .anchor {
