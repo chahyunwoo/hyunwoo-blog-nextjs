@@ -16,6 +16,7 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
   if (posts.length === 0) return null
 
   const doubled = [...posts, ...posts]
+  const duration = `${posts.length * 15}s`
 
   return (
     <section aria-label="Recent blog posts" className="py-16 overflow-hidden">
@@ -27,7 +28,10 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
       </p>
 
       <div className="relative group">
-        <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
+        <div
+          className="flex w-max animate-marquee group-hover:[animation-play-state:paused]"
+          style={{ animationDuration: duration }}
+        >
           {doubled.map((post, i) => (
             <a
               key={`${post.id}-${i}`}
