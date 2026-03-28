@@ -11,9 +11,10 @@ interface WorkDetailPanelProps {
   work: Work
   renderedContent?: React.ReactNode
   onClose: () => void
+  hideHeader?: boolean
 }
 
-export function WorkDetailPanel({ work, renderedContent, onClose }: WorkDetailPanelProps) {
+export function WorkDetailPanel({ work, renderedContent, onClose, hideHeader = false }: WorkDetailPanelProps) {
   const [privateNotice, setPrivateNotice] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -31,23 +32,25 @@ export function WorkDetailPanel({ work, renderedContent, onClose }: WorkDetailPa
 
   return (
     <motion.div
-      initial={{ x: '100%', opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: '100%', opacity: 0 }}
+      initial={hideHeader ? { opacity: 0 } : { x: '100%', opacity: 0 }}
+      animate={hideHeader ? { opacity: 1 } : { x: 0, opacity: 1 }}
+      exit={hideHeader ? { opacity: 0 } : { x: '100%', opacity: 0 }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       className="h-full overflow-y-auto bg-card border-l border-border"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-card/80 backdrop-blur-sm border-b border-border">
-        <h2 className="text-lg font-bold text-foreground">{work.title}</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close detail panel"
-          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-        >
-          <X className="size-5" />
-        </button>
-      </div>
+      {!hideHeader && (
+        <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-card/80 backdrop-blur-sm border-b border-border">
+          <h2 className="text-lg font-bold text-foreground">{work.title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close detail panel"
+            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+      )}
 
       <div className="p-6 space-y-6">
         <div className="flex flex-wrap gap-2">

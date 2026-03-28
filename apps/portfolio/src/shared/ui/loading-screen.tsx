@@ -1,13 +1,15 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { startTransition, useEffect, useRef, useState } from 'react'
+import { useLoadingStore } from '@/shared/store'
 
 const MIN_DISPLAY = 1800
 const PROGRESS_UPDATE_INTERVAL = 100
 
 export function LoadingScreen() {
   const [done, setDone] = useState(false)
+  const setLoaded = useLoadingStore(s => s.setLoaded)
   const progressRef = useRef<HTMLParagraphElement>(null)
   const loaded = useRef(false)
   const timerPassed = useRef(false)
@@ -59,7 +61,14 @@ export function LoadingScreen() {
   }, [])
 
   return (
-    <AnimatePresence>
+    <AnimatePresence
+      onExitComplete={() => {
+        startTransition(setLoaded)
+        if (window.innerWidth >= 768) {
+          useLoadingStore.getState().setIntroComplete()
+        }
+      }}
+    >
       {!done && (
         <motion.div
           exit={{ opacity: 0 }}

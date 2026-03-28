@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Calendar, ChevronLeft, ChevronRight, Lock, MousePointerClick } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Work } from '@/entities/portfolio'
 
 interface WorksCarouselProps {
@@ -35,6 +35,7 @@ function wrapIndex(i: number, length: number) {
 
 export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveChange }: WorksCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const touchStartX = useRef<number | null>(null)
 
   const count = works.length
   const maxVisible = compact ? 1 : Math.min(Math.floor(count / 2), 4)
@@ -46,10 +47,8 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
       const idx = works.findIndex(w => w.id === selectedId)
       if (idx !== -1) {
         setActiveIndex(idx)
-        return
       }
     }
-    setActiveIndex(0)
   }, [works, selectedId])
 
   const goTo = useCallback(
@@ -67,6 +66,22 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
   const prev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo])
   const next = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo])
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null
+  }, [])
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartX.current === null) return
+      const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.current
+      touchStartX.current = null
+      if (Math.abs(dx) < 40) return
+      if (dx < 0) next()
+      else prev()
+    },
+    [next, prev],
+  )
+
   const activeWork = works[activeIndex]
 
   const getOffset = (i: number) => {
@@ -78,10 +93,12 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
 
   return (
     <div className="space-y-6">
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <div
           className="relative flex items-center justify-center"
-          style={{ height: '420px', perspective: '1200px', clipPath: 'inset(0)' }}
+          style={{ height: '420px', perspective: '1200px' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           <div
             className="relative flex items-center justify-center w-full h-full"
@@ -103,7 +120,8 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
               const z = (Math.cos(angle) - 1) * arcRadius
               const cardScale = isCenter ? 1 : Math.max(0.6, 1 - clampedAbs * 0.12)
               const rotateY = -angle * (180 / Math.PI) * 0.3
-              const opacity = inRange ? (isCenter ? 1 : Math.max(0.4, 0.9 - clampedAbs * 0.2)) : 0
+              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+              const opacity = inRange ? (isCenter ? 1 : isMobile ? 0 : Math.max(0.4, 0.9 - clampedAbs * 0.2)) : 0
               const zIndex = inRange ? 100 - absOffset : 0
 
               return (
@@ -111,7 +129,7 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
                   key={work.id}
                   className={`
                     absolute rounded-2xl overflow-hidden cursor-pointer
-                    ${compact ? 'w-[240px] h-[300px]' : 'w-[300px] h-[380px]'}
+                    ${compact ? 'w-[200px] h-[260px] md:w-[240px] md:h-[300px]' : 'w-[260px] h-[330px] md:w-[300px] md:h-[380px]'}
                     ${selectedId === work.id ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
                   `}
                   style={{
@@ -156,10 +174,10 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
                 >
                   <div className="h-2.5" style={{ background: getGradient(work) }} />
 
-                  <div className={`bg-card h-full ${compact ? 'p-3' : 'p-5'} flex flex-col`}>
+                  <div className={`bg-card h-full ${compact ? 'p-3' : 'p-4 md:p-5'} flex flex-col`}>
                     <div className="flex items-baseline gap-2 mb-3">
                       <span
-                        className={`${compact ? 'text-2xl' : 'text-4xl'} font-bold select-none`}
+                        className={`${compact ? 'text-2xl' : 'text-3xl md:text-4xl'} font-bold select-none`}
                         style={{
                           WebkitTextFillColor: 'transparent',
                           backgroundImage: getGradient(work),
@@ -171,18 +189,22 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
                       {work.repoUrl === null && <Lock className="size-3 text-muted-foreground" />}
                     </div>
 
-                    <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-bold text-foreground mb-2 line-clamp-2`}>
+                    <h3
+                      className={`${compact ? 'text-sm' : 'text-base md:text-lg'} font-bold text-foreground mb-2 line-clamp-2`}
+                    >
                       {work.title}
                     </h3>
 
                     {work.role && (
-                      <p className={`${compact ? 'text-[11px]' : 'text-sm'} text-muted-foreground mb-3 truncate`}>
+                      <p
+                        className={`${compact ? 'text-[11px]' : 'text-xs md:text-sm'} text-muted-foreground mb-3 truncate`}
+                      >
                         {work.role}
                       </p>
                     )}
 
                     <p
-                      className={`${compact ? 'text-[11px]' : 'text-sm'} text-muted-foreground line-clamp-4 leading-relaxed flex-1`}
+                      className={`${compact ? 'text-[11px]' : 'text-xs md:text-sm'} text-muted-foreground line-clamp-4 leading-relaxed flex-1`}
                     >
                       {work.summary}
                     </p>
@@ -191,14 +213,14 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
                       {work.techStack.slice(0, 3).map(tech => (
                         <span
                           key={tech}
-                          className={`${compact ? 'text-[9px]' : 'text-xs'} px-2 py-0.5 rounded-full bg-white/10 text-muted-foreground`}
+                          className={`${compact ? 'text-[9px]' : 'text-[10px] md:text-xs'} px-2 py-0.5 rounded-full bg-white/10 text-muted-foreground`}
                         >
                           {tech}
                         </span>
                       ))}
                       {work.techStack.length > 3 && (
                         <span
-                          className={`${compact ? 'text-[9px]' : 'text-xs'} px-2 py-0.5 rounded-full bg-white/10 text-muted-foreground`}
+                          className={`${compact ? 'text-[9px]' : 'text-[10px] md:text-xs'} px-2 py-0.5 rounded-full bg-white/10 text-muted-foreground`}
                         >
                           +{work.techStack.length - 3}
                         </span>
@@ -214,17 +236,17 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
             type="button"
             onClick={prev}
             aria-label="Previous work"
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full glass hover:bg-white/10 transition-colors cursor-pointer z-200"
+            className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 p-2 md:p-2.5 rounded-full glass hover:bg-white/10 transition-colors cursor-pointer z-200"
           >
-            <ChevronLeft className="size-5" />
+            <ChevronLeft className="size-4 md:size-5" />
           </button>
           <button
             type="button"
             onClick={next}
             aria-label="Next work"
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full glass hover:bg-white/10 transition-colors cursor-pointer z-200"
+            className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 p-2 md:p-2.5 rounded-full glass hover:bg-white/10 transition-colors cursor-pointer z-200"
           >
-            <ChevronRight className="size-5" />
+            <ChevronRight className="size-4 md:size-5" />
           </button>
         </div>
 
@@ -241,9 +263,9 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
       </div>
 
       {activeWork && (
-        <div className="glass rounded-xl p-6 space-y-4">
+        <div className="glass rounded-xl p-4 md:p-6 space-y-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="text-xl font-bold text-foreground">{activeWork.title}</h3>
+            <h3 className="text-lg md:text-xl font-bold text-foreground">{activeWork.title}</h3>
             {activeWork.repoUrl === null && (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Lock className="size-3" />

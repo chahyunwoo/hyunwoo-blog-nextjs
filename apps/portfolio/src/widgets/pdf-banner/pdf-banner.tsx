@@ -34,11 +34,13 @@ export function PdfBanner({ visible, onDismiss }: PdfBannerProps) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -60, opacity: 0 }}
           transition={{ type: 'spring', damping: 25 }}
-          className="fixed top-0 left-0 right-0 z-60 bg-primary/90 backdrop-blur-sm"
+          className="hidden md:block fixed top-0 left-0 right-0 z-60 bg-primary/90 backdrop-blur-sm"
         >
-          <div className="flex items-center justify-center gap-3 px-4 py-2.5 text-sm">
-            <span className="text-primary-foreground font-medium">Download Portfolio PDF</span>
-            <div className="flex gap-1.5">
+          <div className="flex items-center justify-center gap-2 px-10 py-2 text-sm min-w-0">
+            <span className="text-primary-foreground font-medium text-xs md:text-sm shrink-0">
+              Download Portfolio PDF
+            </span>
+            <div className="flex gap-1.5 shrink-0">
               {PDF_LOCALES.map(l => (
                 <button
                   key={l.code}
@@ -56,7 +58,7 @@ export function PdfBanner({ visible, onDismiss }: PdfBannerProps) {
               type="button"
               onClick={onDismiss}
               aria-label="Dismiss PDF banner"
-              className="absolute right-4 p-1 text-primary-foreground/80 hover:text-primary-foreground cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-primary-foreground/80 hover:text-primary-foreground cursor-pointer"
             >
               <X className="size-4" />
             </button>

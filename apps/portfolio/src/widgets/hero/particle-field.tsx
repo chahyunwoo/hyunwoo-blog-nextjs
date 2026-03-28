@@ -66,7 +66,6 @@ const VERTEX_SHADER = `
     vNormal = normal;
     vWorldPos = position;
 
-    // mouse-facing vertices get way more distortion
     vec3 mouseDir = normalize(vec3(uMouse * 2.0, 0.6));
     float facing = max(0.0, dot(normalize(position), mouseDir));
     vMouseProximity = facing;
@@ -101,36 +100,30 @@ const FRAGMENT_SHADER = `
     vec3 cyan = vec3(0.1, 0.8, 0.9);
     vec3 gold = vec3(1.0, 0.7, 0.2);
 
-    // base color from displacement
     float mixFactor = vDisplacement * 2.5 + 0.5;
     vec3 color = mix(deepPurple, hotPink, clamp(mixFactor, 0.0, 1.0));
     color = mix(color, electricBlue, clamp(mixFactor - 0.8, 0.0, 1.0));
 
-    // 4-corner color mapping (extreme)
     float mx = uMouse.x * 0.5 + 0.5;
     float my = uMouse.y * 0.5 + 0.5;
-    vec3 topLeft = vec3(0.0, 0.3, 1.0);      // blue
-    vec3 topRight = vec3(0.0, 1.0, 0.4);     // green
-    vec3 bottomLeft = vec3(1.0, 0.0, 0.3);   // red
-    vec3 bottomRight = vec3(1.0, 0.9, 0.0);  // yellow
+    vec3 topLeft = vec3(0.0, 0.3, 1.0);
+    vec3 topRight = vec3(0.0, 1.0, 0.4);
+    vec3 bottomLeft = vec3(1.0, 0.0, 0.3);
+    vec3 bottomRight = vec3(1.0, 0.9, 0.0);
     vec3 top = mix(topLeft, topRight, mx);
     vec3 bottom = mix(bottomLeft, bottomRight, mx);
     vec3 mouseColor = mix(bottom, top, my);
     color = mix(color, mouseColor, uHover * 0.85);
 
-    // bright glow on mouse-facing side
     color += vMouseProximity * uHover * vec3(0.3, 0.2, 0.4);
 
-    // energy pulse on mouse proximity
     float pulse = sin(uTime * 3.0 + vMouseProximity * 6.28) * 0.5 + 0.5;
     color += vMouseProximity * uHover * pulse * vec3(0.15, 0.1, 0.2);
 
-    // fresnel rim with mouse-reactive color
     float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
     vec3 rimColor = mix(vec3(0.3, 0.2, 0.5), mouseColor, uHover * 0.5);
     color += fresnel * rimColor;
 
-    // click rim flash
     color += uClick * fresnel * vec3(0.15, 0.1, 0.25);
 
     gl_FragColor = vec4(color, 0.88);
@@ -140,6 +133,8 @@ const FRAGMENT_SHADER = `
 export function MorphingSphere() {
   const meshRef = useRef<THREE.Mesh>(null)
   const mouseSmooth = useRef({ x: 0, y: 0 })
+  const gyroTarget = useRef({ x: 0, y: 0 })
+  const isTouchDevice = useRef(false)
 
   const uniforms = useMemo(
     () => ({
@@ -152,13 +147,50 @@ export function MorphingSphere() {
   )
 
   useEffect(() => {
+    isTouchDevice.current = window.matchMedia('(pointer: coarse)').matches
+
     const handleClick = () => {
       if (window.scrollY < window.innerHeight * 0.3) {
         uniforms.uClick.value = 1.0
       }
     }
+
+    const handleTouch = (e: TouchEvent) => {
+      if (window.scrollY > window.innerHeight * 0.3) return
+      const touch = e.touches[0]
+      if (!touch) return
+      const nx = (touch.clientX / window.innerWidth) * 2 - 1
+      const ny = -((touch.clientY / window.innerHeight) * 2 - 1)
+      gyroTarget.current = { x: nx, y: ny }
+      uniforms.uClick.value = 0.6
+      uniforms.uHover.value = 0.8
+    }
+
+    const handleTouchEnd = () => {
+      uniforms.uHover.value = 0
+    }
+
+    const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
+      if (window.scrollY > window.innerHeight * 0.3) return
+      const beta = e.beta ?? 0
+      const gamma = e.gamma ?? 0
+      gyroTarget.current = {
+        x: Math.max(-1, Math.min(1, gamma / 45)),
+        y: Math.max(-1, Math.min(1, (beta - 45) / 45)),
+      }
+    }
+
     window.addEventListener('click', handleClick)
-    return () => window.removeEventListener('click', handleClick)
+    window.addEventListener('touchstart', handleTouch, { passive: true })
+    window.addEventListener('touchend', handleTouchEnd, { passive: true })
+    window.addEventListener('deviceorientation', handleDeviceOrientation)
+
+    return () => {
+      window.removeEventListener('click', handleClick)
+      window.removeEventListener('touchstart', handleTouch)
+      window.removeEventListener('touchend', handleTouchEnd)
+      window.removeEventListener('deviceorientation', handleDeviceOrientation)
+    }
   }, [uniforms])
 
   useEffect(() => {
@@ -176,20 +208,21 @@ export function MorphingSphere() {
     if (!meshRef.current) return
     uniforms.uTime.value = clock.getElapsedTime()
 
-    // smooth mouse
-    mouseSmooth.current.x += (pointer.x - mouseSmooth.current.x) * 0.08
-    mouseSmooth.current.y += (pointer.y - mouseSmooth.current.y) * 0.08
+    if (isTouchDevice.current) {
+      mouseSmooth.current.x += (gyroTarget.current.x - mouseSmooth.current.x) * 0.05
+      mouseSmooth.current.y += (gyroTarget.current.y - mouseSmooth.current.y) * 0.05
+    } else {
+      mouseSmooth.current.x += (pointer.x - mouseSmooth.current.x) * 0.08
+      mouseSmooth.current.y += (pointer.y - mouseSmooth.current.y) * 0.08
+
+      const dist = Math.sqrt(pointer.x * pointer.x + pointer.y * pointer.y)
+      const targetHover = dist < 1.5 ? 1.0 - dist / 1.5 : 0
+      uniforms.uHover.value += (targetHover - uniforms.uHover.value) * 0.08
+    }
+
     uniforms.uMouse.value.set(mouseSmooth.current.x, mouseSmooth.current.y)
-
-    // hover intensity
-    const dist = Math.sqrt(pointer.x * pointer.x + pointer.y * pointer.y)
-    const targetHover = dist < 1.5 ? 1.0 - dist / 1.5 : 0
-    uniforms.uHover.value += (targetHover - uniforms.uHover.value) * 0.08
-
-    // click decay
     uniforms.uClick.value *= 0.93
 
-    // tilt toward mouse + click spin boost
     const spinSpeed = 0.001 + uniforms.uClick.value * 0.03
     const targetRotX = -mouseSmooth.current.y * 0.4
     const targetRotY = mouseSmooth.current.x * 0.4

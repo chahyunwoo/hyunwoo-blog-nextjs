@@ -28,7 +28,7 @@ export function PortfolioClient({ profile, allWorks, skills, renderedContents, r
       <SkillsSection skills={skills} />
       <ContactSection socialLinks={profile.socialLinks} />
       <PostMarquee posts={recentPosts} />
-      <footer className="text-sm text-muted-foreground text-center py-6">
+      <footer className="text-sm text-muted-foreground text-center py-4">
         &copy; {new Date().getFullYear()} Cha Hyunwoo. All rights reserved.
       </footer>
       <DawnSkyline />
