@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { useLoadingStore } from '@/shared/store'
-import { HERO_TITLE, MOBILE_INTRO_DELAYS, WORKS_SECTION_ID } from './constants'
+import { HERO_TITLE, MOBILE_INTRO_DELAY_MS, WORKS_SECTION_ID } from './constants'
 
 interface MobileHeroContentProps {
   name: string
@@ -12,70 +12,89 @@ interface MobileHeroContentProps {
 }
 
 export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
-  const jobTitleRef = useRef<HTMLParagraphElement>(null)
-  const h1Ref = useRef<HTMLHeadingElement>(null)
-  const nameRef = useRef<HTMLParagraphElement>(null)
+  const jobTitleWrapRef = useRef<HTMLDivElement>(null)
+  const h1WrapRef = useRef<HTMLDivElement>(null)
+  const nameWrapRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    const unsub = useLoadingStore.subscribe(s => {
+    const unsub = useLoadingStore.subscribe(async s => {
       if (!s.isLoaded) return
-      // Chrome 첫 프레임 paint 버그 workaround: 최소 100ms delay 필요
-      setTimeout(() => {
-        if (jobTitleRef.current) jobTitleRef.current.style.opacity = '1'
-      }, MOBILE_INTRO_DELAYS.jobTitle)
-      setTimeout(() => {
-        if (h1Ref.current) h1Ref.current.style.opacity = '1'
-      }, MOBILE_INTRO_DELAYS.h1)
-      setTimeout(() => {
-        if (nameRef.current) nameRef.current.style.opacity = '1'
-      }, MOBILE_INTRO_DELAYS.name)
-      setTimeout(() => {
-        if (!btnRef.current) return
-        const btn = btnRef.current
-        const done = () => useLoadingStore.getState().setIntroComplete()
-        btn.addEventListener('transitionend', done, { once: true })
-        btn.style.opacity = '1'
-        // transitionend가 발생하지 않는 경우 fallback
-        setTimeout(done, MOBILE_INTRO_DELAYS.transitionFallback)
-      }, MOBILE_INTRO_DELAYS.btn)
+
+      const show = (el: HTMLElement, ms: number) =>
+        new Promise<void>(resolve => {
+          let done = false
+          const finish = () => {
+            if (!done) {
+              done = true
+              resolve()
+            }
+          }
+          el.addEventListener('transitionend', finish, { once: true })
+          el.style.opacity = '1'
+          setTimeout(finish, ms + 50)
+        })
+
+      await new Promise<void>(resolve => setTimeout(resolve, MOBILE_INTRO_DELAY_MS))
+      if (jobTitleWrapRef.current) {
+        jobTitleWrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
+        await show(jobTitleWrapRef.current, 500)
+      }
+      if (h1WrapRef.current) {
+        h1WrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
+        await show(h1WrapRef.current, 700)
+      }
+      if (nameWrapRef.current) {
+        nameWrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
+        await show(nameWrapRef.current, 500)
+      }
+      if (btnRef.current) await show(btnRef.current, 500)
+
+      useLoadingStore.getState().setIntroComplete()
     })
     return () => unsub()
   }, [])
 
   return (
-    <div className="relative z-10 md:hidden flex flex-col items-center justify-center text-center px-6 min-h-screen pointer-events-none">
-      <p
-        ref={jobTitleRef}
-        style={{
-          opacity: 0,
-          transition: 'opacity 0.5s ease',
-          filter: 'drop-shadow(0 2px 4px rgba(108,60,224,0.5))',
-        }}
-        className="text-xs tracking-[0.25em] uppercase text-shimmer mb-3 font-semibold"
-      >
-        {jobTitle}
-      </p>
+    <div className="relative z-10 md:hidden flex flex-col items-center justify-center text-center px-6 min-h-svh pointer-events-none">
+      <div ref={jobTitleWrapRef} style={{ opacity: 0, transition: 'opacity 0.5s ease' }}>
+        <p
+          data-shimmer
+          style={{
+            filter:
+              'drop-shadow(0 3px 6px rgba(108,60,224,0.6)) drop-shadow(0 8px 18px rgba(0,0,0,0.5)) drop-shadow(0 1px 0px rgba(255,255,255,0.12))',
+          }}
+          className="text-xs tracking-[0.25em] uppercase mb-3 font-semibold"
+        >
+          {jobTitle}
+        </p>
+      </div>
 
-      <h1
-        ref={h1Ref}
-        style={{
-          opacity: 0,
-          transition: 'opacity 0.7s ease',
-          filter: 'drop-shadow(0 4px 16px rgba(108,60,224,0.4))',
-        }}
-        className="text-5xl font-bold"
-      >
-        {HERO_TITLE}
-      </h1>
+      <div ref={h1WrapRef} style={{ opacity: 0, transition: 'opacity 0.7s ease' }}>
+        <h1
+          data-shimmer
+          style={{
+            filter:
+              'drop-shadow(0 3px 4px rgba(108,60,224,0.7)) drop-shadow(0 10px 20px rgba(0,0,0,0.6)) drop-shadow(0 1px 0px rgba(255,255,255,0.15))',
+          }}
+          className="text-5xl font-bold"
+        >
+          {HERO_TITLE}
+        </h1>
+      </div>
 
-      <p
-        ref={nameRef}
-        style={{ opacity: 0, transition: 'opacity 0.5s ease' }}
-        className="mt-3 text-shimmer text-base font-semibold"
-      >
-        {name}
-      </p>
+      <div ref={nameWrapRef} style={{ opacity: 0, transition: 'opacity 0.5s ease' }}>
+        <p
+          data-shimmer
+          style={{
+            filter:
+              'drop-shadow(0 3px 6px rgba(108,60,224,0.6)) drop-shadow(0 8px 18px rgba(0,0,0,0.5)) drop-shadow(0 1px 0px rgba(255,255,255,0.12))',
+          }}
+          className="mt-3 text-base font-semibold"
+        >
+          {name}
+        </p>
+      </div>
 
       <button
         ref={btnRef}
