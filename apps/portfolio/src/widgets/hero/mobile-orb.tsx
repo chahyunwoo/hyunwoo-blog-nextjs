@@ -23,7 +23,7 @@ export function MobileOrb() {
       <div
         ref={canvasWrapRef}
         className="absolute inset-0"
-        style={{ opacity: 0, transition: 'opacity 1.2s ease 1.8s', willChange: 'opacity' }}
+        style={{ opacity: 0, transition: 'opacity 1.2s ease', willChange: 'opacity' }}
       >
         <Canvas
           camera={{ position: [0, 0, 9], fov: 38 }}

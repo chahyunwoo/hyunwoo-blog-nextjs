@@ -35,7 +35,6 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
       if (nameWrapRef.current) fadeIn(nameWrapRef.current, true)
       await wait(500)
       if (btnRef.current) fadeIn(btnRef.current)
-      document.documentElement.classList.remove('scroll-locked')
       useLoadingStore.getState().setIntroComplete()
     })
     return () => unsub()
