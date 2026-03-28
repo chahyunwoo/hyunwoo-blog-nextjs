@@ -38,7 +38,7 @@ export function PostMarquee({ posts }: PostMarqueeProps) {
               href={`${BASE_URL}/blog/${post.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-4 shrink-0 px-8 py-4 mx-3 rounded-xl glass hover:bg-white/10 transition-colors group/item"
+              className="flex items-center gap-3 md:gap-4 shrink-0 px-4 py-3 md:px-8 md:py-4 mx-2 md:mx-3 rounded-xl glass hover:bg-white/10 transition-colors group/item"
             >
               <span className="text-xs text-muted-foreground whitespace-nowrap">{post.category}</span>
               <span className="text-sm font-medium text-foreground whitespace-nowrap">{post.title}</span>
