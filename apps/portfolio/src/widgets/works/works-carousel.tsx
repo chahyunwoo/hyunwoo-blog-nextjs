@@ -278,11 +278,10 @@ export function WorksCarousel({ works, selectedId, compact, onSelect, onActiveCh
             const period = formatPeriod(activeWork)
             if (!activeWork.role && !period) return null
             return (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex flex-col gap-0.5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-2">
                 {activeWork.role && <span>{activeWork.role}</span>}
-                {activeWork.role && period && <span>·</span>}
                 {period && (
-                  <span className="inline-flex items-center gap-1">
+                  <span className="inline-flex items-center gap-1 whitespace-nowrap">
                     <Calendar className="size-3.5" />
                     {period}
                   </span>

@@ -112,7 +112,7 @@ export function NavBar({ hasBanner = false }: NavBarProps) {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-full right-0 mt-2 glass rounded-xl py-1 min-w-[120px] overflow-hidden"
+                      className="absolute top-full right-0 mt-2 rounded-xl py-1 min-w-[120px] overflow-hidden bg-[#0d0d14] border border-white/15"
                     >
                       {PDF_LOCALES.map(l => (
                         <button
@@ -180,7 +180,7 @@ export function NavBar({ hasBanner = false }: NavBarProps) {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-full right-0 mt-2 glass rounded-xl py-1 min-w-[120px] overflow-hidden"
+                      className="absolute top-full right-0 mt-2 rounded-xl py-1 min-w-[120px] overflow-hidden bg-[#0d0d14] border border-white/15"
                     >
                       {PDF_LOCALES.map(l => (
                         <button
