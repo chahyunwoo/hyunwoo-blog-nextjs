@@ -63,13 +63,6 @@ export function LoadingScreen() {
   return (
     <AnimatePresence
       onExitComplete={() => {
-        if (window.innerWidth < 768) {
-          document.body.style.position = 'fixed'
-          document.body.style.top = '0'
-          document.body.style.left = '0'
-          document.body.style.right = '0'
-          document.body.style.overflow = 'hidden'
-        }
         startTransition(setLoaded)
         if (window.innerWidth >= 768) {
           useLoadingStore.getState().setIntroComplete()
