@@ -19,7 +19,6 @@ export function MobileOrb() {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }} aria-hidden="true">
       <AuroraLayer />
-      {/* Canvas는 항상 마운트 — 로딩 화면 중에 셰이더 컴파일 완료 */}
       <div
         ref={canvasWrapRef}
         className="absolute inset-0"

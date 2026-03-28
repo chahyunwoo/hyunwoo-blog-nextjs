@@ -27,15 +27,15 @@
   }
 
   html.scroll-locked {
-    overflow-y: hidden;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
   }
 
   html.scroll-locked body {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
   }
 
   body {
