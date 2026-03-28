@@ -21,36 +21,20 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
     const unsub = useLoadingStore.subscribe(async s => {
       if (!s.isLoaded) return
 
-      const show = (el: HTMLElement, ms: number) =>
-        new Promise<void>(resolve => {
-          let done = false
-          const finish = () => {
-            if (!done) {
-              done = true
-              resolve()
-            }
-          }
-          el.addEventListener('transitionend', finish, { once: true })
-          el.style.opacity = '1'
-          setTimeout(finish, ms + 50)
-        })
+      const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+      const fadeIn = (el: HTMLElement, shimmer = false) => {
+        if (shimmer) el.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
+        el.style.opacity = '1'
+      }
 
-      await new Promise<void>(resolve => setTimeout(resolve, MOBILE_INTRO_DELAY_MS))
-      if (jobTitleWrapRef.current) {
-        jobTitleWrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
-        await show(jobTitleWrapRef.current, 500)
-      }
-      if (h1WrapRef.current) {
-        h1WrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
-        await show(h1WrapRef.current, 700)
-      }
-      if (nameWrapRef.current) {
-        nameWrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
-        await show(nameWrapRef.current, 500)
-      }
-      if (btnRef.current) {
-        btnRef.current.style.opacity = '1'
-      }
+      await wait(MOBILE_INTRO_DELAY_MS)
+      if (jobTitleWrapRef.current) fadeIn(jobTitleWrapRef.current, true)
+      await wait(500)
+      if (h1WrapRef.current) fadeIn(h1WrapRef.current, true)
+      await wait(700)
+      if (nameWrapRef.current) fadeIn(nameWrapRef.current, true)
+      await wait(500)
+      if (btnRef.current) fadeIn(btnRef.current)
       document.documentElement.classList.remove('scroll-locked')
       useLoadingStore.getState().setIntroComplete()
     })
