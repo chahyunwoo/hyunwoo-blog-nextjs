@@ -48,8 +48,10 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
         nameWrapRef.current.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
         await show(nameWrapRef.current, 500)
       }
-      if (btnRef.current) await show(btnRef.current, 500)
-
+      if (btnRef.current) {
+        btnRef.current.style.opacity = '1'
+      }
+      document.documentElement.classList.remove('scroll-locked')
       useLoadingStore.getState().setIntroComplete()
     })
     return () => unsub()
