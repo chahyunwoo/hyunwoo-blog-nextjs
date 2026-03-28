@@ -10,15 +10,6 @@ export function ScrollBackground({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isIntroComplete) {
       document.documentElement.classList.remove('scroll-locked')
-      if (window.innerWidth < 768) {
-        const scrollY = Number.parseInt(document.body.style.top || '0', 10) * -1
-        document.body.style.position = ''
-        document.body.style.top = ''
-        document.body.style.left = ''
-        document.body.style.right = ''
-        document.body.style.overflow = ''
-        window.scrollTo({ top: scrollY, behavior: 'instant' })
-      }
     }
   }, [isIntroComplete])
 

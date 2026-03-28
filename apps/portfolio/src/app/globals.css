@@ -30,8 +30,16 @@
     overflow-y: hidden;
   }
 
+  html.scroll-locked body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+  }
+
   body {
-    @apply bg-transparent text-foreground;
+    @apply bg-background text-foreground;
     font-family: Pretendard, "Pretendard Fallback", sans-serif;
   }
 }
