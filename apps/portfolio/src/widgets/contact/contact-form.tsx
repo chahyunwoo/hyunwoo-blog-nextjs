@@ -60,7 +60,7 @@ export function ContactForm() {
       transition={{ duration: 0.5, delay: 0.2 }}
       className="glass rounded-xl p-6 space-y-4 max-w-lg mx-auto mt-10"
     >
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label htmlFor="name" className="text-xs text-muted-foreground mb-2 block">
             Name

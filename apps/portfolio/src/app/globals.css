@@ -23,10 +23,15 @@
 
   html {
     scroll-behavior: smooth;
+    @apply bg-background;
+  }
+
+  html.scroll-locked {
+    overflow-y: hidden;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-transparent text-foreground;
     font-family: Pretendard, "Pretendard Fallback", sans-serif;
   }
 }
@@ -159,19 +164,11 @@
   }
 
   .section-padding {
-    @apply py-24 px-6 md:py-32 md:px-12 lg:px-24;
-  }
-
-  @keyframes marquee {
-    0% {
-      transform: translate3d(0, 0, 0);
-    }
-    100% {
-      transform: translate3d(-50%, 0, 0);
-    }
+    @apply py-14 px-6 md:py-32 md:px-12 lg:px-24;
   }
 
   .animate-marquee {
+    animation: marquee 30s linear infinite;
     will-change: transform;
     backface-visibility: hidden;
   }
@@ -249,5 +246,85 @@
     .callout-content {
       @apply py-4;
     }
+  }
+}
+
+@keyframes aurora-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(25%, 20%) scale(1.08);
+  }
+  66% {
+    transform: translate(10%, 40%) scale(0.95);
+  }
+}
+
+@keyframes aurora-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-25%, -20%) scale(1.06);
+  }
+  66% {
+    transform: translate(-15%, 25%) scale(1.1);
+  }
+}
+
+@keyframes aurora-3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-20%, -25%) scale(1.08);
+  }
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.aurora-blob-1 {
+  width: 70%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #7c3aed, transparent);
+  top: -10%;
+  left: -10%;
+  animation: aurora-1 7s ease-in-out infinite;
+}
+
+.aurora-blob-2 {
+  width: 60%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #db2777, transparent);
+  bottom: 10%;
+  right: -10%;
+  animation: aurora-2 9s ease-in-out infinite;
+}
+
+.aurora-blob-3 {
+  width: 55%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #2563eb, transparent);
+  top: 30%;
+  left: 20%;
+  animation: aurora-3 11s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
   }
 }

@@ -1,9 +1,17 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useLoadingStore } from '@/shared/store'
 
 export function ScrollBackground({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
+  const isIntroComplete = useLoadingStore(s => s.isIntroComplete)
+
+  useEffect(() => {
+    if (isIntroComplete) {
+      document.documentElement.classList.remove('scroll-locked')
+    }
+  }, [isIntroComplete])
 
   useEffect(() => {
     let raf: number
@@ -23,7 +31,11 @@ export function ScrollBackground({ children }: { children: React.ReactNode }) {
       const botG = Math.round(6 + p * 45)
       const botB = Math.round(20 + p * 40)
 
-      ref.current.style.background = `linear-gradient(180deg, rgb(${topR},${topG},${topB}) 0%, rgb(${botR},${botG},${botB}) 100%)`
+      if (window.innerWidth >= 768) {
+        ref.current.style.background = `linear-gradient(180deg, rgb(${topR},${topG},${topB}) 0%, rgb(${botR},${botG},${botB}) 100%)`
+      } else {
+        document.documentElement.style.background = `linear-gradient(180deg, rgb(${topR},${topG},${topB}) 0%, rgb(${botR},${botG},${botB}) 100%)`
+      }
       ticking = false
     }
 

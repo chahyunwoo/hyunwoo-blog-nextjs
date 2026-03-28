@@ -13,7 +13,7 @@ export function useActiveSection(selector: string, options?: IntersectionObserve
           setActiveSection(visible[0].target.id)
         }
       },
-      { threshold: 0.1, rootMargin: '-20% 0px -70% 0px', ...options },
+      { threshold: 0, rootMargin: '-30% 0px -60% 0px', ...options },
     )
 
     const sections = document.querySelectorAll(selector)

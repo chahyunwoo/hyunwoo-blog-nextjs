@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { LoadingScreen, ScrollBackground, StarsBackground } from '@/shared/ui'
-import { ResolutionNotice } from '@/widgets/hero'
 import './globals.css'
 
 const PORTFOLIO_URL = 'https://portfolio.chahyunwoo.dev'
@@ -67,7 +66,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className="dark">
+    <html lang="ko" className="dark scroll-locked">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -83,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
       </head>
-      <body className="font-pretendard antialiased bg-background text-foreground">
+      <body className="font-pretendard antialiased text-foreground overflow-x-hidden">
         <script
           dangerouslySetInnerHTML={{
             __html: 'window.history.scrollRestoration="manual";window.scrollTo(0,0);',
@@ -92,7 +91,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LoadingScreen />
         <StarsBackground />
         <ScrollBackground>{children}</ScrollBackground>
-        <ResolutionNotice />
       </body>
     </html>
   )
