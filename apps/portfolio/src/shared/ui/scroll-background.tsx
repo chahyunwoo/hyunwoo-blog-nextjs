@@ -1,17 +1,9 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useLoadingStore } from '@/shared/store'
 
 export function ScrollBackground({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
-  const isIntroComplete = useLoadingStore(s => s.isIntroComplete)
-
-  useEffect(() => {
-    if (isIntroComplete) {
-      document.documentElement.classList.remove('scroll-locked')
-    }
-  }, [isIntroComplete])
 
   useEffect(() => {
     let raf: number
