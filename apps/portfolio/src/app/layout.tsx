@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className="dark">
+    <html lang="ko" className="dark" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -85,7 +85,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-pretendard antialiased text-foreground overflow-x-hidden">
         <script
           dangerouslySetInnerHTML={{
-            __html: 'window.history.scrollRestoration="manual";window.scrollTo(0,0);',
+            __html:
+              'window.history.scrollRestoration="manual";window.scrollTo(0,0);document.documentElement.style.overflow="hidden";document.documentElement.style.touchAction="none";',
           }}
         />
         <LoadingScreen />

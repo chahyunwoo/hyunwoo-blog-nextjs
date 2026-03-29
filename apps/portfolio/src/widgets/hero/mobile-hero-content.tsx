@@ -18,16 +18,13 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
   const btnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    const unsub = useLoadingStore.subscribe(async s => {
-      if (!s.isLoaded) return
+    const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+    const fadeIn = (el: HTMLElement, shimmer = false) => {
+      if (shimmer) el.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
+      el.style.opacity = '1'
+    }
 
-      const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
-      const fadeIn = (el: HTMLElement, shimmer = false) => {
-        if (shimmer) el.querySelector<HTMLElement>('[data-shimmer]')?.classList.add('text-shimmer')
-        el.style.opacity = '1'
-      }
-
-      document.body.style.touchAction = 'none'
+    const runIntro = async () => {
       await wait(MOBILE_INTRO_DELAY_MS)
       if (jobTitleWrapRef.current) fadeIn(jobTitleWrapRef.current, true)
       await wait(500)
@@ -36,8 +33,18 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
       if (nameWrapRef.current) fadeIn(nameWrapRef.current, true)
       await wait(500)
       if (btnRef.current) fadeIn(btnRef.current)
-      document.body.style.touchAction = ''
       useLoadingStore.getState().setIntroComplete()
+    }
+
+    if (useLoadingStore.getState().isLoaded) {
+      runIntro()
+      return
+    }
+
+    const unsub = useLoadingStore.subscribe(s => {
+      if (!s.isLoaded) return
+      unsub()
+      runIntro()
     })
     return () => unsub()
   }, [])

@@ -15,6 +15,25 @@ export function LoadingScreen() {
   const timerPassed = useRef(false)
 
   useEffect(() => {
+    const unlock = () => {
+      document.documentElement.style.overflow = ''
+      document.documentElement.style.touchAction = ''
+    }
+
+    if (useLoadingStore.getState().isIntroComplete) {
+      unlock()
+      return
+    }
+    const unsub = useLoadingStore.subscribe(s => {
+      if (s.isIntroComplete) {
+        unlock()
+        unsub()
+      }
+    })
+    return () => unsub()
+  }, [])
+
+  useEffect(() => {
     const tryFinish = () => {
       if (loaded.current && timerPassed.current) setDone(true)
     }
