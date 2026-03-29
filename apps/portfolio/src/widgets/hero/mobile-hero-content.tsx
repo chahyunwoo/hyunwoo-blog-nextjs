@@ -27,6 +27,7 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
         el.style.opacity = '1'
       }
 
+      document.body.style.touchAction = 'none'
       await wait(MOBILE_INTRO_DELAY_MS)
       if (jobTitleWrapRef.current) fadeIn(jobTitleWrapRef.current, true)
       await wait(500)
@@ -35,6 +36,7 @@ export function MobileHeroContent({ name, jobTitle }: MobileHeroContentProps) {
       if (nameWrapRef.current) fadeIn(nameWrapRef.current, true)
       await wait(500)
       if (btnRef.current) fadeIn(btnRef.current)
+      document.body.style.touchAction = ''
       useLoadingStore.getState().setIntroComplete()
     })
     return () => unsub()
