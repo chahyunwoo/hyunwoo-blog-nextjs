@@ -68,6 +68,10 @@ export async function generateMetadata({ params }: Params<{ slug: string }>): Pr
     },
     alternates: {
       canonical: url,
+      languages: {
+        'ko-KR': url,
+        'x-default': url,
+      },
     },
   }
 }

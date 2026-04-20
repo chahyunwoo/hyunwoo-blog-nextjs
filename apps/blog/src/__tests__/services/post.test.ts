@@ -60,9 +60,15 @@ describe('getPublishedPosts', () => {
       { ...mockPost, slug: 'newer', createdAt: '2026-03-20' },
       { ...mockPost, slug: 'older', createdAt: '2026-03-10' },
     ]
+    // 1st fetch: total 조회 (limit=1)
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 50, totalPages: 1 }),
+      json: () => Promise.resolve({ posts: [posts[0]], total: 2, page: 1, limit: 1, totalPages: 2 }),
+    })
+    // 2nd fetch: 전체 조회 (limit=total)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 2, totalPages: 1 }),
     })
 
     const result = await getPublishedPosts()
@@ -76,9 +82,15 @@ describe('getPublishedPosts', () => {
       { ...mockPost, slug: 'post-1' },
       { ...mockPost, slug: 'post-2' },
     ]
+    // 1st fetch: total 조회 (limit=1)
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 50, totalPages: 1 }),
+      json: () => Promise.resolve({ posts: [posts[0]], total: 2, page: 1, limit: 1, totalPages: 2 }),
+    })
+    // 2nd fetch: 전체 조회 (limit=total)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ posts, total: 2, page: 1, limit: 2, totalPages: 1 }),
     })
 
     const result = await getPublishedPosts()

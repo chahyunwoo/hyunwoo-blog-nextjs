@@ -23,12 +23,18 @@ export async function generateMetadata({ searchParams }: { searchParams: BlogPar
     keywords = `${parentCategory}, ${tag}, 개발, 프로그래밍, 기술, 블로그, 웹개발`
   }
 
+  const canonicalUrl = category
+    ? `${BASE_URL}/?category=${encodeURIComponent(category)}`
+    : tag && parentCategory
+      ? `${BASE_URL}/?category=${encodeURIComponent(parentCategory)}&tag=${encodeURIComponent(tag)}`
+      : BASE_URL
+
   return {
     title,
     description,
     keywords,
     alternates: {
-      canonical: BASE_URL,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title,

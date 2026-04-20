@@ -55,7 +55,9 @@ export const getPaginatedPosts = async (params?: {
 }
 
 export const getPublishedPosts = async (): Promise<Post[]> => {
-  const result = await getPaginatedPosts({ limit: 50 })
+  const first = await getPaginatedPosts({ limit: 1 })
+  if (first.total === 0) return []
+  const result = await getPaginatedPosts({ limit: first.total })
   return result.posts
 }
 
