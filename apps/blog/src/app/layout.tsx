@@ -30,6 +30,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'Hyunwoo Cha', url: BASE_URL }],
   creator: 'Hyunwoo Cha',
   publisher: 'Hyunwoo Cha',
+  applicationName: 'hyunwoo.dev',
+  category: 'technology',
   formatDetection: {
     email: false,
     address: false,
@@ -55,6 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: '@chahyunwoo_dev',
+    creator: '@chahyunwoo_dev',
     title: 'hyunwoo.dev | 풀스택 개발 블로그',
     description:
       '풀스택 개발자 현우의 기술 블로그입니다. React, Next.js, TypeScript 등 웹 개발 경험과 노하우를 공유합니다.',
@@ -76,6 +79,10 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: BASE_URL,
+    languages: {
+      'ko-KR': BASE_URL,
+      'x-default': BASE_URL,
+    },
   },
 }
 
